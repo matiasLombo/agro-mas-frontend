@@ -1,0 +1,29 @@
+<div class="app-container">
+  <header class="header">
+    <h1>🌾 {{ title }}</h1>
+    <nav>
+      <a href="/marketplace">Marketplace</a>
+      <a href="/auth">Login</a>
+    </nav>
+  </header>
+  
+  <main class="main-content">
+    <!-- Backend Status Indicator -->
+    <div class="status-panel">
+      <h2>Estado del Sistema</h2>
+      <div class="status-item" [class.connected]="backendConnected" [class.disconnected]="!backendConnected">
+        <strong>Backend:</strong> {{ backendStatus }}
+      </div>
+      <button (click)="testBackendConnection()" class="test-button">
+        Probar Conexión
+      </button>
+    </div>
+    
+    <router-outlet></router-outlet>
+  </main>
+  
+  <footer class="footer">
+    <p>&copy; 2025 Agro Mas - Marketplace Agropecuario</p>
+    <p>Frontend Angular + Backend Go + Firebase Hosting + Google Cloud Run</p>
+  </footer>
+</div>
