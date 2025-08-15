@@ -35,8 +35,9 @@ jobs:
           echo "environment=develop" >> $GITHUB_OUTPUT
         fi
         
-        # Set Firebase project based on environment
-        if [ "$(echo $environment)" = "production" ]; then
+        # Set Firebase project based on environment  
+        CURRENT_ENV=$(echo ${{ github.ref == 'refs/heads/master' && 'production' || 'develop' }})
+        if [ "$CURRENT_ENV" = "production" ]; then
           echo "firebase-project=agro-mas-fe-prod-2025" >> $GITHUB_OUTPUT
         else
           echo "firebase-project=agro-mas-fe-dev-2025" >> $GITHUB_OUTPUT
@@ -91,7 +92,7 @@ jobs:
       uses: FirebaseExtended/action-hosting-deploy@v0
       with:
         repoToken: '${{ secrets.GITHUB_TOKEN }}'
-        firebaseServiceAccount: '${{ needs.setup.outputs.environment == ''production'' && secrets.FIREBASE_SERVICE_ACCOUNT_PROD || secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}'
+        firebaseServiceAccount: ${{ needs.setup.outputs.environment == 'production' && secrets.FIREBASE_SERVICE_ACCOUNT_PROD || secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}
         projectId: ${{ needs.setup.outputs.firebase-project }}
         channelId: live
 
