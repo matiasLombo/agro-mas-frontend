@@ -58,7 +58,7 @@ jobs:
       run: npm ci
     
     - name: Run tests
-      run: npm run test:ci
+      run: npm run test -- --watch=false --progress=false --browsers=ChromeHeadless
     
     - name: Run linting
       run: npm run lint
