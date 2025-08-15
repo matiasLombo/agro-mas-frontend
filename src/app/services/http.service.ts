@@ -106,4 +106,12 @@ export class HttpService {
       catchError(this.handleError)
     );
   }
+
+  // Environment check method
+  environmentCheck(): Observable<any> {
+    const envUrl = `${this.baseUrl.replace('/api/v1', '')}/env`;
+    return this.http.get(envUrl).pipe(
+      catchError(this.handleError)
+    );
+  }
 }

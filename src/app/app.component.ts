@@ -10,11 +10,14 @@ export class AppComponent implements OnInit {
   title = 'Agro Mas Frontend';
   backendStatus = 'Verificando...';
   backendConnected = false;
+  backendEnvironment = '';
+  environmentInfo: any = null;
 
   constructor(private apiTestService: ApiTestService) {}
 
   ngOnInit() {
     this.testBackendConnection();
+    this.testBackendEnvironment();
   }
 
   testBackendConnection() {
@@ -22,11 +25,26 @@ export class AppComponent implements OnInit {
       next: (response) => {
         this.backendStatus = '✅ Backend conectado correctamente';
         this.backendConnected = true;
+        console.log('Backend health:', response);
       },
       error: (error) => {
-        this.backendStatus = '❌ Error conectando con backend';
+        this.backendStatus = '❌ Error conectando con backend (CORS/Network)';
         this.backendConnected = false;
         console.error('Backend connection error:', error);
+      }
+    });
+  }
+
+  testBackendEnvironment() {
+    this.apiTestService.testBackendEnvironment().subscribe({
+      next: (response) => {
+        this.backendEnvironment = response.environment || 'Unknown';
+        this.environmentInfo = response;
+        console.log('Backend environment:', response);
+      },
+      error: (error) => {
+        this.backendEnvironment = 'Error';
+        console.error('Backend environment error:', error);
       }
     });
   }

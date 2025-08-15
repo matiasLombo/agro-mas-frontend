@@ -14,6 +14,11 @@ export class ApiTestService {
     return this.httpService.healthCheck();
   }
 
+  // Test backend environment
+  testBackendEnvironment(): Observable<any> {
+    return this.httpService.environmentCheck();
+  }
+
   // Test API endpoints
   testApiEndpoints(): Observable<any> {
     return this.httpService.get('/products?limit=5');
