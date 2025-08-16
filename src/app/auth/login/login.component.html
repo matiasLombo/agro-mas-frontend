@@ -1,0 +1,57 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>🌾 Iniciar Sesión</h2>
+    <p class="subtitle">Accede al marketplace agropecuario</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.error]="isFieldInvalid('email')"
+          placeholder="tu@email.com"
+        >
+        <div class="error-message" *ngIf="isFieldInvalid('email')">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [class.error]="isFieldInvalid('password')"
+          placeholder="••••••••"
+        >
+        <div class="error-message" *ngIf="isFieldInvalid('password')">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
+      <div class="error-message general-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="loading || loginForm.invalid"
+      >
+        <span *ngIf="loading">🔄 Iniciando sesión...</span>
+        <span *ngIf="!loading">Iniciar Sesión</span>
+      </button>
+    </form>
+
+    <div class="form-footer">
+      <p>¿No tienes cuenta? 
+        <a routerLink="/register" class="link">Regístrate aquí</a>
+      </p>
+    </div>
+  </div>
+</div>

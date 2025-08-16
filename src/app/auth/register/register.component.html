@@ -1,0 +1,330 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>🌾 Crear Cuenta</h2>
+    <p class="subtitle">Únete al marketplace agropecuario</p>
+
+    <!-- Progress indicator -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="(currentStep / totalSteps) * 100"
+        ></div>
+      </div>
+      <div class="step-labels">
+        <span [class.active]="currentStep >= 1">1. Datos personales</span>
+        <span [class.active]="currentStep >= 2">2. Tipo de usuario</span>
+        <span [class.active]="currentStep >= 3">3. Información comercial</span>
+      </div>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      
+      <!-- Step 1: Personal Info -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <h3>Información Personal</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">Nombre *</label>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              class="form-control"
+              [class.error]="isFieldInvalid('firstName')"
+              placeholder="Tu nombre"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('firstName')">
+              {{ getFieldError('firstName') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Apellido *</label>
+            <input
+              type="text"
+              id="lastName"
+              formControlName="lastName"
+              class="form-control"
+              [class.error]="isFieldInvalid('lastName')"
+              placeholder="Tu apellido"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('lastName')">
+              {{ getFieldError('lastName') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Correo Electrónico *</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [class.error]="isFieldInvalid('email')"
+            placeholder="tu@email.com"
+          >
+          <div class="error-message" *ngIf="isFieldInvalid('email')">
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Teléfono</label>
+          <input
+            type="tel"
+            id="phone"
+            formControlName="phone"
+            class="form-control"
+            [class.error]="isFieldInvalid('phone')"
+            placeholder="+54 11 1234-5678"
+          >
+          <div class="error-message" *ngIf="isFieldInvalid('phone')">
+            {{ getFieldError('phone') }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Contraseña *</label>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              class="form-control"
+              [class.error]="isFieldInvalid('password')"
+              placeholder="••••••••"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('password')">
+              {{ getFieldError('password') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar Contraseña *</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              class="form-control"
+              [class.error]="isFieldInvalid('confirmPassword')"
+              placeholder="••••••••"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('confirmPassword')">
+              {{ getFieldError('confirmPassword') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: User Type -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <h3>Tipo de Usuario</h3>
+        <p class="step-description">Selecciona cómo vas a usar la plataforma</p>
+        
+        <div class="role-selection">
+          <div class="role-option">
+            <input
+              type="radio"
+              id="buyer"
+              value="buyer"
+              formControlName="role"
+            >
+            <label for="buyer" class="role-card">
+              <div class="role-icon">🛒</div>
+              <h4>Comprador</h4>
+              <p>Busco productos agropecuarios para comprar</p>
+              <ul>
+                <li>Acceso al marketplace</li>
+                <li>Búsqueda de productos</li>
+                <li>Contacto con vendedores</li>
+                <li>Historial de compras</li>
+              </ul>
+            </label>
+          </div>
+
+          <div class="role-option">
+            <input
+              type="radio"
+              id="seller"
+              value="seller"
+              formControlName="role"
+            >
+            <label for="seller" class="role-card">
+              <div class="role-icon">🌾</div>
+              <h4>Vendedor</h4>
+              <p>Tengo productos agropecuarios para vender</p>
+              <ul>
+                <li>Publicación de productos</li>
+                <li>Gestión de inventario</li>
+                <li>Dashboard de ventas</li>
+                <li>Verificación comercial</li>
+              </ul>
+            </label>
+          </div>
+        </div>
+        
+        <div class="error-message" *ngIf="isFieldInvalid('role')">
+          {{ getFieldError('role') }}
+        </div>
+      </div>
+
+      <!-- Step 3: Business Info -->
+      <div class="step-content" *ngIf="currentStep === 3">
+        <h3>Información Comercial</h3>
+        <p class="step-description" *ngIf="!isSeller">¡Listo! Puedes completar tu registro.</p>
+        <p class="step-description" *ngIf="isSeller">Como vendedor, necesitamos información adicional para verificar tu negocio.</p>
+        
+        <div *ngIf="isSeller">
+          <div class="form-group">
+            <label for="cuit">CUIT *</label>
+            <input
+              type="text"
+              id="cuit"
+              formControlName="cuit"
+              class="form-control"
+              [class.error]="isFieldInvalid('cuit')"
+              placeholder="20-12345678-9"
+              maxlength="13"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('cuit')">
+              {{ getFieldError('cuit') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="businessName">Nombre Comercial *</label>
+            <input
+              type="text"
+              id="businessName"
+              formControlName="businessName"
+              class="form-control"
+              [class.error]="isFieldInvalid('businessName')"
+              placeholder="Nombre de tu empresa o emprendimiento"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('businessName')">
+              {{ getFieldError('businessName') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="businessType">Tipo de Negocio *</label>
+            <select
+              id="businessType"
+              formControlName="businessType"
+              class="form-control"
+              [class.error]="isFieldInvalid('businessType')"
+            >
+              <option value="">Selecciona una opción</option>
+              <option value="individual">Persona Física</option>
+              <option value="company">Empresa</option>
+              <option value="cooperative">Cooperativa</option>
+            </select>
+            <div class="error-message" *ngIf="isFieldInvalid('businessType')">
+              {{ getFieldError('businessType') }}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="province">Provincia *</label>
+              <select
+                id="province"
+                formControlName="province"
+                class="form-control"
+                [class.error]="isFieldInvalid('province')"
+              >
+                <option value="">Selecciona una provincia</option>
+                <option *ngFor="let province of provinces" [value]="province.id">
+                  {{ province.name }}
+                </option>
+              </select>
+              <div class="error-message" *ngIf="isFieldInvalid('province')">
+                {{ getFieldError('province') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="city">Ciudad *</label>
+              <select
+                id="city"
+                formControlName="city"
+                class="form-control"
+                [class.error]="isFieldInvalid('city')"
+                [disabled]="!selectedProvince"
+              >
+                <option value="">Selecciona una ciudad</option>
+                <option *ngFor="let city of cities" [value]="city.id">
+                  {{ city.name }}
+                </option>
+              </select>
+              <div class="error-message" *ngIf="isFieldInvalid('city')">
+                {{ getFieldError('city') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="address">Dirección</label>
+            <input
+              type="text"
+              id="address"
+              formControlName="address"
+              class="form-control"
+              [class.error]="isFieldInvalid('address')"
+              placeholder="Dirección completa (opcional)"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('address')">
+              {{ getFieldError('address') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div class="error-message general-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Navigation buttons -->
+      <div class="form-navigation">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          *ngIf="currentStep > 1"
+          (click)="prevStep()"
+        >
+          ← Anterior
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          *ngIf="currentStep < totalSteps"
+          (click)="nextStep()"
+          [disabled]="(currentStep === 1 && !isStep1Valid()) || (currentStep === 2 && !isStep2Valid())"
+        >
+          Siguiente →
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          *ngIf="currentStep === totalSteps"
+          [disabled]="loading || !isStep3Valid()"
+        >
+          <span *ngIf="loading">🔄 Creando cuenta...</span>
+          <span *ngIf="!loading">Crear Cuenta</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="form-footer">
+      <p>¿Ya tienes cuenta? 
+        <a routerLink="/login" class="link">Inicia sesión aquí</a>
+      </p>
+    </div>
+  </div>
+</div>
