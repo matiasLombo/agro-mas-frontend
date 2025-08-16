@@ -1,7 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiTestService } from './services/api-test.service';
+import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    CommonModule
+  ],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
@@ -13,7 +20,7 @@ export class AppComponent implements OnInit {
   backendEnvironment = '';
   environmentInfo: any = null;
 
-  constructor(private apiTestService: ApiTestService) {}
+  constructor(private apiTestService: ApiTestService) { }
 
   ngOnInit() {
     this.testBackendConnection();
