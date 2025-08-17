@@ -29,7 +29,7 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.formBuilder.group({
       // Paso 1: Información básica
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, this.passwordStrengthValidator]],
       confirmPassword: ['', [Validators.required]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
@@ -92,6 +92,39 @@ export class RegisterComponent implements OnInit {
       this.cities = this.selectedProvince?.cities || [];
       this.registerForm.get('city')?.setValue('');
     });
+  }
+
+  private passwordStrengthValidator(control: any) {
+    const password = control.value;
+    if (!password) {
+      return null; // Let required validator handle empty values
+    }
+
+    const errors: any = {};
+
+    // Length validation (8-128 characters)
+    if (password.length < 8) {
+      errors.minLength = { message: 'La contraseña debe tener al menos 8 caracteres' };
+    }
+    if (password.length > 128) {
+      errors.maxLength = { message: 'La contraseña no debe exceder 128 caracteres' };
+    }
+
+    // Character type validations
+    if (!/[A-Z]/.test(password)) {
+      errors.missingUppercase = { message: 'La contraseña debe contener al menos una letra mayúscula' };
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.missingLowercase = { message: 'La contraseña debe contener al menos una letra minúscula' };
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.missingNumber = { message: 'La contraseña debe contener al menos un número' };
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      errors.missingSpecial = { message: 'La contraseña debe contener al menos un carácter especial (!@#$%^&*)' };
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
   }
 
   private passwordMatchValidator(form: FormGroup) {
@@ -209,6 +242,25 @@ export class RegisterComponent implements OnInit {
       if (field.errors['minlength']) {
         return `${this.getFieldLabel(fieldName)} debe tener al menos ${field.errors['minlength'].requiredLength} caracteres`;
       }
+      // Password strength errors
+      if (field.errors['minLength']) {
+        return field.errors['minLength'].message;
+      }
+      if (field.errors['maxLength']) {
+        return field.errors['maxLength'].message;
+      }
+      if (field.errors['missingUppercase']) {
+        return field.errors['missingUppercase'].message;
+      }
+      if (field.errors['missingLowercase']) {
+        return field.errors['missingLowercase'].message;
+      }
+      if (field.errors['missingNumber']) {
+        return field.errors['missingNumber'].message;
+      }
+      if (field.errors['missingSpecial']) {
+        return field.errors['missingSpecial'].message;
+      }
       if (field.errors['pattern']) {
         return 'Formato inválido';
       }
@@ -243,5 +295,36 @@ export class RegisterComponent implements OnInit {
 
   get isSeller(): boolean {
     return this.registerForm.get('role')?.value === 'seller';
+  }
+
+  // Password validation helper methods
+  passwordHasMinLength(): boolean {
+    const password = this.registerForm.get('password')?.value || '';
+    return password.length >= 8;
+  }
+
+  passwordHasMaxLength(): boolean {
+    const password = this.registerForm.get('password')?.value || '';
+    return password.length <= 128;
+  }
+
+  passwordHasUppercase(): boolean {
+    const password = this.registerForm.get('password')?.value || '';
+    return /[A-Z]/.test(password);
+  }
+
+  passwordHasLowercase(): boolean {
+    const password = this.registerForm.get('password')?.value || '';
+    return /[a-z]/.test(password);
+  }
+
+  passwordHasNumber(): boolean {
+    const password = this.registerForm.get('password')?.value || '';
+    return /[0-9]/.test(password);
+  }
+
+  passwordHasSpecialChar(): boolean {
+    const password = this.registerForm.get('password')?.value || '';
+    return /[!@#$%^&*]/.test(password);
   }
 }

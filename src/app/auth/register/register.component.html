@@ -97,6 +97,38 @@
               [class.error]="isFieldInvalid('password')"
               placeholder="••••••••"
             >
+            
+            <!-- Password Requirements -->
+            <div class="password-requirements" *ngIf="registerForm.get('password')?.value || registerForm.get('password')?.touched">
+              <h4>Requisitos de contraseña:</h4>
+              <ul>
+                <li [class.valid]="passwordHasMinLength()" [class.invalid]="!passwordHasMinLength()">
+                  <span class="check-icon">{{ passwordHasMinLength() ? '✓' : '✗' }}</span>
+                  Al menos 8 caracteres
+                </li>
+                <li [class.valid]="passwordHasMaxLength()" [class.invalid]="!passwordHasMaxLength()">
+                  <span class="check-icon">{{ passwordHasMaxLength() ? '✓' : '✗' }}</span>
+                  Máximo 128 caracteres
+                </li>
+                <li [class.valid]="passwordHasUppercase()" [class.invalid]="!passwordHasUppercase()">
+                  <span class="check-icon">{{ passwordHasUppercase() ? '✓' : '✗' }}</span>
+                  Una letra mayúscula (A-Z)
+                </li>
+                <li [class.valid]="passwordHasLowercase()" [class.invalid]="!passwordHasLowercase()">
+                  <span class="check-icon">{{ passwordHasLowercase() ? '✓' : '✗' }}</span>
+                  Una letra minúscula (a-z)
+                </li>
+                <li [class.valid]="passwordHasNumber()" [class.invalid]="!passwordHasNumber()">
+                  <span class="check-icon">{{ passwordHasNumber() ? '✓' : '✗' }}</span>
+                  Un número (0-9)
+                </li>
+                <li [class.valid]="passwordHasSpecialChar()" [class.invalid]="!passwordHasSpecialChar()">
+                  <span class="check-icon">{{ passwordHasSpecialChar() ? '✓' : '✗' }}</span>
+                  Un carácter especial (!&#64;#$%^&*)
+                </li>
+              </ul>
+            </div>
+            
             <div class="error-message" *ngIf="isFieldInvalid('password')">
               {{ getFieldError('password') }}
             </div>

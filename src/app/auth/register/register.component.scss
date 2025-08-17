@@ -140,6 +140,62 @@
       margin-top: 6px;
       display: block;
     }
+
+    .password-requirements {
+      margin-top: 12px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e1e5e9;
+
+      h4 {
+        margin: 0 0 12px 0;
+        font-size: 0.9rem;
+        color: #333;
+        font-weight: 600;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+          font-size: 0.85rem;
+          transition: color 0.3s ease;
+
+          .check-icon {
+            margin-right: 8px;
+            font-weight: bold;
+            width: 16px;
+            text-align: center;
+          }
+
+          &.valid {
+            color: #27ae60;
+            
+            .check-icon {
+              color: #27ae60;
+            }
+          }
+
+          &.invalid {
+            color: #e74c3c;
+            
+            .check-icon {
+              color: #e74c3c;
+            }
+          }
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -318,6 +374,14 @@
     
     .btn {
       width: 100%;
+    }
+  }
+
+  .register-form .form-group .password-requirements {
+    padding: 12px;
+    
+    ul li {
+      font-size: 0.8rem;
     }
   }
 }
