@@ -1,45 +1,62 @@
 <div class="app-container">
   <header class="header">
-    <h1>🌾 {{ title }}</h1>
-    <nav>
-      <a href="/marketplace">Marketplace</a>
-      <a href="/auth">Login</a>
-    </nav>
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="logo-icon">🌾</div>
+        <h1 class="logo-text">{{ title }}</h1>
+      </div>
+      
+      <nav class="navigation">
+        <a routerLink="/marketplace" class="nav-link">Inicio</a>
+        
+        <!-- Navigation when NOT authenticated -->
+        <ng-container *ngIf="!(isAuthenticated$ | async)">
+          <a routerLink="/login" class="nav-link">Iniciar Sesión</a>
+          <a routerLink="/register" class="nav-button">Registrarse</a>
+        </ng-container>
+        
+        <!-- Navigation when authenticated -->
+        <ng-container *ngIf="isAuthenticated$ | async">
+          <div class="user-section">
+            <div class="user-avatar">
+              <mat-icon class="avatar-icon">person</mat-icon>
+            </div>
+            <span class="user-greeting">
+              <mat-icon class="greeting-icon">waving_hand</mat-icon>
+              ¡Hola, {{ (currentUser$ | async)?.first_name || 'Usuario' }}!
+            </span>
+            <button (click)="logout()" class="logout-button">
+              <mat-icon class="logout-icon">logout</mat-icon>
+              Salir
+            </button>
+          </div>
+        </ng-container>
+      </nav>
+    </div>
   </header>
   
   <main class="main-content">
-    <!-- Backend Status Indicator -->
-    <div class="status-panel">
-      <h2>🔗 Estado del Sistema</h2>
-      
-      <div class="status-item" [class.connected]="backendConnected" [class.disconnected]="!backendConnected">
-        <strong>Backend:</strong> {{ backendStatus }}
-      </div>
-      
-      <div class="status-item" *ngIf="backendEnvironment">
-        <strong>Environment:</strong> 
-        <span [class]="backendEnvironment">{{ backendEnvironment }}</span>
-      </div>
-      
-      <div class="status-item" *ngIf="environmentInfo">
-        <strong>Backend Info:</strong> {{ environmentInfo.message || 'N/A' }}
-      </div>
-      
-      <div class="test-buttons">
-        <button (click)="testBackendConnection()" class="test-button">
-          🔄 Probar Health
-        </button>
-        <button (click)="testBackendEnvironment()" class="test-button">
-          🌍 Probar Environment
-        </button>
-      </div>
-    </div>
-    
     <router-outlet></router-outlet>
   </main>
   
   <footer class="footer">
-    <p>&copy; 2025 Agro Mas - Marketplace Agropecuario</p>
-    <p>Frontend Angular + Backend Go + Firebase Hosting + Google Cloud Run</p>
+    <div class="footer-content">
+      <div class="footer-section">
+        <div class="footer-logo">
+          <span class="footer-icon">🌾</span>
+          <span class="footer-brand">Agro Mas</span>
+        </div>
+        <p class="footer-description">
+          Tu marketplace de confianza para productos agropecuarios. Conectamos productores locales con compradores.
+        </p>
+      </div>
+      
+      
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2025 Agro Mas. Todos los derechos reservados.</p>
+      <p>Desarrollado con dedicación para el sector agropecuario</p>
+    </div>
   </footer>
 </div>

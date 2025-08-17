@@ -63,12 +63,15 @@ export class AuthService {
   }
 
   private saveAuthData(authResponse: AuthResponse): void {
-    localStorage.setItem('accessToken', authResponse.accessToken);
-    localStorage.setItem('refreshToken', authResponse.refreshToken);
-    localStorage.setItem('currentUser', JSON.stringify(authResponse.user));
-    
-    this.currentUserSubject.next(authResponse.user);
-    this.isAuthenticatedSubject.next(true);
+    if (authResponse.token) {
+      localStorage.setItem('accessToken', authResponse.token.access_token);
+      localStorage.setItem('refreshToken', authResponse.token.refresh_token);
+    }
+    if (authResponse.user) {
+      localStorage.setItem('currentUser', JSON.stringify(authResponse.user));
+      this.currentUserSubject.next(authResponse.user);
+      this.isAuthenticatedSubject.next(true);
+    }
   }
 
   private loadStoredAuth(): void {
@@ -104,6 +107,6 @@ export class AuthService {
   }
 
   hasMinVerificationLevel(level: number): boolean {
-    return (this.currentUser?.verificationLevel || 0) >= level;
+    return (this.currentUser?.verification_level || 0) >= level;
   }
 }

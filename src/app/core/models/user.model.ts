@@ -1,25 +1,27 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   phone?: string;
   cuit?: string;
-  businessName?: string;
-  businessType?: 'individual' | 'company' | 'cooperative';
-  taxCategory?: string;
+  business_name?: string;
+  business_type?: 'individual' | 'company' | 'cooperative';
+  tax_category?: string;
   province?: string;
   city?: string;
   address?: string;
   role: 'buyer' | 'seller' | 'admin' | 'moderator';
-  verificationLevel: number; // 0-4
-  isActive: boolean;
-  isVerified: boolean;
+  verification_level: number; // 0-4
+  is_active?: boolean;
+  is_verified: boolean;
   rating: number;
-  totalSales: number;
-  totalPurchases: number;
-  createdAt: string;
-  updatedAt: string;
+  total_sales: number;
+  total_purchases: number;
+  total_reviews: number;
+  created_at: string;
+  updated_at?: string;
+  preferences?: any;
 }
 
 export interface LoginRequest {
@@ -30,21 +32,27 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   phone?: string;
   role: 'buyer' | 'seller';
   cuit?: string;
-  businessName?: string;
-  businessType?: 'individual' | 'company' | 'cooperative';
+  business_name?: string;
+  business_type?: 'individual' | 'company' | 'cooperative';
   province?: string;
   city?: string;
   address?: string;
 }
 
+export interface TokenInfo {
+  access_token: string;
+  refresh_token: string;
+  expires_at: string;
+  token_type: string;
+}
+
 export interface AuthResponse {
+  message: string;
   user: User;
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
+  token: TokenInfo;
 }

@@ -159,13 +159,13 @@ export class RegisterComponent implements OnInit {
       const userData = {
         email: formValue.email,
         password: formValue.password,
-        firstName: formValue.firstName,
-        lastName: formValue.lastName,
+        first_name: formValue.firstName,
+        last_name: formValue.lastName,
         phone: formValue.phone || undefined,
         role: formValue.role,
         cuit: formValue.cuit || undefined,
-        businessName: formValue.businessName || undefined,
-        businessType: formValue.businessType || undefined,
+        business_name: formValue.businessName || undefined,
+        business_type: formValue.businessType || undefined,
         province: formValue.province || undefined,
         city: formValue.city || undefined,
         address: formValue.address || undefined
