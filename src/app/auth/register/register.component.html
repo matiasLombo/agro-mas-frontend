@@ -96,6 +96,7 @@
               class="form-control"
               [class.error]="isFieldInvalid('password')"
               placeholder="••••••••"
+              autocomplete="new-password"
             >
             
             <!-- Password Requirements -->
@@ -143,6 +144,7 @@
               class="form-control"
               [class.error]="isFieldInvalid('confirmPassword')"
               placeholder="••••••••"
+              autocomplete="new-password"
             >
             <div class="error-message" *ngIf="isFieldInvalid('confirmPassword')">
               {{ getFieldError('confirmPassword') }}

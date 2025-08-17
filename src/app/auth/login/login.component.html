@@ -13,6 +13,7 @@
           class="form-control"
           [class.error]="isFieldInvalid('email')"
           placeholder="tu@email.com"
+          autocomplete="email"
         >
         <div class="error-message" *ngIf="isFieldInvalid('email')">
           {{ getFieldError('email') }}
@@ -28,6 +29,7 @@
           class="form-control"
           [class.error]="isFieldInvalid('password')"
           placeholder="••••••••"
+          autocomplete="current-password"
         >
         <div class="error-message" *ngIf="isFieldInvalid('password')">
           {{ getFieldError('password') }}

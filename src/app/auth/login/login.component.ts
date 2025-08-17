@@ -49,7 +49,16 @@ export class LoginComponent implements OnInit {
           this.router.navigate([this.returnUrl]);
         },
         error: (error) => {
-          this.errorMessage = error.message || 'Error al iniciar sesión';
+          // Mensaje user-friendly para errores de autenticación
+          if (error.status === 401) {
+            this.errorMessage = 'Email o contraseña incorrectos';
+          } else if (error.status === 0) {
+            this.errorMessage = 'No se puede conectar al servidor. Verifica tu conexión a internet';
+          } else if (error.status >= 500) {
+            this.errorMessage = 'Error interno del servidor. Intenta más tarde';
+          } else {
+            this.errorMessage = error.message || 'Error al iniciar sesión';
+          }
           this.loading = false;
         }
       });
