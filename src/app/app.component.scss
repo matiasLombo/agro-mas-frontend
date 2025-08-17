@@ -27,6 +27,21 @@
     align-items: center;
     gap: 12px;
     
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      
+      &:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+      }
+    }
+    
     .logo-icon {
       font-size: 2rem;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
@@ -37,6 +52,7 @@
       font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: -0.5px;
+      color: white;
     }
   }
   
