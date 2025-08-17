@@ -14,20 +14,11 @@
     ],
     "headers": [
       {
-        "source": "**/*.@(js|css|woff2|woff|ttf|eot)",
+        "source": "**/*",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "max-age=31536000"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(html|json)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "max-age=0"
+            "value": "no-cache, no-store, must-revalidate"
           }
         ]
       }
