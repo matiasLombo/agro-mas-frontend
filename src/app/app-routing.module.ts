@@ -1,29 +1,35 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { LoginComponent } from './auth/login/login.component';
+import { RegisterComponent } from './auth/register/register.component';
+import { MarketplaceComponent } from './marketplace/marketplace.component';
+import { AuthGuard } from './core/guards/auth.guard';
+import { SellerGuard } from './core/guards/role.guard';
 
-// Componente temporal para rutas
-import { Component } from '@angular/core';
-
-@Component({
-  template: '<h2>Bienvenido al Marketplace Agro Mas</h2><p>Aplicación en desarrollo...</p>'
-})
-export class HomeComponent {}
-
-@Component({
-  template: '<h2>Login</h2><p>Página de login en desarrollo...</p>'
-})
-export class LoginComponent {}
 
 const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
-  { path: 'auth', component: LoginComponent },
-  { path: 'marketplace', component: HomeComponent },
-  { path: '**', redirectTo: '/home' }
+  { path: '', redirectTo: '/marketplace', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { 
+    path: 'marketplace', 
+    component: MarketplaceComponent
+    // Sin AuthGuard - acceso público
+  },
+  { 
+    path: 'profile', 
+    component: MarketplaceComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'products', 
+    component: MarketplaceComponent,
+    canActivate: [SellerGuard]
+  },
+  { path: '**', redirectTo: '/marketplace' }
 ];
 
 @NgModule({
-  declarations: [HomeComponent, LoginComponent],
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })

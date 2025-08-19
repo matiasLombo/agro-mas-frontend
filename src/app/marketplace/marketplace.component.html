@@ -1,0 +1,158 @@
+<div class="marketplace-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">🎯 PRUEBA DE DEPLOYMENT FUNCIONANDO 🎯</h1>
+      <p class="hero-subtitle">Conectamos productores y compradores en el sector agropecuario</p>
+    </div>
+    <div class="hero-image">
+      <div class="hero-placeholder">
+        <i class="hero-icon">🌾</i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search Section -->
+  <section class="search-section">
+    <div class="search-container">
+      <h2>¿Qué estás buscando?</h2>
+      <div class="search-bar">
+        <input 
+          type="text" 
+          placeholder="Buscar transporte, ganado, suministros..." 
+          class="search-input"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="searchProducts()">
+        <button class="search-button" (click)="searchProducts()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+      <div class="category-filters">
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedCategory === ''"
+          (click)="selectedCategory = ''; loadFeaturedProducts()">
+          <mat-icon>apps</mat-icon>
+          Todos
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedCategory === 'transport'"
+          (click)="loadProductsByCategory('transport')">
+          <mat-icon>local_shipping</mat-icon>
+          Transporte
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedCategory === 'livestock'"
+          (click)="loadProductsByCategory('livestock')">
+          <mat-icon>pets</mat-icon>
+          Ganado
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedCategory === 'supplies'"
+          (click)="loadProductsByCategory('supplies')">
+          <mat-icon>inventory</mat-icon>
+          Suministros
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products-section">
+    <div class="section-header">
+      <h2>{{ selectedCategory ? 'Productos de ' + getCategoryName(selectedCategory) : 'Productos Destacados' }}</h2>
+      <p>{{ hasError ? 'Mostrando datos de ejemplo' : 'Descubre los mejores productos de nuestros vendedores verificados' }}</p>
+    </div>
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando productos...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="hasError && !isLoading" class="error-container">
+      <mat-icon class="error-icon">warning</mat-icon>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-button" (click)="loadFeaturedProducts()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Products Grid -->
+    <div *ngIf="!isLoading" class="products-grid">
+      <div *ngFor="let product of products" class="product-card">
+        <div class="product-image">
+          <img 
+            [src]="getPrimaryImage(product)" 
+            [alt]="product.title"
+            class="product-img"
+            (error)="onImageError($event)">
+          <div class="product-category-badge">{{ getCategoryName(product.category) }}</div>
+        </div>
+        <div class="product-content">
+          <h3 class="product-title">{{ product.title }}</h3>
+          <p class="product-description">{{ product.description }}</p>
+          <div class="product-price">
+            <span class="price-current">{{ formatPrice(product) }}</span>
+          </div>
+          <div class="product-seller">
+            <mat-icon class="seller-icon">person</mat-icon>
+            <span>Vendedor: {{ product.seller_name }}</span>
+          </div>
+          <button (click)="requireLogin('Contactar vendedor')" class="product-button primary">
+            <mat-icon>contact_mail</mat-icon>
+            Contactar Vendedor
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="products.length === 0 && !isLoading && !hasError" class="empty-state">
+        <mat-icon class="empty-icon">inventory_2</mat-icon>
+        <h3>No se encontraron productos</h3>
+        <p>Intenta con otros términos de búsqueda o categorías.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- User Dashboard Section -->
+  <section class="dashboard-section" *ngIf="isAuthenticated">
+    <div class="dashboard-content">
+      <h2>¡Bienvenido de vuelta{{ currentUser?.first_name ? ', ' + currentUser?.first_name : '' }}!</h2>
+      <p>Gestiona tus productos y encuentra nuevas oportunidades de negocio</p>
+      <div class="dashboard-actions">
+        <button class="dashboard-button primary" (click)="requireLogin('Ver mis productos')">
+          <mat-icon class="button-icon">inventory</mat-icon>
+          Mis Productos
+        </button>
+        <button class="dashboard-button secondary" (click)="requireLogin('Publicar producto')">
+          <mat-icon class="button-icon">add_circle</mat-icon>
+          Publicar Producto
+        </button>
+        <button class="dashboard-button tertiary" (click)="requireLogin('Ver estadísticas')">
+          <mat-icon class="button-icon">analytics</mat-icon>
+          Ver Estadísticas
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Notification System -->
+<div class="notification-container" [class.show]="showNotification">
+  <div class="notification" [class]="'notification notification-' + notificationType">
+    <div class="notification-content">
+      <i class="notification-icon">
+        {{ notificationType === 'success' ? '✓' : notificationType === 'error' ? '❌' : notificationType === 'warning' ? '⚠️' : 'ℹ️' }}
+      </i>
+      <span class="notification-message">{{ notificationMessage }}</span>
+    </div>
+    <button class="notification-close" (click)="closeNotification()">×</button>
+  </div>
+</div>

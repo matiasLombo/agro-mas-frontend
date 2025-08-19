@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiTestService } from './services/api-test.service';
+import { AuthService } from './core/services/auth.service';
+import { User } from './core/models/user.model';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -7,17 +10,39 @@ import { ApiTestService } from './services/api-test.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'Agro Mas Frontend';
+  title = 'Agro Mas';
   backendStatus = 'Verificando...';
   backendConnected = false;
   backendEnvironment = '';
   environmentInfo: any = null;
 
-  constructor(private apiTestService: ApiTestService) {}
+  // Auth properties
+  isAuthenticated$: Observable<boolean>;
+  currentUser$: Observable<User | null>;
+
+  constructor(
+    private apiTestService: ApiTestService,
+    private authService: AuthService
+  ) {
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.currentUser$ = this.authService.currentUser$;
+  }
 
   ngOnInit() {
     this.testBackendConnection();
     this.testBackendEnvironment();
+  }
+
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated;
+  }
+
+  get currentUser(): User | null {
+    return this.authService.currentUser;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   testBackendConnection() {
