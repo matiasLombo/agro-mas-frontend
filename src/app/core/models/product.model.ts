@@ -15,6 +15,8 @@ export interface Product {
     is_active: boolean;
     is_featured: boolean;
     province?: string;
+    department?: string;
+    settlement?: string;
     city?: string;
     location_coordinates?: {
         lng: number;

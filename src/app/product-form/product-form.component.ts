@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../core/services/product.service';
 import { LocationService } from '../core/services/location.service';
 import { Product, ProductImage } from '../core/models/product.model';
@@ -36,7 +37,8 @@ export class ProductFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
@@ -68,6 +70,12 @@ export class ProductFormComponent implements OnInit {
 
     this.loadProvinces();
 
+    // Check for product ID from route parameter
+    const routeProductId = this.route.snapshot.paramMap.get('id');
+    if (routeProductId) {
+      this.productId = routeProductId;
+    }
+
     if (this.productId) {
       this.isEditMode = true;
       this.loadProductData(this.productId);
@@ -76,10 +84,50 @@ export class ProductFormComponent implements OnInit {
   }
 
   loadProductData(id: string): void {
-    this.productService.getProduct(id).subscribe(product => {
-      if (product) {
-        this.productForm.patchValue(product);
-        this.productForm.disable();
+    this.productService.getProduct(id).subscribe({
+      next: (product) => {
+        if (product) {
+          // Update form with product data
+          this.productForm.patchValue({
+            title: product.title,
+            description: product.description,
+            category: product.category,
+            price: product.price,
+            price_type: product.price_type,
+            currency: product.currency,
+            province: product.province,
+            department: product.department,
+            settlement: product.settlement,
+            city: product.city,
+            pickup_available: product.pickup_available,
+            delivery_available: product.delivery_available,
+            seller_name: product.seller_name,
+            tags: product.tags || [],
+            images: product.images || []
+          });
+
+          // Load location data if province exists
+          if (product.province) {
+            this.selectedProvinceId = product.province;
+            this.loadDepartments(product.province);
+            this.loadSettlements(product.province);
+            
+            if (product.department) {
+              this.selectedDepartmentId = product.department;
+              this.loadSettlementsByDepartment(product.province, product.department);
+            }
+            
+            if (product.settlement) {
+              this.selectedSettlementId = product.settlement;
+            }
+          }
+
+          // Disable form in edit mode
+          this.productForm.disable();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading product:', error);
       }
     });
   }
@@ -241,10 +289,11 @@ export class ProductFormComponent implements OnInit {
   loadDepartments(provinceId: string): void {
     this.locationService.getDepartments({ provincia: provinceId, max: 50 }).subscribe({
       next: (response) => {
-        this.departments = response.departamentos;
+        this.departments = response.departamentos || [];
       },
       error: (error) => {
         console.error('Error al cargar departamentos:', error);
+        this.departments = [];
       }
     });
   }
@@ -254,10 +303,11 @@ export class ProductFormComponent implements OnInit {
   loadSettlements(provinceId: string): void {
     this.locationService.getSettlements({ provincia: provinceId, max: 100 }).subscribe({
       next: (response) => {
-        this.settlements = response.asentamientos;
+        this.settlements = response.asentamientos || [];
       },
       error: (error) => {
         console.error('Error al cargar asentamientos:', error);
+        this.settlements = [];
       }
     });
   }
@@ -265,10 +315,11 @@ export class ProductFormComponent implements OnInit {
   loadSettlementsByDepartment(provinceId: string, departmentId: string): void {
     this.locationService.getSettlements({ provincia: provinceId, departamento: departmentId, max: 100 }).subscribe({
       next: (response) => {
-        this.settlements = response.asentamientos;
+        this.settlements = response.asentamientos || [];
       },
       error: (error) => {
         console.error('Error al cargar asentamientos por departamento:', error);
+        this.settlements = [];
       }
     });
   }

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { ProductService } from '../core/services/product.service';
 import { AuthService } from '../core/services/auth.service';
@@ -31,7 +32,8 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -257,6 +259,13 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       const categoryKey = categoryMap[category || ''] || 'supplies';
       img.src = this.getPlaceholderImage(categoryKey);
     }
+  }
+
+  /**
+   * Navigate to product details
+   */
+  viewProduct(productId: string): void {
+    this.router.navigate(['/product', productId]);
   }
 
   /**

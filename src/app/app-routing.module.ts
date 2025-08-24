@@ -23,6 +23,7 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   { path: 'product', component: ProductFormComponent }, // <-- Esta es la ruta
+  { path: 'product/:id', component: ProductFormComponent }, // Product detail route
   {
     path: 'products',
     component: MarketplaceComponent,
