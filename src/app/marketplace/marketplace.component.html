@@ -12,46 +12,72 @@
     </div>
   </section>
 
+  <section class="how-it-works-section" *ngIf="!isAuthenticated">
+    <div class="section-header">
+      <h2 class="section-title">Cómo Funciona</h2>
+      <p class="section-subtitle">Un proceso simple y transparente.</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="icon-circle">
+          <mat-icon class="material-symbols-outlined icon-style">
+            person_check</mat-icon>
+        </div>
+        <h3>1. Regístrate y Publica</h3>
+        <p>Crea una cuenta y publica tus productos o servicios en minutos.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="icon-circle">
+          <mat-icon class="material-symbols-outlined icon-style">
+            chat
+          </mat-icon>
+        </div>
+        <h3>2. Contacta Vendedores</h3>
+        <p>Comunícate directamente con los vendedores para hacer preguntas y negociar.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="icon-circle">
+          <mat-icon class="material-symbols-outlined icon-style">
+            check_circle
+          </mat-icon>
+        </div>
+        <h3>3. Finaliza la Operación</h3>
+        <p>Cierra tu trato de forma segura y coordina la entrega o recogida.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- Search Section -->
   <section class="search-section">
     <div class="search-container">
       <h2>¿Qué estás buscando?</h2>
       <div class="search-bar">
-        <input 
-          type="text" 
-          placeholder="Buscar transporte, ganado, suministros..." 
-          class="search-input"
-          [(ngModel)]="searchQuery"
-          (keyup.enter)="searchProducts()">
+        <input type="text" placeholder="Buscar transporte, ganado, suministros..." class="search-input"
+          [(ngModel)]="searchQuery" (keyup.enter)="searchProducts()">
         <button class="search-button" (click)="searchProducts()">
           <mat-icon>search</mat-icon>
         </button>
       </div>
       <div class="category-filters">
-        <button 
-          class="filter-btn" 
-          [class.active]="selectedCategory === ''"
+        <button class="filter-btn" [class.active]="selectedCategory === ''"
           (click)="selectedCategory = ''; loadFeaturedProducts()">
           <mat-icon>apps</mat-icon>
           Todos
         </button>
-        <button 
-          class="filter-btn" 
-          [class.active]="selectedCategory === 'transport'"
+        <button class="filter-btn" [class.active]="selectedCategory === 'transport'"
           (click)="loadProductsByCategory('transport')">
           <mat-icon>local_shipping</mat-icon>
           Transporte
         </button>
-        <button 
-          class="filter-btn" 
-          [class.active]="selectedCategory === 'livestock'"
+        <button class="filter-btn" [class.active]="selectedCategory === 'livestock'"
           (click)="loadProductsByCategory('livestock')">
           <mat-icon>pets</mat-icon>
           Ganado
         </button>
-        <button 
-          class="filter-btn" 
-          [class.active]="selectedCategory === 'supplies'"
+        <button class="filter-btn" [class.active]="selectedCategory === 'supplies'"
           (click)="loadProductsByCategory('supplies')">
           <mat-icon>inventory</mat-icon>
           Suministros
@@ -64,9 +90,10 @@
   <section class="products-section">
     <div class="section-header">
       <h2>{{ selectedCategory ? 'Productos de ' + getCategoryName(selectedCategory) : 'Productos Destacados' }}</h2>
-      <p>{{ hasError ? 'Mostrando datos de ejemplo' : 'Descubre los mejores productos de nuestros vendedores verificados' }}</p>
+      <p>{{ hasError ? 'Mostrando datos de ejemplo' : 'Descubre los mejores productos de nuestros vendedores
+        verificados' }}</p>
     </div>
-    
+
     <!-- Loading State -->
     <div *ngIf="isLoading" class="loading-container">
       <div class="loading-spinner"></div>
@@ -87,10 +114,7 @@
     <div *ngIf="!isLoading" class="products-grid">
       <div *ngFor="let product of products" class="product-card">
         <div class="product-image">
-          <img 
-            [src]="getPrimaryImage(product)" 
-            [alt]="product.title"
-            class="product-img"
+          <img [src]="getPrimaryImage(product)" [alt]="product.title" class="product-img"
             (error)="onImageError($event)">
           <div class="product-category-badge">{{ getCategoryName(product.category) }}</div>
         </div>
@@ -131,7 +155,7 @@
           <mat-icon class="button-icon">inventory</mat-icon>
           Mis Productos
         </button>
-        <button class="dashboard-button secondary" (click)="requireLogin('Publicar producto')">
+        <button class="dashboard-button secondary" routerLink="/product">
           <mat-icon class="button-icon">add_circle</mat-icon>
           Publicar Producto
         </button>
@@ -149,7 +173,8 @@
   <div class="notification" [class]="'notification notification-' + notificationType">
     <div class="notification-content">
       <i class="notification-icon">
-        {{ notificationType === 'success' ? '✓' : notificationType === 'error' ? '❌' : notificationType === 'warning' ? '⚠️' : 'ℹ️' }}
+        {{ notificationType === 'success' ? '✓' : notificationType === 'error' ? '❌' : notificationType === 'warning' ?
+        '⚠️' : 'ℹ️' }}
       </i>
       <span class="notification-message">{{ notificationMessage }}</span>
     </div>
