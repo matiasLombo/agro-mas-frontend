@@ -40,38 +40,84 @@
         </div>
 
         <div class="form-group">
-          <label for="location">Ubicación *</label>
-          <input
-            type="text"
-            id="location"
-            formControlName="location"
+          <label for="category">Categoría *</label>
+          <select
+            id="category"
+            formControlName="category"
             class="form-control"
-            [class.error]="productForm.get('location')?.invalid && productForm.get('location')?.touched"
-            placeholder="Ej. Rosario, Santa Fe"
+            [class.error]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
           >
-          <div class="error-message" *ngIf="productForm.get('location')?.hasError('required') && productForm.get('location')?.touched">
-            La ubicación es obligatoria.
+            <option value="">Selecciona una categoría</option>
+            <option *ngFor="let cat of categories" [value]="cat">
+              {{ cat }}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="productForm.get('category')?.hasError('required') && productForm.get('category')?.touched">
+            La categoría es obligatoria.
           </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="category">Categoría *</label>
-        <select
-          id="category"
-          formControlName="category"
-          class="form-control"
-          [class.error]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
-        >
-          <option value="">Selecciona una categoría</option>
-          <option *ngFor="let cat of categories" [value]="cat">
-            {{ cat }}
-          </option>
-        </select>
-        <div class="error-message" *ngIf="productForm.get('category')?.hasError('required') && productForm.get('category')?.touched">
-          La categoría es obligatoria.
+      <!-- Location Section -->
+      <div class="location-section">
+        <h3>Ubicación *</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="province">Provincia *</label>
+            <select
+              id="province"
+              formControlName="province"
+              class="form-control"
+              [class.error]="productForm.get('province')?.invalid && productForm.get('province')?.touched"
+              (change)="onProvinceChange($event)"
+            >
+              <option value="">Selecciona una provincia</option>
+              <option *ngFor="let province of provinces" [value]="province.id">
+                {{ province.nombre }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="productForm.get('province')?.hasError('required') && productForm.get('province')?.touched">
+              La provincia es obligatoria.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="department">Departamento</label>
+            <select
+              id="department"
+              formControlName="department"
+              class="form-control"
+              [disabled]="!selectedProvinceId"
+              (change)="onDepartmentChange($event)"
+            >
+              <option value="">Selecciona un departamento</option>
+              <option *ngFor="let department of departments" [value]="department.id">
+                {{ department.nombre }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="settlement">Asentamiento</label>
+            <select
+              id="settlement"
+              formControlName="settlement"
+              class="form-control"
+              [disabled]="!selectedProvinceId"
+              (change)="onSettlementChange($event)"
+            >
+              <option value="">Selecciona un asentamiento</option>
+              <option *ngFor="let settlement of settlements" [value]="settlement.id">
+                {{ settlement.nombre }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
+
 
       <div class="form-group">
         <label for="description">Descripción</label>
