@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil, finalize } from 'rxjs';
-import { ProductService, Product, ProductSearchResponse } from '../core/services/product.service';
+import { ProductService } from '../core/services/product.service';
 import { AuthService } from '../core/services/auth.service';
+import { Product, ProductSearchResponse } from '@core/models/product.model';
 
 @Component({
   selector: 'app-marketplace',
@@ -10,19 +11,19 @@ import { AuthService } from '../core/services/auth.service';
 })
 export class MarketplaceComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   // Data properties
   products: Product[] = [];
   isLoading = false;
   hasError = false;
   errorMessage = '';
   totalProducts = 0;
-  
+
   // UI state
   showNotification = false;
   notificationMessage = '';
   notificationType: 'success' | 'info' | 'warning' | 'error' = 'info';
-  
+
   // Search and filters
   searchQuery = '';
   selectedCategory = '';
@@ -31,7 +32,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadFeaturedProducts();
@@ -56,7 +57,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   loadFeaturedProducts() {
     this.isLoading = true;
     this.hasError = false;
-    
+
     this.productService.getFeaturedProducts()
       .pipe(
         takeUntil(this.destroy$),
@@ -85,7 +86,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   loadProductsByCategory(category: string) {
     this.isLoading = true;
     this.selectedCategory = category;
-    
+
     this.productService.getProductsByCategory(category)
       .pipe(
         takeUntil(this.destroy$),
@@ -114,28 +115,28 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    
+
     this.productService.searchProducts({
       query: this.searchQuery,
       category: this.selectedCategory || undefined,
       page: 1,
       page_size: 20
     })
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoading = false)
-    )
-    .subscribe({
-      next: (response: ProductSearchResponse) => {
-        this.products = response.products;
-        this.totalProducts = response.total_count;
-        this.hasError = false;
-      },
-      error: (error) => {
-        console.error('Error searching products:', error);
-        this.showToast('Error en la búsqueda', 'error');
-      }
-    });
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: ProductSearchResponse) => {
+          this.products = response.products;
+          this.totalProducts = response.total_count;
+          this.hasError = false;
+        },
+        error: (error) => {
+          console.error('Error searching products:', error);
+          this.showToast('Error en la búsqueda', 'error');
+        }
+      });
   }
 
   /**
@@ -162,7 +163,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       currency: product.currency || 'ARS',
       minimumFractionDigits: 0
     });
-    
+
     let priceText = formatter.format(product.price);
     if (product.unit) {
       priceText += ` / ${product.unit}`;
@@ -178,7 +179,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
     this.notificationMessage = message;
     this.notificationType = type;
     this.showNotification = true;
-    
+
     setTimeout(() => {
       this.showNotification = false;
     }, 4000);
@@ -212,13 +213,13 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
     if (primaryImage) {
       return primaryImage.image_url;
     }
-    
+
     // If no primary image, get the first available image
     const firstImage = product.images?.find(img => img.image_url);
     if (firstImage) {
       return firstImage.image_url;
     }
-    
+
     // Return placeholder image based on category
     return this.getPlaceholderImage(product.category);
   }
@@ -232,7 +233,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       'livestock': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🐄</text></g></svg>',
       'supplies': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🌾</text></g></svg>'
     };
-    
+
     return placeholders[category] || placeholders['supplies'];
   }
 
@@ -245,14 +246,14 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
     if (productCard) {
       const categoryElement = productCard.querySelector('.product-category');
       const category = categoryElement?.textContent?.toLowerCase();
-      
+
       // Map Spanish category names back to English for placeholder
       const categoryMap: { [key: string]: string } = {
         'transporte': 'transport',
-        'ganado': 'livestock', 
+        'ganado': 'livestock',
         'suministros': 'supplies'
       };
-      
+
       const categoryKey = categoryMap[category || ''] || 'supplies';
       img.src = this.getPlaceholderImage(categoryKey);
     }

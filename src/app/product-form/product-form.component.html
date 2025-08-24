@@ -1,0 +1,126 @@
+<div class="product-form-container">
+  <div class="product-form-card">
+    <h2>{{ isEditMode ? '📄 Detalles del Anuncio' : '📝 Publicar un Producto' }}</h2>
+    <p class="subtitle">{{ isEditMode ? 'Aquí puedes ver los detalles del producto.' : 'Completa los campos para publicar tu anuncio.' }}</p>
+
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="product-form">
+
+      <div class="form-group">
+        <label for="title">Título de la publicación *</label>
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          class="form-control"
+          [class.error]="productForm.get('title')?.invalid && productForm.get('title')?.touched"
+          placeholder="Ej. Toros Angus de alta calidad"
+        >
+        <div class="error-message" *ngIf="productForm.get('title')?.hasError('required') && productForm.get('title')?.touched">
+          El título es obligatorio.
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="price">Precio ($) *</label>
+          <input
+            type="number"
+            id="price"
+            formControlName="price"
+            class="form-control"
+            [class.error]="productForm.get('price')?.invalid && productForm.get('price')?.touched"
+            placeholder="Ej. 15000"
+          >
+          <div class="error-message" *ngIf="productForm.get('price')?.hasError('required') && productForm.get('price')?.touched">
+            El precio es obligatorio.
+          </div>
+          <div class="error-message" *ngIf="productForm.get('price')?.hasError('min') && productForm.get('price')?.touched">
+            El precio no puede ser negativo.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Ubicación *</label>
+          <input
+            type="text"
+            id="location"
+            formControlName="location"
+            class="form-control"
+            [class.error]="productForm.get('location')?.invalid && productForm.get('location')?.touched"
+            placeholder="Ej. Rosario, Santa Fe"
+          >
+          <div class="error-message" *ngIf="productForm.get('location')?.hasError('required') && productForm.get('location')?.touched">
+            La ubicación es obligatoria.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Categoría *</label>
+        <select
+          id="category"
+          formControlName="category"
+          class="form-control"
+          [class.error]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
+        >
+          <option value="">Selecciona una categoría</option>
+          <option *ngFor="let cat of categories" [value]="cat">
+            {{ cat }}
+          </option>
+        </select>
+        <div class="error-message" *ngIf="productForm.get('category')?.hasError('required') && productForm.get('category')?.touched">
+          La categoría es obligatoria.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-control"
+          rows="4"
+          placeholder="Describe tu producto o servicio..."
+        ></textarea>
+      </div>
+
+      <div *ngIf="!isEditMode" class="file-upload-section">
+        <label class="file-upload-label">
+          <mat-icon>cloud_upload</mat-icon>
+          Subir Imágenes
+          <input type="file" (change)="onFileChange($event, 'images')" multiple accept="image/*">
+        </label>
+        <label class="file-upload-label">
+          <mat-icon>cloud_upload</mat-icon>
+          Subir Videos
+          <input type="file" (change)="onFileChange($event, 'videos')" multiple accept="video/*">
+        </label>
+      </div>
+
+      <div *ngIf="isUploading" class="upload-indicator">
+        <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+        <span>Subiendo archivos... {{ uploadProgress | number:'1.0-0' }}%</span>
+      </div>
+
+      <div class="file-list-section">
+        <h4 *ngIf="uploadedImages.length > 0">Imágenes subidas:</h4>
+        <div class="file-list">
+          <span *ngFor="let image of uploadedImages">{{ image.cloud_storage_path | slice:0:30 }}...</span>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <div></div> <!-- Empty div for spacing -->
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="productForm.invalid || isUploading"
+        >
+          {{ isEditMode ? 'Contactar Vendedor' : 'Publicar' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
