@@ -581,11 +581,15 @@
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
+  margin-top: auto;
+  
+  &:not(:last-child) {
+    margin-bottom: 8px;
+  }
 
   mat-icon {
     font-size: 18px;
@@ -602,6 +606,18 @@
 .product-button.primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+.product-button.secondary {
+  background: #f8f9fa;
+  color: #4CAF50;
+  border: 1px solid #e9ecef;
+}
+
+.product-button.secondary:hover {
+  background: #e9ecef;
+  color: #45a049;
+  transform: translateY(-1px);
 }
 
 /* Empty State */
