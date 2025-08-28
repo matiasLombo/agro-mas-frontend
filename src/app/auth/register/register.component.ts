@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { cuitValidator } from '../../core/validators/cuit.validator';
-import { ARGENTINA_PROVINCES, Province, City } from '../../core/data/argentina.data';
 
 @Component({
   selector: 'app-register',
@@ -15,11 +13,8 @@ export class RegisterComponent implements OnInit {
   loading = false;
   errorMessage = '';
   currentStep = 1;
-  totalSteps = 3;
+  totalSteps = 2;
 
-  provinces = ARGENTINA_PROVINCES;
-  selectedProvince: Province | null = null;
-  cities: City[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,16 +30,8 @@ export class RegisterComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       phone: ['', [Validators.pattern(/^[+]?[0-9\s\-()]+$/)]],
       
-      // Paso 2: Tipo de usuario
-      role: ['', [Validators.required]],
-      
-      // Paso 3: Información comercial (condicional)
-      cuit: [''],
-      businessName: [''],
-      businessType: [''],
-      province: [''],
-      city: [''],
-      address: ['']
+      // Paso 2: Registro (role fijo como buyer)
+      role: ['buyer']
     }, {
       validators: this.passwordMatchValidator
     });
@@ -55,44 +42,8 @@ export class RegisterComponent implements OnInit {
       this.router.navigate(['/marketplace']);
     }
 
-    this.setupConditionalValidations();
   }
 
-  private setupConditionalValidations(): void {
-    this.registerForm.get('role')?.valueChanges.subscribe(role => {
-      const cuitControl = this.registerForm.get('cuit');
-      const businessNameControl = this.registerForm.get('businessName');
-      const businessTypeControl = this.registerForm.get('businessType');
-      const provinceControl = this.registerForm.get('province');
-      const cityControl = this.registerForm.get('city');
-
-      if (role === 'seller') {
-        cuitControl?.setValidators([Validators.required, cuitValidator()]);
-        businessNameControl?.setValidators([Validators.required]);
-        businessTypeControl?.setValidators([Validators.required]);
-        provinceControl?.setValidators([Validators.required]);
-        cityControl?.setValidators([Validators.required]);
-      } else {
-        cuitControl?.clearValidators();
-        businessNameControl?.clearValidators();
-        businessTypeControl?.clearValidators();
-        provinceControl?.clearValidators();
-        cityControl?.clearValidators();
-      }
-
-      cuitControl?.updateValueAndValidity();
-      businessNameControl?.updateValueAndValidity();
-      businessTypeControl?.updateValueAndValidity();
-      provinceControl?.updateValueAndValidity();
-      cityControl?.updateValueAndValidity();
-    });
-
-    this.registerForm.get('province')?.valueChanges.subscribe(provinceId => {
-      this.selectedProvince = this.provinces.find(p => p.id === provinceId) || null;
-      this.cities = this.selectedProvince?.cities || [];
-      this.registerForm.get('city')?.setValue('');
-    });
-  }
 
   private passwordStrengthValidator(control: any) {
     const password = control.value;
@@ -146,8 +97,6 @@ export class RegisterComponent implements OnInit {
   nextStep(): void {
     if (this.currentStep === 1 && this.isStep1Valid()) {
       this.currentStep = 2;
-    } else if (this.currentStep === 2 && this.isStep2Valid()) {
-      this.currentStep = 3;
     }
   }
 
@@ -166,25 +115,12 @@ export class RegisterComponent implements OnInit {
   }
 
   isStep2Valid(): boolean {
-    const roleControl = this.registerForm.get('role');
-    return !!(roleControl && roleControl.valid);
-  }
-
-  isStep3Valid(): boolean {
-    const role = this.registerForm.get('role')?.value;
-    if (role === 'buyer') {
-      return true;
-    }
-    
-    const step3Fields = ['cuit', 'businessName', 'businessType', 'province', 'city'];
-    return step3Fields.every(field => {
-      const control = this.registerForm.get(field);
-      return control && control.valid;
-    });
+    // Step 2 is always valid for simplified flow
+    return true;
   }
 
   onSubmit(): void {
-    if (this.registerForm.valid && this.currentStep === 3) {
+    if (this.registerForm.valid && this.currentStep === 2) {
       this.loading = true;
       this.errorMessage = '';
 
@@ -195,13 +131,7 @@ export class RegisterComponent implements OnInit {
         first_name: formValue.firstName,
         last_name: formValue.lastName,
         phone: formValue.phone || undefined,
-        role: formValue.role,
-        cuit: formValue.cuit || undefined,
-        business_name: formValue.businessName || undefined,
-        business_type: formValue.businessType || undefined,
-        province: formValue.province || undefined,
-        city: formValue.city || undefined,
-        address: formValue.address || undefined
+        role: 'buyer' as const // Always buyer by default
       };
 
       this.authService.register(userData).subscribe({
@@ -267,9 +197,6 @@ export class RegisterComponent implements OnInit {
       if (field.errors['passwordMismatch']) {
         return 'Las contraseñas no coinciden';
       }
-      if (field.errors['cuit']) {
-        return field.errors['cuit'].message;
-      }
     }
     return '';
   }
@@ -282,20 +209,11 @@ export class RegisterComponent implements OnInit {
       firstName: 'El nombre',
       lastName: 'El apellido',
       phone: 'El teléfono',
-      role: 'El tipo de usuario',
-      cuit: 'El CUIT',
-      businessName: 'El nombre comercial',
-      businessType: 'El tipo de negocio',
-      province: 'La provincia',
-      city: 'La ciudad',
-      address: 'La dirección'
+      role: 'El tipo de usuario'
     };
     return labels[fieldName] || fieldName;
   }
 
-  get isSeller(): boolean {
-    return this.registerForm.get('role')?.value === 'seller';
-  }
 
   // Password validation helper methods
   passwordHasMinLength(): boolean {

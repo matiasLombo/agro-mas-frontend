@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Angular Material
@@ -16,9 +16,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu';
 
-import { AngularFireModule } from '@angular/fire/compat';
-import { AngularFireStorageModule } from '@angular/fire/compat/storage';
+// import { AngularFireModule } from '@angular/fire/compat';
+// import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -31,15 +35,23 @@ import { RegisterComponent } from './auth/register/register.component';
 import { MarketplaceComponent } from './marketplace/marketplace.component';
 // Product Form Component
 import { ProductFormComponent } from './product-form/product-form.component';
+// Seller Setup Modal
+import { SellerSetupModalComponent } from './components/seller-setup-modal/seller-setup-modal.component';
 
 // Services
 import { AuthService } from './core/services/auth.service';
 import { HttpService } from './core/services/http.service';
 import { ProductService } from './core/services/product.service';
+import { SellerService } from './services/seller.service';
 
 // Guards
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard, SellerGuard } from './core/guards/role.guard';
+
+// Interceptors
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+
 import { environment } from '@environments/environment';
 
 @NgModule({
@@ -48,7 +60,8 @@ import { environment } from '@environments/environment';
     LoginComponent,
     RegisterComponent,
     MarketplaceComponent,
-    ProductFormComponent
+    ProductFormComponent,
+    SellerSetupModalComponent
   ],
   imports: [
     BrowserModule,
@@ -68,19 +81,34 @@ import { environment } from '@environments/environment';
     MatSelectModule,
     MatOptionModule,
     MatProgressBarModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatToolbarModule,
+    MatMenuModule,
 
-    // Configuración de Firebase
-    AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFireStorageModule
+    // Configuración de Firebase (temporalmente deshabilitado)
+    // AngularFireModule.initializeApp(environment.firebaseConfig),
+    // AngularFireStorageModule
 
   ],
   providers: [
     AuthService,
     HttpService,
     ProductService,
+    SellerService,
     AuthGuard,
     RoleGuard,
-    SellerGuard
+    SellerGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

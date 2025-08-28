@@ -64,11 +64,14 @@
     .nav-link {
       color: white;
       text-decoration: none;
-      padding: 8px 16px;
+      padding: 10px 16px;
       border-radius: 8px;
       font-weight: 500;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
       position: relative;
+      letter-spacing: 0.2px;
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.15);
@@ -112,18 +115,19 @@
     .user-section {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 8px;
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       padding: 8px 16px;
       border-radius: 50px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
 
       .user-avatar {
         width: 42px;
         height: 42px;
-        background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+        background: linear-gradient(135deg, #388E3C 0%, #4CAF50 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -143,55 +147,49 @@
         }
       }
 
-      .user-greeting {
-        color: white;
-        font-weight: 600;
-        font-size: 15px;
-        white-space: nowrap;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-
-        .greeting-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-          color: #FFD700;
-        }
-      }
-
-      .logout-button {
-        background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
-        color: white;
+      .user-menu-trigger {
+        background: none !important;
         border: none;
-        padding: 10px 16px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        color: white;
+        padding: 0 4px;
         display: flex;
         align-items: center;
         gap: 8px;
-        box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
-        flex-shrink: 0;
-
-        .logout-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 25px;
 
         &:hover {
-          background: linear-gradient(135deg, #e53935 0%, #d32f2f 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+          background: rgba(255, 255, 255, 0.1) !important;
         }
 
-        &:active {
-          transform: translateY(0);
-          box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+        .user-greeting {
+          color: white;
+          font-weight: 600;
+          font-size: 15px;
+          white-space: nowrap;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          .greeting-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: #FFD700;
+          }
+        }
+
+        .dropdown-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          transition: transform 0.3s ease;
+        }
+
+        &[aria-expanded="true"] .dropdown-icon {
+          transform: rotate(180deg);
         }
       }
     }
@@ -863,4 +861,214 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+}
+
+// Custom User Menu Styles
+.user-menu-container {
+  position: relative;
+
+  .user-menu-trigger {
+    background: none;
+    border: none;
+    color: white;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 25px;
+
+    &:hover, &.active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .user-greeting {
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      white-space: nowrap;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .greeting-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #FFD700;
+      }
+    }
+
+    .dropdown-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .custom-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: -8px;
+    min-width: 300px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+
+    &.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .menu-header {
+      background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
+      padding: 20px 18px;
+      color: white;
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .user-avatar-large {
+          width: 60px;
+          height: 60px;
+          background: rgba(255, 255, 255, 0.25);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 32px;
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          flex-shrink: 0;
+
+          mat-icon {
+            font-size: 32px;
+            width: 32px;
+            height: 32px;
+          }
+        }
+
+        .user-details {
+          flex: 1;
+
+          .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.3;
+            margin-bottom: 6px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.2px;
+          }
+
+          .user-email {
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            letter-spacing: 0.1px;
+          }
+
+          .user-role {
+            display: inline-block;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2E7D32;
+            padding: 6px 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
+    }
+
+    .menu-items {
+      padding: 6px 0;
+
+      .menu-item {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        color: #2C3E50;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
+        border-radius: 8px;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: #388E3C;
+          transition: all 0.3s ease;
+        }
+
+        span {
+          font-weight: 500;
+          letter-spacing: 0.1px;
+        }
+
+        &:hover {
+          background: rgba(56, 142, 60, 0.08);
+          padding-left: 24px;
+
+          mat-icon {
+            color: #2E7D32;
+            transform: scale(1.1);
+          }
+        }
+
+        &.logout-item {
+          color: #e53935;
+          margin-top: 8px;
+
+          mat-icon {
+            color: #e53935;
+          }
+
+          &:hover {
+            background: rgba(229, 57, 53, 0.06);
+
+            mat-icon {
+              color: #d32f2f;
+            }
+          }
+        }
+      }
+
+      .menu-divider {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        margin: 12px 0;
+      }
+    }
+  }
 }

@@ -1,7 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { ProductService } from '../core/services/product.service';
+import { SellerService } from '../services/seller.service';
 import { Product, ProductImage } from '../core/models/product.model';
+import { SellerSetupModalComponent } from '../components/seller-setup-modal/seller-setup-modal.component';
 import { Observable, forkJoin } from 'rxjs';
 
 @Component({
@@ -24,11 +29,17 @@ export class ProductFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private productService: ProductService
+    private productService: ProductService,
+    private sellerService: SellerService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    // ... (El código de ngOnInit no cambia)
+    // Check seller profile status when component initializes
+    this.checkSellerProfileAndShowModal();
+    
     this.productForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
@@ -36,6 +47,7 @@ export class ProductFormComponent implements OnInit {
       price: ['', [Validators.required, Validators.min(0)]],
       price_type: ['fixed', Validators.required],
       currency: ['ARS', Validators.required],
+      location: ['', Validators.required],
       province: [''],
       city: [''],
       location_coordinates: this.fb.group({
@@ -168,6 +180,47 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al actualizar orden de imagen:', error);
+      }
+    });
+  }
+
+  private checkSellerProfileAndShowModal(): void {
+    this.sellerService.checkSellerProfileComplete().subscribe({
+      next: (response) => {
+        if (!response.is_complete) {
+          this.showSellerSetupModal();
+        }
+      },
+      error: (error) => {
+        console.error('Error checking seller profile:', error);
+        // If there's an error checking, still show the modal to be safe
+        this.showSellerSetupModal();
+      }
+    });
+  }
+
+  private showSellerSetupModal(): void {
+    const dialogRef = this.dialog.open(SellerSetupModalComponent, {
+      width: '90%',
+      maxWidth: '700px',
+      disableClose: true, // Prevent closing by clicking outside
+      panelClass: 'seller-setup-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // User completed the seller setup
+        this.snackBar.open('¡Perfil configurado! Ahora puedes publicar productos', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+      } else {
+        // User cancelled - redirect back to marketplace
+        this.snackBar.open('Debes completar tu perfil de vendedor para publicar productos', 'Cerrar', {
+          duration: 4000,
+          panelClass: ['warning-snackbar']
+        });
+        this.router.navigate(['/marketplace']);
       }
     });
   }

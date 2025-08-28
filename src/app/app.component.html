@@ -142,14 +142,63 @@
                   <div class="user-avatar">
                     <mat-icon class="avatar-icon">person</mat-icon>
                   </div>
-                  <span class="user-greeting">
-                    <mat-icon class="greeting-icon">waving_hand</mat-icon>
-                    ¡Hola, {{ (currentUser$ | async)?.first_name || 'Usuario' }}!
-                  </span>
-                  <button (click)="logout()" class="logout-button">
-                    <mat-icon class="logout-icon">logout</mat-icon>
-                    Salir
-                  </button>
+                  <div class="user-menu-container">
+                    <button 
+                      class="user-menu-trigger"
+                      (click)="toggleUserMenu()"
+                      [class.active]="showUserMenu">
+                      <span class="user-greeting">
+                        ¡Hola, {{ (currentUser$ | async)?.first_name || 'Usuario' }}!
+                      </span>
+                      <mat-icon class="dropdown-icon" [class.rotated]="showUserMenu">arrow_drop_down</mat-icon>
+                    </button>
+
+                    <!-- Custom dropdown menu -->
+                    <div class="custom-dropdown-menu" [class.show]="showUserMenu" (click)="$event.stopPropagation()">
+                      <!-- User info header -->
+                      <div class="menu-header">
+                        <div class="user-info">
+                          <div class="user-avatar-large">
+                            <mat-icon>person</mat-icon>
+                          </div>
+                          <div class="user-details">
+                            <div class="user-name">{{ (currentUser$ | async)?.first_name }} {{ (currentUser$ | async)?.last_name }}</div>
+                            <div class="user-email">{{ (currentUser$ | async)?.email }}</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Menu items -->
+                      <div class="menu-items">
+                        <button class="menu-item" (click)="openEditProfile(); closeUserMenu()">
+                          <mat-icon>edit</mat-icon>
+                          <span>Editar Perfil</span>
+                        </button>
+                        
+                        <button class="menu-item" (click)="openAccountSettings(); closeUserMenu()">
+                          <mat-icon>settings</mat-icon>
+                          <span>Configuración de Cuenta</span>
+                        </button>
+                        
+                        <button class="menu-item" *ngIf="(currentUser$ | async)?.role === 'seller'" (click)="openSellerSettings(); closeUserMenu()">
+                          <mat-icon>store</mat-icon>
+                          <span>Perfil de Vendedor</span>
+                        </button>
+                        
+                        <button class="menu-item" (click)="viewMyActivity(); closeUserMenu()">
+                          <mat-icon>history</mat-icon>
+                          <span>Mi Actividad</span>
+                        </button>
+                        
+                        <div class="menu-divider"></div>
+                        
+                        <button class="menu-item logout-item" (click)="logout(); closeUserMenu()">
+                          <mat-icon>logout</mat-icon>
+                          <span>Cerrar Sesión</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </ng-container>
             </div>

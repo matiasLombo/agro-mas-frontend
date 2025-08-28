@@ -32,6 +32,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 // Utility classes
 .full-width {
   width: 100%;
@@ -172,4 +173,25 @@ select:focus {
     'wght' 200,
     'GRAD' 0,
     'opsz' 40
+}
+
+// Custom Dialog Styles
+.custom-backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.custom-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
 }
