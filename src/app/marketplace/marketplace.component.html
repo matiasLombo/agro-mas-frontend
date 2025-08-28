@@ -128,6 +128,10 @@
             <mat-icon class="seller-icon">person</mat-icon>
             <span>Vendedor: {{ product.seller_name }}</span>
           </div>
+          <button (click)="viewProduct(product.id)" class="product-button secondary">
+            <mat-icon>visibility</mat-icon>
+            Ver
+          </button>
           <button (click)="requireLogin('Contactar vendedor')" class="product-button primary">
             <mat-icon>contact_mail</mat-icon>
             Contactar Vendedor

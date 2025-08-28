@@ -2,10 +2,12 @@ import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../core/services/product.service';
+import { LocationService } from '../core/services/location.service';
 import { SellerService } from '../services/seller.service';
 import { Product, ProductImage } from '../core/models/product.model';
+import { Province, Department, Settlement } from '../core/models/location.model';
 import { SellerSetupModalComponent } from '../components/seller-setup-modal/seller-setup-modal.component';
 import { Observable, forkJoin } from 'rxjs';
 
@@ -27,13 +29,24 @@ export class ProductFormComponent implements OnInit {
   isUploading: boolean = false;
   uploadProgress: number = 0;
 
+  // Location data
+  provinces: Province[] = [];
+  departments: Department[] = [];
+  settlements: Settlement[] = [];
+
+  selectedProvinceId: string = '';
+  selectedDepartmentId: string = '';
+  selectedSettlementId: string = '';
+
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
+    private locationService: LocationService,
     private sellerService: SellerService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
@@ -47,8 +60,9 @@ export class ProductFormComponent implements OnInit {
       price: ['', [Validators.required, Validators.min(0)]],
       price_type: ['fixed', Validators.required],
       currency: ['ARS', Validators.required],
-      location: ['', Validators.required],
-      province: [''],
+      province: ['', Validators.required],
+      department: [''],
+      settlement: [''],
       city: [''],
       location_coordinates: this.fb.group({
         lat: [''],
@@ -64,6 +78,14 @@ export class ProductFormComponent implements OnInit {
       images: [[]],
     });
 
+    this.loadProvinces();
+
+    // Check for product ID from route parameter
+    const routeProductId = this.route.snapshot.paramMap.get('id');
+    if (routeProductId) {
+      this.productId = routeProductId;
+    }
+
     if (this.productId) {
       this.isEditMode = true;
       this.loadProductData(this.productId);
@@ -72,10 +94,50 @@ export class ProductFormComponent implements OnInit {
   }
 
   loadProductData(id: string): void {
-    this.productService.getProduct(id).subscribe(product => {
-      if (product) {
-        this.productForm.patchValue(product);
-        this.productForm.disable();
+    this.productService.getProduct(id).subscribe({
+      next: (product) => {
+        if (product) {
+          // Update form with product data
+          this.productForm.patchValue({
+            title: product.title,
+            description: product.description,
+            category: product.category,
+            price: product.price,
+            price_type: product.price_type,
+            currency: product.currency,
+            province: product.province,
+            department: product.department,
+            settlement: product.settlement,
+            city: product.city,
+            pickup_available: product.pickup_available,
+            delivery_available: product.delivery_available,
+            seller_name: product.seller_name,
+            tags: product.tags || [],
+            images: product.images || []
+          });
+
+          // Load location data if province exists
+          if (product.province) {
+            this.selectedProvinceId = product.province;
+            this.loadDepartments(product.province);
+            this.loadSettlements(product.province);
+            
+            if (product.department) {
+              this.selectedDepartmentId = product.department;
+              this.loadSettlementsByDepartment(product.province, product.department);
+            }
+            
+            if (product.settlement) {
+              this.selectedSettlementId = product.settlement;
+            }
+          }
+
+          // Disable form in edit mode
+          this.productForm.disable();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading product:', error);
       }
     });
   }
@@ -85,7 +147,6 @@ export class ProductFormComponent implements OnInit {
       this.uploadedImages = images;
     });
   }
-
 
   async onFileChange(event: any, type: 'images' | 'videos'): Promise<void> {
     const files: FileList = event.target.files;
@@ -184,6 +245,7 @@ export class ProductFormComponent implements OnInit {
     });
   }
 
+  // Seller profile check methods
   private checkSellerProfileAndShowModal(): void {
     this.sellerService.checkSellerProfileComplete().subscribe({
       next: (response) => {
@@ -221,6 +283,91 @@ export class ProductFormComponent implements OnInit {
           panelClass: ['warning-snackbar']
         });
         this.router.navigate(['/marketplace']);
+      }
+    });
+  }
+
+  // Location methods
+  loadProvinces(): void {
+    this.locationService.getProvinces({ max: 50 }).subscribe({
+      next: (response) => {
+        this.provinces = response.provincias;
+      },
+      error: (error) => {
+        console.error('Error al cargar provincias:', error);
+      }
+    });
+  }
+
+  onProvinceChange(event: any): void {
+    const provinceId = event.target.value;
+    this.selectedProvinceId = provinceId;
+    
+    // Clear dependent selects
+    this.departments = [];
+    this.settlements = [];
+    this.selectedDepartmentId = '';
+    this.selectedSettlementId = '';
+    
+    this.productForm.patchValue({
+      department: '',
+      settlement: ''
+    });
+
+    if (provinceId) {
+      this.loadDepartments(provinceId);
+      this.loadSettlements(provinceId);
+    }
+  }
+
+  onDepartmentChange(event: any): void {
+    const departmentId = event.target.value;
+    this.selectedDepartmentId = departmentId;
+    
+    this.settlements = [];
+    this.productForm.patchValue({ settlement: '' });
+
+    if (departmentId && this.selectedProvinceId) {
+      this.loadSettlementsByDepartment(this.selectedProvinceId, departmentId);
+    }
+  }
+
+  onSettlementChange(event: any): void {
+    this.selectedSettlementId = event.target.value;
+  }
+
+  loadDepartments(provinceId: string): void {
+    this.locationService.getDepartments({ provincia: provinceId, max: 50 }).subscribe({
+      next: (response) => {
+        this.departments = response.departamentos || [];
+      },
+      error: (error) => {
+        console.error('Error al cargar departamentos:', error);
+        this.departments = [];
+      }
+    });
+  }
+
+  loadSettlements(provinceId: string): void {
+    this.locationService.getSettlements({ provincia: provinceId, max: 100 }).subscribe({
+      next: (response) => {
+        this.settlements = response.asentamientos || [];
+      },
+      error: (error) => {
+        console.error('Error al cargar asentamientos:', error);
+        this.settlements = [];
+      }
+    });
+  }
+
+  loadSettlementsByDepartment(provinceId: string, departmentId: string): void {
+    this.locationService.getSettlements({ provincia: provinceId, departamento: departmentId, max: 100 }).subscribe({
+      next: (response) => {
+        this.settlements = response.asentamientos || [];
+      },
+      error: (error) => {
+        console.error('Error al cargar asentamientos por departamento:', error);
+        this.settlements = [];
       }
     });
   }
