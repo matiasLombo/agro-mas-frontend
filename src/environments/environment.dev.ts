@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api/v1',
+  apiUrl: 'https://agro-mas-backend-dev-62ylvs6mya-uc.a.run.app/api/v1',
   firebaseConfig: {
     apiKey: 'your-firebase-api-key',
     authDomain: 'agro-mas-fe-dev-2025.firebaseapp.com',
