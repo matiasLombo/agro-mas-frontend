@@ -130,11 +130,11 @@
             </div>
 
             <div class="nav-right">
-              <button mat-button routerLink="/marketplace" class="nav-link">Inicio</button>
+              <button mat-button routerLink="/marketplace" routerLinkActive="active" class="nav-link">Inicio</button>
 
               <ng-container *ngIf="!(isAuthenticated$ | async)">
-                <button mat-button routerLink="/login" class="nav-link">Iniciar Sesión</button>
-                <button mat-flat-button routerLink="/register" class="nav-button">Registrarse</button>
+                <button mat-button routerLink="/login" routerLinkActive="active" class="nav-link">Iniciar Sesión</button>
+                <button mat-flat-button routerLink="/register" routerLinkActive="active" class="nav-button">Registrarse</button>
               </ng-container>
 
               <ng-container *ngIf="isAuthenticated$ | async">

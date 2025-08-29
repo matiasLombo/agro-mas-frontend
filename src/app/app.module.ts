@@ -16,6 +16,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
@@ -29,8 +33,12 @@ import { RegisterComponent } from './auth/register/register.component';
 
 // Marketplace Components
 import { MarketplaceComponent } from './marketplace/marketplace.component';
-// Product Form Component
+// Product Components
 import { ProductFormComponent } from './product-form/product-form.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { MyProductsComponent } from './my-products/my-products.component';
+// Dialog Components
+import { QuotationDialogComponent } from './quotation-dialog/quotation-dialog.component';
 
 // Services
 import { AuthService } from './core/services/auth.service';
@@ -48,7 +56,10 @@ import { environment } from '@environments/environment';
     LoginComponent,
     RegisterComponent,
     MarketplaceComponent,
-    ProductFormComponent
+    ProductFormComponent,
+    ProductDetailComponent,
+    MyProductsComponent,
+    QuotationDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -68,6 +79,10 @@ import { environment } from '@environments/environment';
     MatSelectModule,
     MatOptionModule,
     MatProgressBarModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
 
     // Configuración de Firebase
     AngularFireModule.initializeApp(environment.firebaseConfig),
