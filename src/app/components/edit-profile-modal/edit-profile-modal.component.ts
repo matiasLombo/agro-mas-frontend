@@ -6,8 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 import { AuthService } from '../../core/services/auth.service';
+import { LocationService } from '../../core/services/location.service';
 import { User } from '../../core/models/user.model';
+import { Province, Settlement } from '../../core/models/location.model';
 
 @Component({
   selector: 'app-edit-profile-modal',
@@ -18,7 +22,9 @@ import { User } from '../../core/models/user.model';
     MatIconModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule
   ],
   templateUrl: './edit-profile-modal.component.html',
   styleUrl: './edit-profile-modal.component.scss'
@@ -28,10 +34,16 @@ export class EditProfileModalComponent implements OnInit {
   currentUser: User | null = null;
   isLoading = false;
   isInitialLoading = true;
+  
+  // Location data
+  provinces: Province[] = [];
+  settlements: Settlement[] = [];
+  selectedProvinceId: string = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private locationService: LocationService,
     public dialogRef: MatDialogRef<EditProfileModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
@@ -40,12 +52,14 @@ export class EditProfileModalComponent implements OnInit {
       last_name: ['', [Validators.required]],
       phone: [''],
       address: [''],
-      city: [''],
-      province: ['']
+      province: [''],
+      city: ['']
     });
   }
 
   ngOnInit(): void {
+    this.loadProvinces();
+    
     // Load current user data and populate form
     setTimeout(() => {
       this.currentUser = this.authService.currentUser;
@@ -55,12 +69,53 @@ export class EditProfileModalComponent implements OnInit {
           last_name: this.currentUser.last_name || '',
           phone: this.currentUser.phone || '',
           address: this.currentUser.address || '',
-          city: this.currentUser.city || '',
-          province: this.currentUser.province || ''
+          province: this.currentUser.province || '',
+          city: this.currentUser.city || ''
         });
+        
+        // Load settlements if province is set
+        if (this.currentUser.province) {
+          this.selectedProvinceId = this.currentUser.province;
+          this.loadSettlements(this.currentUser.province);
+        }
       }
       this.isInitialLoading = false;
     }, 800);
+  }
+
+  loadProvinces(): void {
+    this.locationService.getProvinces().subscribe({
+      next: (response) => {
+        this.provinces = response.provincias;
+      },
+      error: (error) => {
+        console.error('Error loading provinces:', error);
+      }
+    });
+  }
+
+  loadSettlements(provinceId: string): void {
+    if (provinceId) {
+      this.locationService.getSettlements({ provincia: provinceId }).subscribe({
+        next: (response) => {
+          this.settlements = response.asentamientos;
+        },
+        error: (error) => {
+          console.error('Error loading settlements:', error);
+        }
+      });
+    }
+  }
+
+  onProvinceChange(event: any): void {
+    const provinceId = event.value;
+    this.selectedProvinceId = provinceId;
+    this.settlements = [];
+    this.profileForm.patchValue({ city: '' });
+    
+    if (provinceId) {
+      this.loadSettlements(provinceId);
+    }
   }
 
   closeModal(): void {

@@ -302,7 +302,7 @@ export class ProductFormComponent implements OnInit {
   }
 
   onProvinceChange(event: any): void {
-    const provinceId = event.target.value;
+    const provinceId = event.value || event.target?.value;
     this.selectedProvinceId = provinceId;
     
     // Clear dependent selects
@@ -323,7 +323,7 @@ export class ProductFormComponent implements OnInit {
   }
 
   onDepartmentChange(event: any): void {
-    const departmentId = event.target.value;
+    const departmentId = event.value || event.target?.value;
     this.selectedDepartmentId = departmentId;
     
     this.settlements = [];
@@ -335,7 +335,7 @@ export class ProductFormComponent implements OnInit {
   }
 
   onSettlementChange(event: any): void {
-    this.selectedSettlementId = event.target.value;
+    this.selectedSettlementId = event.value || event.target?.value;
   }
 
   loadDepartments(provinceId: string): void {

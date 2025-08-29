@@ -116,11 +116,9 @@
         <div class="header-content">
           <nav class="navigation">
             <div class="nav-left">
-              <ng-container *ngIf="!(isAuthenticated$ | async)">
-                <button mat-icon-button (click)="sidenav.open()" class="menu-toggle-button">
-                  <mat-icon>menu</mat-icon>
-                </button>
-              </ng-container>
+              <button mat-icon-button (click)="sidenav.open()" class="menu-toggle-button">
+                <mat-icon>menu</mat-icon>
+              </button>
               <div class="logo-section">
                 <a routerLink="/marketplace" class="logo-link">
                   <div class="logo-icon">🌾</div>

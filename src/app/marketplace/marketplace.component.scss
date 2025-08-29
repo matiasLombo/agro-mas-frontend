@@ -289,57 +289,26 @@
 
 .search-bar {
   display: flex;
+  align-items: flex-start;
+  gap: $spacing-4;
   max-width: 600px;
   margin: 0 auto $spacing-8;
-  background: $white;
-  border: 2px solid $gray-200;
-  border-radius: $radius-full;
-  overflow: hidden;
-  transition: all 0.2s ease;
-  box-shadow: $shadow;
   
-  &:focus-within {
-    border-color: $primary-green;
-    box-shadow: $shadow-focus;
-  }
-  
-  &:hover:not(:focus-within) {
-    border-color: $gray-300;
-    box-shadow: $shadow-md;
+  .search-field {
+    flex: 1;
   }
 }
 
-.search-input {
-  @include input-base;
-  border: none;
-  border-radius: 0;
-  padding: $spacing-4 $spacing-6;
-  font-size: $text-base;
-  
-  &:focus {
-    box-shadow: none;
-    border: none;
-  }
-  
-  &::placeholder {
-    color: $gray-500;
-  }
-}
+// Removed old search input styles - now using mat-form-field
 
 .search-button {
-  @include button-primary;
-  border-radius: 0 $radius-full $radius-full 0;
+  height: 56px;
   padding: $spacing-4 $spacing-6;
-  min-width: 56px;
-  
-  &:hover::before {
-    transform: translateX(100%);
-  }
+  min-width: 120px;
+  border-radius: $radius-lg;
   
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    margin-right: $spacing-2;
   }
 }
 

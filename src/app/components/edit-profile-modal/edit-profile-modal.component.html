@@ -47,7 +47,7 @@
           <!-- First Name -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Nombre</mat-label>
-            <input matInput formControlName="first_name" placeholder="Ingresa tu nombre">
+            <input matInput formControlName="first_name" placeholder="Tu nombre">
             <mat-icon matSuffix>person</mat-icon>
             <mat-error *ngIf="profileForm.get('first_name')?.invalid && profileForm.get('first_name')?.touched">
               El nombre es requerido
@@ -57,7 +57,7 @@
           <!-- Last Name -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Apellido</mat-label>
-            <input matInput formControlName="last_name" placeholder="Ingresa tu apellido">
+            <input matInput formControlName="last_name" placeholder="Tu apellido">
             <mat-icon matSuffix>badge</mat-icon>
             <mat-error *ngIf="profileForm.get('last_name')?.invalid && profileForm.get('last_name')?.touched">
               El apellido es requerido
@@ -68,29 +68,37 @@
           <!-- Phone -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Teléfono</mat-label>
-            <input matInput formControlName="phone" placeholder="+54 11 1234-5678">
+            <input matInput formControlName="phone" placeholder="Teléfono">
             <mat-icon matSuffix>phone</mat-icon>
           </mat-form-field>
 
           <!-- Address -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Dirección</mat-label>
-            <input matInput formControlName="address" placeholder="Av. Corrientes 1234">
+            <input matInput formControlName="address" placeholder="Dirección">
             <mat-icon matSuffix>home</mat-icon>
-          </mat-form-field>
-
-          <!-- City -->
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Ciudad</mat-label>
-            <input matInput formControlName="city" placeholder="Buenos Aires">
-            <mat-icon matSuffix>location_city</mat-icon>
           </mat-form-field>
 
           <!-- Province -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Provincia</mat-label>
-            <input matInput formControlName="province" placeholder="Buenos Aires">
-            <mat-icon matSuffix>location_on</mat-icon>
+            <mat-select formControlName="province" (selectionChange)="onProvinceChange($event)">
+              <mat-option value="">Selecciona una provincia</mat-option>
+              <mat-option *ngFor="let province of provinces" [value]="province.id">
+                {{ province.nombre }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- City (Settlement) -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Localidad/Asentamiento</mat-label>
+            <mat-select formControlName="city" [disabled]="!selectedProvinceId">
+              <mat-option value="">Selecciona una localidad</mat-option>
+              <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
+                {{ settlement.nombre }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
         </div>
       </form>

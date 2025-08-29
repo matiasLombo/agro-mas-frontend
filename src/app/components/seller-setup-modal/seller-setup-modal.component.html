@@ -28,9 +28,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Nombre Comercial / Razón Social</mat-label>
-            <input matInput 
-                   formControlName="business_name" 
-                   placeholder="Ej: Agropecuaria San Martín">
+            <input matInput formControlName="business_name">
             <mat-icon matSuffix>business</mat-icon>
             <mat-error>{{ getFieldError('business_name') }}</mat-error>
           </mat-form-field>
@@ -39,9 +37,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>CUIT</mat-label>
-            <input matInput 
-                   formControlName="cuit" 
-                   placeholder="20123456789">
+            <input matInput formControlName="cuit" placeholder="20123456789">
             <mat-icon matSuffix>assignment_ind</mat-icon>
             <mat-error>{{ getFieldError('cuit') }}</mat-error>
           </mat-form-field>
@@ -68,9 +64,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>CBU / CVU</mat-label>
-            <input matInput 
-                   formControlName="cbu" 
-                   placeholder="1234567890123456789012">
+            <input matInput formControlName="cbu" placeholder="22 dígitos">
             <mat-icon matSuffix>account_balance_wallet</mat-icon>
             <mat-hint>22 dígitos para recibir pagos</mat-hint>
             <mat-error>{{ getFieldError('cbu') }}</mat-error>
@@ -80,17 +74,13 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Alias del CBU (Opcional)</mat-label>
-            <input matInput 
-                   formControlName="cbu_alias" 
-                   placeholder="mi.negocio.agro">
+            <input matInput formControlName="cbu_alias" placeholder="tu.alias">
             <mat-icon matSuffix>alternate_email</mat-icon>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Banco (Opcional)</mat-label>
-            <input matInput 
-                   formControlName="bank_name" 
-                   placeholder="Ej: Banco Nación">
+            <input matInput formControlName="bank_name" placeholder="Banco">
             <mat-icon matSuffix>account_balance</mat-icon>
           </mat-form-field>
         </div>
@@ -106,9 +96,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Código RENSPA</mat-label>
-            <input matInput 
-                   formControlName="renspa" 
-                   placeholder="123456789010x">
+            <input matInput formControlName="renspa" placeholder="123456789010x">
             <mat-icon matSuffix>verified</mat-icon>
             <mat-error>{{ getFieldError('renspa') }}</mat-error>
           </mat-form-field>
@@ -117,17 +105,13 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Nombre del Establecimiento (Opcional)</mat-label>
-            <input matInput 
-                   formControlName="establishment_name" 
-                   placeholder="Ej: Estancia San Martín">
+            <input matInput formControlName="establishment_name" placeholder="Estancia">
             <mat-icon matSuffix>business</mat-icon>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Ubicación del Establecimiento (Opcional)</mat-label>
-            <input matInput 
-                   formControlName="establishment_location" 
-                   placeholder="Ej: Ruta 9, Km 145, Buenos Aires">
+            <input matInput formControlName="establishment_location" placeholder="Ubicación">
             <mat-icon matSuffix>location_on</mat-icon>
           </mat-form-field>
         </div>
@@ -150,18 +134,12 @@
   </div>
 
   <div mat-dialog-actions class="modal-actions">
-    <button mat-stroked-button 
-            (click)="onCancel()"
-            [disabled]="isSubmitting || isLoading"
-            class="cancel-button">
+    <button mat-stroked-button (click)="onCancel()" [disabled]="isSubmitting || isLoading" class="cancel-button">
       Cancelar
     </button>
-    
-    <button mat-raised-button 
-            color="primary"
-            (click)="onSubmit()"
-            [disabled]="!sellerForm.valid || isSubmitting || isLoading"
-            class="submit-button">
+
+    <button mat-raised-button color="primary" (click)="onSubmit()"
+      [disabled]="!sellerForm.valid || isSubmitting || isLoading" class="submit-button">
       <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
       <mat-icon *ngIf="!isSubmitting && !isLoading">check_circle</mat-icon>
       <mat-icon *ngIf="isLoading">refresh</mat-icon>
