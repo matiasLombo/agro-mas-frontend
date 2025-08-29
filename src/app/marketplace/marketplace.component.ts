@@ -265,7 +265,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
    * Navigate to product details
    */
   viewProduct(productId: string): void {
-    this.router.navigate(['/product', productId]);
+    this.router.navigate(['/product-detail', productId]);
   }
 
   /**

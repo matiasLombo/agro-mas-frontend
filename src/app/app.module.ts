@@ -20,6 +20,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // import { AngularFireModule } from '@angular/fire/compat';
 // import { AngularFireStorageModule } from '@angular/fire/compat/storage';
@@ -33,10 +35,14 @@ import { RegisterComponent } from './auth/register/register.component';
 
 // Marketplace Components
 import { MarketplaceComponent } from './marketplace/marketplace.component';
-// Product Form Component
+// Product Components
 import { ProductFormComponent } from './product-form/product-form.component';
 // Seller Setup Modal
 import { SellerSetupModalComponent } from './components/seller-setup-modal/seller-setup-modal.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { MyProductsComponent } from './my-products/my-products.component';
+// Dialog Components
+import { QuotationDialogComponent } from './quotation-dialog/quotation-dialog.component';
 
 // Services
 import { AuthService } from './core/services/auth.service';
@@ -61,7 +67,10 @@ import { environment } from '@environments/environment';
     RegisterComponent,
     MarketplaceComponent,
     ProductFormComponent,
-    SellerSetupModalComponent
+    SellerSetupModalComponent,
+    ProductDetailComponent,
+    MyProductsComponent,
+    QuotationDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -85,6 +94,8 @@ import { environment } from '@environments/environment';
     MatSnackBarModule,
     MatToolbarModule,
     MatMenuModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
 
     // Configuración de Firebase (temporalmente deshabilitado)
     // AngularFireModule.initializeApp(environment.firebaseConfig),

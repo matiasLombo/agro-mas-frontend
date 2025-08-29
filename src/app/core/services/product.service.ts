@@ -116,4 +116,39 @@ export class ProductService {
     const baseUrl = environment.apiUrl.replace('/api', '');
     return `${baseUrl}/resize/${storagePath}?w=${width}&h=${height}&q=${quality}`;
   }
+
+  /**
+   * Get products by user ID
+   */
+  getProductsByUser(userId: string): Observable<ProductSearchResponse> {
+    return this.http.get<ProductSearchResponse>(`${this.apiUrl}/user/${userId}`);
+  }
+
+  /**
+   * Create a new product
+   */
+  createProduct(product: Partial<Product>): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, product);
+  }
+
+  /**
+   * Update an existing product
+   */
+  updateProduct(productId: string, updates: Partial<Product>): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, updates);
+  }
+
+  /**
+   * Delete a product
+   */
+  deleteProduct(productId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${productId}`);
+  }
+
+  /**
+   * Submit a quotation request
+   */
+  submitQuotation(quotationData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/quotations`, quotationData);
+  }
 }

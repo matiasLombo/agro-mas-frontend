@@ -82,12 +82,12 @@ export class ProductFormComponent implements OnInit {
 
     // Check for product ID from route parameter
     const routeProductId = this.route.snapshot.paramMap.get('id');
+    const isEditQueryParam = this.route.snapshot.queryParams['edit'];
+    
     if (routeProductId) {
       this.productId = routeProductId;
-    }
-
-    if (this.productId) {
-      this.isEditMode = true;
+      // Solo permitir edición si el query param 'edit' está presente
+      this.isEditMode = isEditQueryParam === 'true';
       this.loadProductData(this.productId);
       this.loadProductImages(this.productId);
     }
@@ -132,8 +132,10 @@ export class ProductFormComponent implements OnInit {
             }
           }
 
-          // Disable form in edit mode
-          this.productForm.disable();
+          // Only enable form if we're in edit mode, otherwise disable for viewing
+          if (!this.isEditMode) {
+            this.productForm.disable();
+          }
         }
       },
       error: (error) => {
