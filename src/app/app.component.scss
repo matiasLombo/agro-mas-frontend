@@ -43,6 +43,9 @@
 
     .logo-icon {
       font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      color: white;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     }
 
@@ -72,17 +75,23 @@
       transition: all 0.3s ease;
       position: relative;
       letter-spacing: 0.2px;
+      border: 1px solid transparent;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover,
       &.active {
         background-color: rgba(255, 255, 255, 0.15);
         transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.2);
       }
 
       &:before {
         content: '';
         position: absolute;
-        bottom: -4px;
+        bottom: -2px;
         left: 50%;
         width: 0;
         height: 2px;
@@ -93,7 +102,7 @@
 
       &:hover:before,
       &.active:before {
-        width: 100%;
+        width: calc(100% - 12px);
       }
     }
 
@@ -106,19 +115,21 @@
       font-weight: 600;
       transition: all 0.3s ease;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid transparent;
 
       &:hover,
       &.active {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         background: #f8f9fa;
+        border-color: rgba(255, 255, 255, 0.3);
       }
     }
 
     .user-section {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       padding: 8px 16px;
@@ -549,56 +560,80 @@
 }
 
 .sidenav-menu {
-  width: 320px;
+  width: 300px;
   background: linear-gradient(180deg, #ffffff 0%, #f8fffe 100%);
   border-right: 1px solid rgba(76, 175, 80, 0.1);
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  
+  @media (max-width: 480px) {
+    width: 85vw;
+    max-width: 320px;
+  }
 
   .sidenav-header {
     background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
     color: white;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 2px 10px rgba(46, 125, 50, 0.2);
+    flex-shrink: 0;
+    min-height: 70px;
 
     .sidenav-logo {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex: 1;
 
       .logo-icon {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        width: 1.8rem;
+        height: 1.8rem;
+        color: white;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
       }
 
       .logo-title {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
         letter-spacing: -0.5px;
+        color: white;
       }
     }
 
     .close-button {
-      color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
+      color: white !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      transition: all 0.3s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      min-width: 40px !important;
+      line-height: 1 !important;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: rotate(90deg);
+        background: rgba(255, 255, 255, 0.25) !important;
+        transform: rotate(90deg) !important;
       }
 
       mat-icon {
-        font-size: 20px;
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+        color: white !important;
       }
     }
   }
@@ -607,6 +642,8 @@
     flex: 1;
     padding: 1.5rem 0;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 
     .user-profile {
       padding: 0 1.5rem 1.5rem;
@@ -667,49 +704,55 @@
     }
 
     .menu-section {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
 
       &.logout-section {
         margin-top: auto;
-        padding-top: 1rem;
+        padding-top: 1.5rem;
         border-top: 1px solid rgba(76, 175, 80, 0.1);
         margin: 0 1rem;
       }
 
       .section-title {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 600;
         color: #4CAF50;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin: 0 0 8px 0;
+        letter-spacing: 0.8px;
+        margin: 0 0 12px 0;
         padding: 0 1.5rem;
       }
 
       .menu-nav {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
         padding: 0 1rem;
 
         .menu-item {
           width: 100%;
           text-align: left;
           justify-content: flex-start;
-          padding: 12px 16px;
-          border-radius: 8px;
+          padding: 14px 16px;
+          border-radius: 10px;
           font-size: 14px;
           font-weight: 500;
           color: #2C3E50;
           transition: all 0.3s ease;
           position: relative;
           border: 1px solid transparent;
+          margin-bottom: 2px;
 
           .menu-icon {
-            margin-right: 12px;
+            margin-right: 14px;
             font-size: 20px;
+            width: 20px;
+            height: 20px;
             color: #66BB6A;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
           .menu-text {
@@ -828,24 +871,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
+  margin-right: 16px;
   color: white;
-  padding: 8px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.3);
   }
 
   mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: white;
+    pointer-events: none;
   }
 }
 
@@ -854,6 +916,10 @@
 .nav-right {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.nav-right {
   gap: 1.5rem;
 }
 
@@ -909,9 +975,10 @@
 
   .custom-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
-    right: -8px;
-    min-width: 300px;
+    top: calc(100% + 12px);
+    right: 0;
+    min-width: 320px;
+    max-width: 90vw;
     background: white;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);

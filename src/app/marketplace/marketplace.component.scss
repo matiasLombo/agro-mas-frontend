@@ -78,19 +78,36 @@
   position: relative;
   z-index: 2;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
+  justify-content: space-between;
   padding-top: $spacing-8;
   padding-bottom: $spacing-8;
+  gap: $spacing-8;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: $spacing-6;
+  }
+}
+
+.hero-text {
+  flex: 1;
+  max-width: 600px;
+  
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
   font-weight: 800;
-  margin-bottom: $spacing-5;
+  margin-bottom: $spacing-4;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.2;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
   
   // Professional text treatment
   background: linear-gradient(135deg, 
@@ -112,34 +129,55 @@
 }
 
 .hero-subtitle {
-  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
-  margin-bottom: $spacing-8;
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  margin-bottom: $spacing-3;
   opacity: 0.95;
-  max-width: 600px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.hero-description {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  margin-bottom: $spacing-6;
+  opacity: 0.85;
   line-height: 1.6;
   font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 500px;
 }
 
 .hero-image {
-  margin-top: $spacing-6;
+  flex-shrink: 0;
   animation: slideInUp 0.8s ease-out;
+  
+  @media (max-width: 768px) {
+    margin-top: $spacing-4;
+  }
 }
 
 .hero-placeholder {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255,255,255,0.3);
   backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
 .hero-icon {
-  font-size: 3rem;
+  font-size: 4rem;
   opacity: 0.9;
+  color: rgba(255, 255, 255, 0.95);
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes slideInUp {
