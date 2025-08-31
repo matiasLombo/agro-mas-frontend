@@ -34,15 +34,15 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 
 // Marketplace Components
-import { MarketplaceComponent } from './marketplace/marketplace.component';
+import { MarketplaceComponent } from './components/marketplace/marketplace.component';
 // Product Components
-import { ProductFormComponent } from './product-form/product-form.component';
+import { ProductFormComponent } from './components/product-form/product-form.component';
 // Seller Setup Modal
 import { SellerSetupModalComponent } from './components/seller-setup-modal/seller-setup-modal.component';
-import { ProductDetailComponent } from './product-detail/product-detail.component';
-import { MyProductsComponent } from './my-products/my-products.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { MyProductsComponent } from './components/my-products/my-products.component';
 // Dialog Components
-import { QuotationDialogComponent } from './quotation-dialog/quotation-dialog.component';
+import { QuotationDialogComponent } from './components/quotation-dialog/quotation-dialog.component';
 
 // Services
 import { AuthService } from './core/services/auth.service';

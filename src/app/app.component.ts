@@ -5,7 +5,7 @@ import { ApiTestService } from './services/api-test.service';
 import { AuthService } from './core/services/auth.service';
 import { User } from './core/models/user.model';
 import { Observable } from 'rxjs';
-
+import { logo } from './core/constants/images.constants';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
   // Auth properties
   isAuthenticated$: Observable<boolean>;
   currentUser$: Observable<User | null>;
-  
+
   // User menu state
   showUserMenu = false;
 
@@ -39,12 +39,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.testBackendConnection();
     this.testBackendEnvironment();
-    
+
     // Close user menu when clicking outside
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       const userMenuContainer = document.querySelector('.user-menu-container');
-      
+
       if (userMenuContainer && !userMenuContainer.contains(target)) {
         this.showUserMenu = false;
         this.cdr.detectChanges();
@@ -170,5 +170,9 @@ export class AppComponent implements OnInit {
         console.error('Backend environment error:', error);
       }
     });
+  }
+
+  get logo() {
+    return logo.logoAgro;
   }
 }

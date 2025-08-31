@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductService } from '../core/services/product.service';
-import { Product, ProductImage } from '../core/models/product.model';
-import { AuthService } from '../core/services/auth.service';
+import { ProductService } from '../../core/services/product.service';
+import { Product, ProductImage } from '../../core/models/product.model';
+import { AuthService } from '../../core/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.component';
 

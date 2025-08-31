@@ -121,16 +121,17 @@
               </button>
               <div class="logo-section">
                 <a routerLink="/marketplace" class="logo-link">
-                  <mat-icon class="logo-icon">agriculture</mat-icon>
-                  <h1 class="logo-text">{{ title }}</h1>
+                  <img src={{logo}} alt="Agro Mas" class="logo-image">
                 </a>
               </div>
             </div>
 
             <div class="nav-right">
               <ng-container *ngIf="!(isAuthenticated$ | async)">
-                <button mat-button routerLink="/login" routerLinkActive="active" class="nav-link">Iniciar Sesión</button>
-                <button mat-flat-button routerLink="/register" routerLinkActive="active" class="nav-button">Registrarse</button>
+                <button mat-button routerLink="/login" routerLinkActive="active" class="nav-link">Iniciar
+                  Sesión</button>
+                <button mat-flat-button routerLink="/register" routerLinkActive="active"
+                  class="nav-button">Registrarse</button>
               </ng-container>
 
               <ng-container *ngIf="isAuthenticated$ | async">
@@ -139,10 +140,7 @@
                     <mat-icon class="avatar-icon">person</mat-icon>
                   </div>
                   <div class="user-menu-container">
-                    <button 
-                      class="user-menu-trigger"
-                      (click)="toggleUserMenu()"
-                      [class.active]="showUserMenu">
+                    <button class="user-menu-trigger" (click)="toggleUserMenu()" [class.active]="showUserMenu">
                       <span class="user-greeting">
                         ¡Hola, {{ (currentUser$ | async)?.first_name || 'Usuario' }}!
                       </span>
@@ -158,31 +156,33 @@
                             <mat-icon>person</mat-icon>
                           </div>
                           <div class="user-details">
-                            <div class="user-name">{{ (currentUser$ | async)?.first_name }} {{ (currentUser$ | async)?.last_name }}</div>
+                            <div class="user-name">{{ (currentUser$ | async)?.first_name }} {{ (currentUser$ |
+                              async)?.last_name }}</div>
                             <div class="user-email">{{ (currentUser$ | async)?.email }}</div>
                           </div>
                         </div>
                       </div>
-                      
+
                       <!-- Menu items -->
                       <div class="menu-items">
                         <button class="menu-item" (click)="openEditProfile(); closeUserMenu()">
                           <mat-icon>edit</mat-icon>
                           <span>Editar Perfil</span>
                         </button>
-                        
-                        <button class="menu-item" *ngIf="(currentUser$ | async)?.role === 'seller'" (click)="openSellerSettings(); closeUserMenu()">
+
+                        <button class="menu-item" *ngIf="(currentUser$ | async)?.role === 'seller'"
+                          (click)="openSellerSettings(); closeUserMenu()">
                           <mat-icon>store</mat-icon>
                           <span>Perfil de Vendedor</span>
                         </button>
-                        
+
                         <button class="menu-item" (click)="viewMyActivity(); closeUserMenu()">
                           <mat-icon>history</mat-icon>
                           <span>Mi Actividad</span>
                         </button>
-                        
+
                         <div class="menu-divider"></div>
-                        
+
                         <button class="menu-item logout-item" (click)="logout(); closeUserMenu()">
                           <mat-icon>logout</mat-icon>
                           <span>Cerrar Sesión</span>
@@ -205,8 +205,7 @@
         <div class="footer-content">
           <div class="footer-section">
             <div class="footer-logo">
-              <span class="footer-icon">🌾</span>
-              <span class="footer-brand">Agro Mas</span>
+              <img src={{logo}} alt="Agro Mas" class="logo-image">
             </div>
             <p class="footer-description">
               Tu marketplace de confianza para productos agropecuarios. Conectamos productores locales con compradores.

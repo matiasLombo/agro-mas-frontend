@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, finalize } from 'rxjs';
-import { ProductService } from '../core/services/product.service';
-import { AuthService } from '../core/services/auth.service';
+import { ProductService } from '../../core/services/product.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Product, ProductSearchResponse } from '@core/models/product.model';
 
 @Component({
