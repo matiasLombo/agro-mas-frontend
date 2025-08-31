@@ -332,8 +332,18 @@
   max-width: 600px;
   margin: 0 auto $spacing-8;
   
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: $spacing-3;
+    max-width: 100%;
+  }
+  
   .search-field {
     flex: 1;
+    
+    @media (max-width: $breakpoint-sm) {
+      width: 100%;
+    }
   }
 }
 
@@ -344,6 +354,12 @@
   padding: $spacing-4 $spacing-6;
   min-width: 120px;
   border-radius: $radius-lg;
+  
+  @media (max-width: $breakpoint-sm) {
+    width: 100%;
+    min-width: auto;
+    justify-content: center;
+  }
   
   mat-icon {
     margin-right: $spacing-2;
@@ -831,10 +847,8 @@
   }
   
   .search-bar {
-    border-radius: $radius-xl;
-    
     .search-button {
-      border-radius: 0 $radius-xl $radius-xl 0;
+      border-radius: $radius-lg;
     }
   }
   
