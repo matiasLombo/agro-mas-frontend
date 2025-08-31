@@ -3,12 +3,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ProductService } from '../core/services/product.service';
-import { LocationService } from '../core/services/location.service';
-import { SellerService } from '../services/seller.service';
-import { Product, ProductImage } from '../core/models/product.model';
-import { Province, Department, Settlement } from '../core/models/location.model';
-import { SellerSetupModalComponent } from '../components/seller-setup-modal/seller-setup-modal.component';
+import { ProductService } from '../../core/services/product.service';
+import { LocationService } from '../../core/services/location.service';
+import { SellerService } from '../../services/seller.service';
+import { Product, ProductImage } from '../../core/models/product.model';
+import { Province, Department, Settlement } from '../../core/models/location.model';
+import { SellerSetupModalComponent } from '../seller-setup-modal/seller-setup-modal.component';
 import { Observable, forkJoin } from 'rxjs';
 
 @Component({

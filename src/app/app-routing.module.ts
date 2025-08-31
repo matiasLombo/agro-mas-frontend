@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
-import { MarketplaceComponent } from './marketplace/marketplace.component';
+import { MarketplaceComponent } from './components/marketplace/marketplace.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { SellerGuard } from './core/guards/role.guard';
-import { ProductFormComponent } from './product-form/product-form.component';
-import { ProductDetailComponent } from './product-detail/product-detail.component';
-import { MyProductsComponent } from './my-products/my-products.component';
+import { ProductFormComponent } from './components/product-form/product-form.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { MyProductsComponent } from './components/my-products/my-products.component';
 
 
 const routes: Routes = [

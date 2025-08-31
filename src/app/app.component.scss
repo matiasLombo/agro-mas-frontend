@@ -568,7 +568,7 @@
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
-  
+
   @media (max-width: 480px) {
     width: 85vw;
     max-width: 320px;
@@ -890,13 +890,13 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
   }
-  
+
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
     background: rgba(255, 255, 255, 0.15);
   }
-  
+
   &:active {
     transform: translateY(0);
     background: rgba(255, 255, 255, 0.3);
@@ -939,7 +939,8 @@
     transition: all 0.3s ease;
     border-radius: 25px;
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: rgba(255, 255, 255, 0.1);
     }
 
@@ -1132,4 +1133,11 @@
       }
     }
   }
+}
+
+.logo-image {
+  width: 175px;
+  flex-shrink: 0;
+  display: block;
+  margin-right: auto;
 }
