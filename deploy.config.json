@@ -1,0 +1,74 @@
+{
+  "environments": {
+    "develop": {
+      "project": {
+        "id": "agro-mas-develop",
+        "region": "us-central1",
+        "zone": "us-central1-a"
+      },
+      "backend": {
+        "name": "agro-mas-backend-dev",
+        "image": "gcr.io/agro-mas-develop/agro-mas-backend",
+        "port": 8080,
+        "memory": "256Mi",
+        "cpu": "0.5",
+        "minInstances": 0,
+        "maxInstances": 2
+      },
+      "database": {
+        "instance": "agro-mas-db-dev",
+        "name": "agro_mas_dev",
+        "user": "agro_mas_dev_user",
+        "version": "POSTGRES_15",
+        "tier": "db-f1-micro",
+        "diskSize": "10GB"
+      },
+      "secrets": {
+        "jwt": "agro-mas-jwt-secret-dev",
+        "dbPassword": "agro-mas-db-password-dev"
+      },
+      "frontend": {
+        "projectId": "agro-mas-frontend-dev",
+        "url": "https://agro-mas-frontend-dev.web.app"
+      },
+      "storage": {
+        "bucket": "agro-mas-storage-dev"
+      }
+    },
+    "production": {
+      "project": {
+        "id": "agro-mas-production",
+        "region": "us-central1",
+        "zone": "us-central1-a"
+      },
+      "backend": {
+        "name": "agro-mas-backend",
+        "image": "gcr.io/agro-mas-production/agro-mas-backend",
+        "port": 8080,
+        "memory": "512Mi",
+        "cpu": "1",
+        "minInstances": 1,
+        "maxInstances": 10
+      },
+      "database": {
+        "instance": "agro-mas-db-prod",
+        "name": "agro_mas_prod",
+        "user": "agro_mas_user",
+        "version": "POSTGRES_15",
+        "tier": "db-f1-micro",
+        "diskSize": "10GB"
+      },
+      "secrets": {
+        "jwt": "agro-mas-jwt-secret-prod",
+        "dbPassword": "agro-mas-db-password-prod"
+      },
+      "frontend": {
+        "projectId": "agro-mas-frontend-prod",
+        "url": "https://agro-mas-frontend-prod.web.app"
+      },
+      "storage": {
+        "bucket": "agro-mas-storage-prod"
+      }
+    }
+  }
+}

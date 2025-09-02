@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database with PostGIS
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: agro-mas-db
+    environment:
+      POSTGRES_DB: agro_mas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./agro-mas-backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - agro-mas-network
+
+  # Go Backend API
+  backend:
+    build:
+      context: ./agro-mas-backend
+      dockerfile: Dockerfile
+    container_name: agro-mas-backend
+    environment:
+      - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=agro_mas
+      - JWT_SECRET=your-super-secret-jwt-key-for-development
+      - GIN_MODE=debug
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./agro-mas-backend:/app
+    networks:
+      - agro-mas-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Google Cloud Storage Emulator
+  gcs-emulator:
+    image: fsouza/fake-gcs-server
+    container_name: agro-mas-gcs-emulator
+    ports:
+      - "4443:4443"
+    command: ["-scheme", "http", "-host", "0.0.0.0", "-port", "4443"]
+    volumes:
+      - gcs_data:/storage
+    networks:
+      - agro-mas-network
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: ./agro-mas-frontend
+      dockerfile: Dockerfile.dev
+    container_name: agro-mas-frontend
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    volumes:
+      - ./agro-mas-frontend:/app
+      - /app/node_modules
+    networks:
+      - agro-mas-network
+
+volumes:
+  postgres_data:
+  gcs_data:
+
+networks:
+  agro-mas-network:
+    driver: bridge

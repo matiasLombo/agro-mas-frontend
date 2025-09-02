@@ -1,0 +1,220 @@
+name: Deploy Agro Mas
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'develop'
+        type: choice
+        options:
+          - develop
+          - production
+
+jobs:
+  # Determine environment based on branch
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      project-id: ${{ steps.env.outputs.project-id }}
+    steps:
+    - name: Determine Environment
+      id: env
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+        elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "environment=production" >> $GITHUB_OUTPUT
+        else
+          echo "environment=develop" >> $GITHUB_OUTPUT
+        fi
+        
+        # Set project ID based on environment
+        if [ "$(echo $environment)" = "production" ]; then
+          echo "project-id=agro-mas-production" >> $GITHUB_OUTPUT
+        else
+          echo "project-id=agro-mas-develop" >> $GITHUB_OUTPUT
+        fi
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: agro-mas-frontend/package-lock.json
+    
+    - name: Test Backend
+      working-directory: agro-mas-backend
+      run: |
+        go mod download
+        go test ./...
+    
+    - name: Test Frontend
+      working-directory: agro-mas-frontend
+      run: |
+        npm ci
+        npm run test:ci
+        npm run lint
+
+  deploy-infrastructure:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [test, setup]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ needs.setup.outputs.project-id }}
+    
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+    
+    - name: Deploy Infrastructure
+      run: |
+        chmod +x scripts/deploy-infrastructure.sh
+        ./scripts/deploy-infrastructure.sh ${{ needs.setup.outputs.environment }}
+
+  deploy-backend:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [deploy-infrastructure, setup]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ needs.setup.outputs.project-id }}
+    
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+    
+    - name: Deploy Backend
+      run: |
+        chmod +x scripts/deploy-backend.sh
+        ./scripts/deploy-backend.sh ${{ needs.setup.outputs.environment }}
+
+  deploy-frontend:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [deploy-backend, setup]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: agro-mas-frontend/package-lock.json
+    
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ needs.setup.outputs.project-id }}
+    
+    - name: Setup Firebase CLI
+      run: |
+        npm install -g firebase-tools
+        echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > firebase-service-account.json
+        export GOOGLE_APPLICATION_CREDENTIALS=firebase-service-account.json
+        
+        # Use environment-specific Firebase project
+        if [ "${{ needs.setup.outputs.environment }}" = "production" ]; then
+          firebase use agro-mas-fe-prod-2025 --token ${{ secrets.FIREBASE_TOKEN }}
+        else
+          firebase use agro-mas-fe-dev-2025 --token ${{ secrets.FIREBASE_TOKEN }}
+        fi
+    
+    - name: Deploy Frontend
+      run: |
+        chmod +x scripts/deploy-frontend.sh
+        ./scripts/deploy-frontend.sh ${{ needs.setup.outputs.environment }}
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+  integration-test:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [deploy-frontend, setup]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ needs.setup.outputs.project-id }}
+    
+    - name: Integration Tests
+      run: |
+        # Load environment-specific configuration
+        if [ "${{ needs.setup.outputs.environment }}" = "production" ]; then
+          BACKEND_NAME="agro-mas-backend"
+          FIREBASE_PROJECT="agro-mas-frontend-prod"
+        else
+          BACKEND_NAME="agro-mas-backend-dev"
+          FIREBASE_PROJECT="agro-mas-frontend-dev"
+        fi
+        
+        # Get deployed URLs
+        BACKEND_URL=$(gcloud run services describe $BACKEND_NAME --region=us-central1 --format="value(status.url)")
+        FRONTEND_URL="https://$FIREBASE_PROJECT.web.app"
+        
+        echo "Testing backend health..."
+        curl -f "$BACKEND_URL/health"
+        
+        echo "Testing frontend..."
+        curl -f "$FRONTEND_URL"
+        
+        echo "Testing CORS integration..."
+        curl -f -H "Origin: $FRONTEND_URL" "$BACKEND_URL/health"
+        
+        echo "✅ All integration tests passed for ${{ needs.setup.outputs.environment }}!"
+
+  # Notification job (optional)
+  notify:
+    if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [integration-test, setup]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deployment Status
+      run: |
+        ENV=${{ needs.setup.outputs.environment }}
+        STATUS=${{ needs.integration-test.result }}
+        
+        if [ "$STATUS" = "success" ]; then
+          echo "🎉 Deployment to $ENV completed successfully!"
+          if [ "$ENV" = "production" ]; then
+            echo "🌐 Production URL: https://agro-mas-frontend-prod.web.app"
+          else
+            echo "🚧 Development URL: https://agro-mas-frontend-dev.web.app"
+          fi
+        else
+          echo "❌ Deployment to $ENV failed!"
+        fi
