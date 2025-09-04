@@ -11,6 +11,7 @@ export interface User {
   province?: string;
   city?: string;
   address?: string;
+  department?: string;
   location?: string;
   bio?: string;
   role: 'buyer' | 'seller' | 'admin' | 'moderator';

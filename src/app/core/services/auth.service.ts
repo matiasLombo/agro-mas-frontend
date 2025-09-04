@@ -64,6 +64,7 @@ export class AuthService {
 
   private saveAuthData(authResponse: AuthResponse): void {
     if (authResponse.token) {
+      // The backend returns TokenResponse directly as 'token'
       localStorage.setItem('accessToken', authResponse.token.access_token);
       localStorage.setItem('refreshToken', authResponse.token.refresh_token);
     }

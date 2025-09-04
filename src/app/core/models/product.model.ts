@@ -18,6 +18,9 @@ export interface Product {
     department?: string;
     settlement?: string;
     city?: string;
+    province_name?: string;
+    department_name?: string;
+    settlement_name?: string;
     location_coordinates?: {
         lng: number;
         lat: number;

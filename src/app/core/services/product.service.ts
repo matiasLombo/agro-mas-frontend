@@ -53,7 +53,7 @@ export class ProductService {
     return this.searchProducts({
       sort_by: 'featured',
       page: 1,
-      page_size: 6
+      page_size: 20  // Show more products
     });
   }
 
@@ -69,45 +69,6 @@ export class ProductService {
     });
   }
 
-  /**
-   * Upload an image for a product
-   */
-  uploadProductImage(productId: string, file: File, altText?: string, isPrimary = false, displayOrder?: number): Observable<{ image: ProductImage }> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('product_id', productId);
-    if (altText) formData.append('alt_text', altText);
-    formData.append('is_primary', isPrimary.toString());
-    if (displayOrder !== undefined) formData.append('display_order', displayOrder.toString());
-
-    return this.http.post<{ image: ProductImage }>(`${this.apiUrl}/images`, formData);
-  }
-
-  /**
-   * Update an existing product image
-   */
-  updateProductImage(imageId: string, updates: { altText?: string; isPrimary?: boolean; displayOrder?: number }): Observable<void> {
-    const body: any = {};
-    if (updates.altText !== undefined) body.alt_text = updates.altText;
-    if (updates.isPrimary !== undefined) body.is_primary = updates.isPrimary;
-    if (updates.displayOrder !== undefined) body.display_order = updates.displayOrder;
-
-    return this.http.put<void>(`${this.apiUrl}/images/${imageId}`, body);
-  }
-
-  /**
-   * Delete a product image
-   */
-  deleteProductImage(imageId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/images/${imageId}`);
-  }
-
-  /**
-   * Get all images for a product
-   */
-  getProductImages(productId: string): Observable<ProductImage[]> {
-    return this.http.get<ProductImage[]>(`${this.apiUrl}/${productId}/images`);
-  }
 
   /**
    * Get a resized image URL
@@ -118,17 +79,34 @@ export class ProductService {
   }
 
   /**
-   * Get products by user ID
+   * Get current user's products
    */
-  getProductsByUser(userId: string): Observable<ProductSearchResponse> {
-    return this.http.get<ProductSearchResponse>(`${this.apiUrl}/user/${userId}`);
+  getProductsByUser(): Observable<ProductSearchResponse> {
+    return this.http.get<ProductSearchResponse>(`${this.apiUrl}/my`);
   }
 
   /**
    * Create a new product
    */
   createProduct(product: Partial<Product>): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, product);
+    return this.http.post<Product>(`${this.apiUrl}/`, product);
+  }
+
+  /**
+   * Create product with images using FormData
+   */
+  createProductWithImages(product: Partial<Product>, images: File[]): Observable<Product> {
+    const formData = new FormData();
+    
+    // Add product data as JSON string
+    formData.append('product', JSON.stringify(product));
+    
+    // Add each image file
+    images.forEach((image, index) => {
+      formData.append('image', image, image.name);
+    });
+    
+    return this.http.post<Product>(`${this.apiUrl}/`, formData);
   }
 
   /**
@@ -139,16 +117,51 @@ export class ProductService {
   }
 
   /**
+   * Update product with new images using FormData
+   */
+  updateProductWithImages(productId: string, product: Partial<Product>, images: File[]): Observable<Product> {
+    const formData = new FormData();
+    
+    // Clean product data - remove undefined/null values
+    const cleanProduct = Object.entries(product).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as any);
+    
+    console.log('Product data being sent:', cleanProduct);
+    
+    // Add product data as JSON string
+    const jsonString = JSON.stringify(cleanProduct);
+    console.log('JSON string being sent:', jsonString);
+    console.log('JSON string length:', jsonString.length);
+    
+    // Check for problematic characters
+    for (let i = 0; i < jsonString.length; i++) {
+      const char = jsonString[i];
+      if (char === '-' && i > 0) {
+        const before = jsonString.substring(Math.max(0, i-10), i);
+        const after = jsonString.substring(i, Math.min(jsonString.length, i+10));
+        console.log(`Found - at position ${i}: "${before}${after}"`);
+      }
+    }
+    
+    formData.append('product', jsonString);
+    
+    // Add each image file
+    images.forEach((image, index) => {
+      formData.append('image', image, image.name);
+    });
+    
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, formData);
+  }
+
+  /**
    * Delete a product
    */
   deleteProduct(productId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${productId}`);
   }
 
-  /**
-   * Submit a quotation request
-   */
-  submitQuotation(quotationData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/quotations`, quotationData);
-  }
 }
