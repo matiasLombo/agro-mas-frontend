@@ -7,6 +7,28 @@
     <p class="subtitle">Para publicar productos necesitas completar tu información comercial</p>
   </div>
 
+  <!-- Step Progress Indicator -->
+  <div class="step-progress" *ngIf="needsPersonalInfo">
+    <div class="step-indicator">
+      <div class="step" [class.completed]="currentStep > 0" [class.active]="currentStep === 0">
+        <span>1</span>
+      </div>
+      <div class="progress-line" [class.completed]="currentStep > 0"></div>
+      <div class="step" [class.completed]="currentStep > 1" [class.active]="currentStep === 1">
+        <span>2</span>
+      </div>
+      <div class="progress-line" [class.completed]="currentStep > 1"></div>
+      <div class="step" [class.completed]="currentStep > 2" [class.active]="currentStep === 2">
+        <span>3</span>
+      </div>
+    </div>
+    <div class="step-labels">
+      <span [class.active]="currentStep === 0">Información Personal</span>
+      <span [class.active]="currentStep === 1">Perfil Comercial</span>
+      <span [class.active]="currentStep === 2">Finalizar</span>
+    </div>
+  </div>
+
   <div mat-dialog-content class="modal-content">
     <!-- Loading State -->
     <div *ngIf="isLoading" class="loading-container">
@@ -16,8 +38,74 @@
       <p>Cargando información existente...</p>
     </div>
 
-    <!-- Form Content -->
-    <form *ngIf="!isLoading" [formGroup]="sellerForm" (ngSubmit)="onSubmit()">
+    <!-- Step 0: Personal Information Form -->
+    <form *ngIf="!isLoading && currentStep === 0" [formGroup]="personalInfoForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Información Personal Requerida
+        </h3>
+        <p class="section-description">Necesitamos completar tu información personal para configurar tu perfil de vendedor.</p>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="phone" placeholder="+54 11 1234-5678">
+            <mat-icon matSuffix>phone</mat-icon>
+            <mat-error>{{ getFieldError('phone', 'personal') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección</mat-label>
+            <input matInput formControlName="address" placeholder="Tu dirección completa">
+            <mat-icon matSuffix>home</mat-icon>
+            <mat-error>{{ getFieldError('address', 'personal') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Provincia</mat-label>
+            <mat-select formControlName="province" (selectionChange)="onProvinceChange($event.value)">
+              <mat-option value="">Selecciona una provincia</mat-option>
+              <mat-option *ngFor="let province of provinces" [value]="province.id">
+                {{ province.nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ getFieldError('province', 'personal') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Departamento</mat-label>
+            <mat-select formControlName="department" (selectionChange)="onDepartmentChange($event.value)" [disabled]="!personalInfoForm.get('province')?.value || isLoadingLocations">
+              <mat-option value="">Selecciona un departamento</mat-option>
+              <mat-option *ngFor="let department of departments" [value]="department.id">
+                {{ department.nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ getFieldError('department', 'personal') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Ciudad/Asentamiento</mat-label>
+            <mat-select formControlName="city" [disabled]="!personalInfoForm.get('department')?.value || isLoadingLocations">
+              <mat-option value="">Selecciona una ciudad</mat-option>
+              <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
+                {{ settlement.nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ getFieldError('city', 'personal') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+
+    <!-- Seller Setup Form (Step 1 or main form) -->
+    <form *ngIf="!isLoading && (currentStep === 1 || (!needsPersonalInfo && currentStep === 1))" [formGroup]="sellerForm" (ngSubmit)="onSubmit()">
       <!-- Información del Negocio -->
       <div class="form-section">
         <h3 class="section-title">
@@ -37,8 +125,10 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>CUIT</mat-label>
-            <input matInput formControlName="cuit" placeholder="20123456789">
+            <input matInput formControlName="cuit" placeholder="20-12345678-9" 
+                   (input)="onCuitInput($event)" maxlength="13">
             <mat-icon matSuffix>assignment_ind</mat-icon>
+            <mat-hint>Formato: XX-XXXXXXXX-X</mat-hint>
             <mat-error>{{ getFieldError('cuit') }}</mat-error>
           </mat-form-field>
 
@@ -64,7 +154,8 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>CBU / CVU</mat-label>
-            <input matInput formControlName="cbu" placeholder="22 dígitos">
+            <input matInput formControlName="cbu" placeholder="1234 5678 9012 3456 7890 12" 
+                   (input)="onCbuInput($event)" maxlength="27">
             <mat-icon matSuffix>account_balance_wallet</mat-icon>
             <mat-hint>22 dígitos para recibir pagos</mat-hint>
             <mat-error>{{ getFieldError('cbu') }}</mat-error>
@@ -96,8 +187,10 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Código RENSPA</mat-label>
-            <input matInput formControlName="renspa" placeholder="123456789010x">
+            <input matInput formControlName="renspa" placeholder="1234.5678.9012.345" 
+                   (input)="onRenspaInput($event)" maxlength="19">
             <mat-icon matSuffix>verified</mat-icon>
+            <mat-hint>Código del establecimiento agropecuario</mat-hint>
             <mat-error>{{ getFieldError('renspa') }}</mat-error>
           </mat-form-field>
         </div>
@@ -134,16 +227,33 @@
   </div>
 
   <div mat-dialog-actions class="modal-actions">
+    <!-- Back button -->
+    <button mat-stroked-button (click)="prevStep()" 
+      *ngIf="currentStep > 0 && needsPersonalInfo" 
+      [disabled]="isSubmitting || isLoading" 
+      class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+      Anterior
+    </button>
+
+    <!-- Cancel button -->
     <button mat-stroked-button (click)="onCancel()" [disabled]="isSubmitting || isLoading" class="cancel-button">
       Cancelar
     </button>
 
+    <!-- Next/Submit button -->
     <button mat-raised-button color="primary" (click)="onSubmit()"
-      [disabled]="!sellerForm.valid || isSubmitting || isLoading" class="submit-button">
+      [disabled]="!canProceed || isSubmitting || isLoading" class="submit-button">
       <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
-      <mat-icon *ngIf="!isSubmitting && !isLoading">check_circle</mat-icon>
+      <mat-icon *ngIf="!isSubmitting && !isLoading && (currentStep < totalSteps - 1)">arrow_forward</mat-icon>
+      <mat-icon *ngIf="!isSubmitting && !isLoading && (currentStep === totalSteps - 1)">check_circle</mat-icon>
       <mat-icon *ngIf="isLoading">refresh</mat-icon>
-      {{ isSubmitting ? 'Configurando...' : (isLoading ? 'Cargando...' : 'Completar Configuración') }}
+      
+      <span *ngIf="isSubmitting && currentStep === 0">Actualizando información...</span>
+      <span *ngIf="isSubmitting && currentStep > 0">Configurando perfil...</span>
+      <span *ngIf="!isSubmitting && !isLoading && currentStep < totalSteps - 1">Siguiente</span>
+      <span *ngIf="!isSubmitting && !isLoading && currentStep === totalSteps - 1">Completar Configuración</span>
+      <span *ngIf="isLoading">Cargando...</span>
     </button>
   </div>
 </div>

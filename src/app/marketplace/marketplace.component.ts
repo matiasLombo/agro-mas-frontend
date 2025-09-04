@@ -88,6 +88,40 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Load all products (without filtering)
+   */
+  loadAllProducts() {
+    this.isLoading = true;
+    this.selectedCategory = '';
+
+    this.productService.searchProducts({
+      page: 1,
+      page_size: 50,
+      sort_by: 'date_desc'
+    })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (response: ProductSearchResponse) => {
+          // Filter out user's own products if logged in
+          if (this.isAuthenticated && this.currentUser?.id) {
+            this.products = response.products.filter(product => product.user_id !== this.currentUser!.id);
+          } else {
+            this.products = response.products;
+          }
+          this.totalProducts = response.total_count;
+          this.hasError = false;
+        },
+        error: (error) => {
+          console.error('Error loading all products:', error);
+          this.showToast('Error al cargar todos los productos', 'error');
+        }
+      });
+  }
+
+  /**
    * Load products by category
    */
   loadProductsByCategory(category: string) {
@@ -101,7 +135,12 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: ProductSearchResponse) => {
-          this.products = response.products;
+          // Filter out user's own products if logged in
+          if (this.isAuthenticated && this.currentUser?.id) {
+            this.products = response.products.filter(product => product.user_id !== this.currentUser!.id);
+          } else {
+            this.products = response.products;
+          }
           this.totalProducts = response.total_count;
           this.hasError = false;
         },
@@ -209,6 +248,25 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       'supplies': 'Suministros'
     };
     return categoryNames[category] || category;
+  }
+
+  /**
+   * Get full location string from product data
+   */
+  getFullLocation(product: Product): string {
+    const locationParts: string[] = [];
+    
+    if (product.settlement_name) {
+      locationParts.push(product.settlement_name);
+    }
+    if (product.department_name) {
+      locationParts.push(product.department_name);
+    }
+    if (product.province_name) {
+      locationParts.push(product.province_name);
+    }
+    
+    return locationParts.join(', ');
   }
 
   /**

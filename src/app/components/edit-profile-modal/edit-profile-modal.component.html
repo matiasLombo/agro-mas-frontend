@@ -1,51 +1,32 @@
-<div class="modal-overlay">
-  <div class="modal-container">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div class="header-content">
-        <mat-icon class="header-icon">person</mat-icon>
-        <div class="header-text">
-          <h2 class="modal-title">Editar Perfil</h2>
-          <p class="modal-subtitle">Actualiza tu información personal</p>
-        </div>
+<div class="edit-profile-modal">
+  <div class="modal-header">
+    <div class="header-icon">
+      <mat-icon>person</mat-icon>
+    </div>
+    <h2 mat-dialog-title>Editar Perfil</h2>
+    <p class="subtitle">Actualiza tu información personal</p>
+  </div>
+
+  <div mat-dialog-content class="modal-content">
+    <!-- Loading State -->
+    <div *ngIf="isInitialLoading" class="loading-container">
+      <div class="loading-spinner">
+        <mat-icon class="spinning">refresh</mat-icon>
       </div>
-      <button class="close-button" mat-icon-button (click)="closeModal()">
-        <mat-icon>close</mat-icon>
-      </button>
+      <p>Cargando información del perfil...</p>
     </div>
 
-    <!-- Modal Content -->
-    <div class="modal-content">
-      <!-- Loading State -->
-      <div *ngIf="isInitialLoading" class="loading-container">
-        <div class="loading-spinner">
-          <mat-icon class="spinning">refresh</mat-icon>
-        </div>
-        <p>Cargando información del perfil...</p>
-      </div>
+    <!-- Form Content -->
+    <form *ngIf="!isInitialLoading" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <!-- Información Personal -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Información Personal
+        </h3>
 
-      <!-- Form Content -->
-      <form *ngIf="!isInitialLoading" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-        <!-- Avatar Section -->
-        <div class="avatar-section">
-          <div class="avatar-container">
-            <div class="avatar">
-              <mat-icon>person</mat-icon>
-            </div>
-            <button type="button" class="avatar-edit-button" mat-mini-fab color="primary">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </div>
-          <div class="avatar-info">
-            <h3 class="avatar-name">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</h3>
-            <p class="avatar-email">{{ currentUser?.email }}</p>
-          </div>
-        </div>
-
-        <!-- Form Fields -->
-        <div class="form-grid">
-          <!-- First Name -->
-          <mat-form-field appearance="outline" class="form-field">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
             <mat-label>Nombre</mat-label>
             <input matInput formControlName="first_name" placeholder="Tu nombre">
             <mat-icon matSuffix>person</mat-icon>
@@ -54,8 +35,7 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Last Name -->
-          <mat-form-field appearance="outline" class="form-field">
+          <mat-form-field appearance="outline" class="half-width">
             <mat-label>Apellido</mat-label>
             <input matInput formControlName="last_name" placeholder="Tu apellido">
             <mat-icon matSuffix>badge</mat-icon>
@@ -63,24 +43,40 @@
               El apellido es requerido
             </mat-error>
           </mat-form-field>
+        </div>
 
-
-          <!-- Phone -->
-          <mat-form-field appearance="outline" class="form-field">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
             <mat-label>Teléfono</mat-label>
-            <input matInput formControlName="phone" placeholder="Teléfono">
+            <input matInput formControlName="phone" placeholder="Tu teléfono">
             <mat-icon matSuffix>phone</mat-icon>
           </mat-form-field>
 
-          <!-- Address -->
-          <mat-form-field appearance="outline" class="form-field">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Email</mat-label>
+            <input matInput [value]="currentUser?.email" disabled>
+            <mat-icon matSuffix>email</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Información de Ubicación -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>location_on</mat-icon>
+          Ubicación
+        </h3>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Dirección</mat-label>
-            <input matInput formControlName="address" placeholder="Dirección">
+            <input matInput formControlName="address" placeholder="Tu dirección">
             <mat-icon matSuffix>home</mat-icon>
           </mat-form-field>
+        </div>
 
-          <!-- Province -->
-          <mat-form-field appearance="outline" class="form-field">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
             <mat-label>Provincia</mat-label>
             <mat-select formControlName="province" (selectionChange)="onProvinceChange($event)">
               <mat-option value="">Selecciona una provincia</mat-option>
@@ -90,10 +86,9 @@
             </mat-select>
           </mat-form-field>
 
-          <!-- City (Settlement) -->
-          <mat-form-field appearance="outline" class="form-field">
+          <mat-form-field appearance="outline" class="half-width">
             <mat-label>Localidad/Asentamiento</mat-label>
-            <mat-select formControlName="city" [disabled]="!selectedProvinceId">
+            <mat-select formControlName="city">
               <mat-option value="">Selecciona una localidad</mat-option>
               <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
                 {{ settlement.nombre }}
@@ -101,24 +96,21 @@
             </mat-select>
           </mat-form-field>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
+  </div>
 
-    <!-- Modal Actions -->
-    <div class="modal-actions">
-      <button type="button" mat-button class="cancel-button" (click)="closeModal()" [disabled]="isInitialLoading || isLoading">
-        <mat-icon>close</mat-icon>
-        Cancelar
-      </button>
-      <button type="submit" mat-flat-button color="primary" class="save-button" 
-              (click)="onSubmit()" [disabled]="profileForm.invalid || isLoading || isInitialLoading">
-        <mat-icon *ngIf="!isLoading && !isInitialLoading">save</mat-icon>
-        <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
-        <mat-icon *ngIf="isInitialLoading">refresh</mat-icon>
-        <span *ngIf="!isLoading && !isInitialLoading">Guardar Cambios</span>
-        <span *ngIf="isLoading">Guardando...</span>
-        <span *ngIf="isInitialLoading">Cargando...</span>
-      </button>
-    </div>
+  <div mat-dialog-actions class="modal-actions">
+    <button mat-stroked-button (click)="closeModal()" [disabled]="isInitialLoading || isLoading" class="cancel-button">
+      Cancelar
+    </button>
+
+    <button mat-raised-button color="primary" (click)="onSubmit()"
+      [disabled]="profileForm.invalid || isLoading || isInitialLoading" class="submit-button">
+      <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+      <mat-icon *ngIf="!isLoading && !isInitialLoading">save</mat-icon>
+      <mat-icon *ngIf="isInitialLoading">refresh</mat-icon>
+      {{ isLoading ? 'Guardando...' : (isInitialLoading ? 'Cargando...' : 'Guardar Cambios') }}
+    </button>
   </div>
 </div>

@@ -92,7 +92,7 @@
         </div>
         <div class="category-filters">
           <button class="filter-btn" [class.active]="selectedCategory === ''"
-            (click)="selectedCategory = ''; loadFeaturedProducts()">
+            (click)="loadAllProducts()">
             <mat-icon>apps</mat-icon>
             Todos
           </button>
@@ -119,7 +119,7 @@
   <!-- Products Section -->
   <section class="products-section">
     <div class="section-header">
-      <h2>{{ selectedCategory ? 'Productos de ' + getCategoryName(selectedCategory) : 'Productos Destacados' }}</h2>
+      <h2>{{ selectedCategory ? 'Productos de ' + getCategoryName(selectedCategory) : 'Todos los Productos' }}</h2>
       <p>{{ hasError ? 'Mostrando datos de ejemplo' : 'Descubre los mejores productos de nuestros vendedores
         verificados' }}</p>
     </div>
@@ -157,6 +157,10 @@
           <div class="product-seller">
             <mat-icon class="seller-icon">person</mat-icon>
             <span>{{ product.seller_name || 'Vendedor' }}</span>
+          </div>
+          <div class="product-location" *ngIf="getFullLocation(product)">
+            <mat-icon class="location-icon">place</mat-icon>
+            <span>{{ getFullLocation(product) }}</span>
           </div>
         </div>
       </div>

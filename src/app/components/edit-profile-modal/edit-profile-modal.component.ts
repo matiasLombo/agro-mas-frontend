@@ -53,7 +53,7 @@ export class EditProfileModalComponent implements OnInit {
       phone: [''],
       address: [''],
       province: [''],
-      city: ['']
+      city: [{value: '', disabled: true}]
     });
   }
 
@@ -76,6 +76,7 @@ export class EditProfileModalComponent implements OnInit {
         // Load settlements if province is set
         if (this.currentUser.province) {
           this.selectedProvinceId = this.currentUser.province;
+          this.profileForm.get('city')?.enable(); // Enable city field when province is already set
           this.loadSettlements(this.currentUser.province);
         }
       }
@@ -114,7 +115,10 @@ export class EditProfileModalComponent implements OnInit {
     this.profileForm.patchValue({ city: '' });
     
     if (provinceId) {
+      this.profileForm.get('city')?.enable();
       this.loadSettlements(provinceId);
+    } else {
+      this.profileForm.get('city')?.disable();
     }
   }
 

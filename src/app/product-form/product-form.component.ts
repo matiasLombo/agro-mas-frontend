@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -68,31 +68,78 @@ export class ProductFormComponent implements OnInit {
     return this.videoCount >= 3;
   }
   
-  get hasChanges(): boolean {
+  hasChanges: boolean = false;
+  private originalImages: any[] = []; // Store original image state
+
+  private hasUploadedImageChanges(): boolean {
+    // Compare current uploadedImages with original state
+    if (this.uploadedImages.length !== this.originalImages.length) {
+      console.log('Image count changed:', this.originalImages.length, '->', this.uploadedImages.length);
+      return true;
+    }
+    
+    // Check if any images were removed or modified
+    const currentImageIds = this.uploadedImages.map(img => img.id).sort();
+    const originalImageIds = this.originalImages.map(img => img.id).sort();
+    
+    if (JSON.stringify(currentImageIds) !== JSON.stringify(originalImageIds)) {
+      console.log('Image IDs changed:', originalImageIds, '->', currentImageIds);
+      return true;
+    }
+    
+    // Check if primary image changed
+    const currentPrimary = this.uploadedImages.find(img => img.is_primary);
+    const originalPrimary = this.originalImages.find(img => img.is_primary);
+    
+    if (currentPrimary?.id !== originalPrimary?.id) {
+      console.log('Primary image changed:', originalPrimary?.id, '->', currentPrimary?.id);
+      return true;
+    }
+    
+    return false;
+  }
+
+  private updateHasChanges(): void {
+    console.log('🚀 UPDATING HASCHANGES!');
+    
     // In create mode, always allow submission if form is valid
     if (!this.isEditMode) {
       console.log('hasChanges: CREATE MODE - always true');
-      return true;
+      this.hasChanges = true;
+      return;
     }
     
     // In edit mode, check for form changes or new images
     const formChanged = this.productForm.dirty;
     const hasNewImages = this.filePreviews.length > 0;
+    const hasImageChanges = this.hasUploadedImageChanges();
     
     console.log('hasChanges DEBUG:', {
       isEditMode: this.isEditMode,
       formChanged,
       hasNewImages,
+      hasImageChanges,
       filePreviewsLength: this.filePreviews.length,
-      filePreviewsContent: this.filePreviews,
+      filePreviewsContent: this.filePreviews.map(fp => fp.file.name),
+      uploadedImagesCount: this.uploadedImages.length,
       formInvalid: this.productForm.invalid,
-      isUploading: this.isUploading
+      isUploading: this.isUploading,
+      finalResult: formChanged || hasNewImages || hasImageChanges
     });
     
-    const result = formChanged || hasNewImages;
+    const result = formChanged || hasNewImages || hasImageChanges;
     console.log('hasChanges RESULT:', result);
     
-    return result;
+    // Debug button disabled condition
+    const buttonDisabled = this.productForm.invalid || this.isUploading || !result;
+    console.log('🔍 BUTTON DISABLED DEBUG:', {
+      formInvalid: this.productForm.invalid,
+      isUploading: this.isUploading,
+      notHasChanges: !result,
+      finalButtonDisabled: buttonDisabled
+    });
+    
+    this.hasChanges = result;
   }
 
   // Location data
@@ -112,7 +159,8 @@ export class ProductFormComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -208,6 +256,9 @@ export class ProductFormComponent implements OnInit {
           if (!this.isEditMode) {
             this.productForm.disable();
           }
+          
+          // Initialize hasChanges state after loading product data
+          this.updateHasChanges();
         }
       },
       error: (error) => {
@@ -220,15 +271,23 @@ export class ProductFormComponent implements OnInit {
     // Images are now loaded from the product directly
     if (this.product?.images) {
       this.uploadedImages = [...this.product.images];
+      this.originalImages = JSON.parse(JSON.stringify(this.product.images)); // Deep copy
       console.log('Loaded existing images:', this.uploadedImages);
+      console.log('Stored original images:', this.originalImages.length);
     } else {
       this.uploadedImages = [];
+      this.originalImages = [];
     }
   }
 
   async onFileChange(event: any, type: 'image' | 'video'): Promise<void> {
+    console.log('onFileChange called with type:', type, 'event:', event);
     const files: FileList = event.target.files;
-    if (files.length === 0) return;
+    console.log('Files in onFileChange:', files, files?.length);
+    if (files.length === 0) {
+      console.log('No files found, returning early');
+      return;
+    }
 
     // Validate file count
     const currentFileCount = this.filePreviews.length;
@@ -254,6 +313,12 @@ export class ProductFormComponent implements OnInit {
           this.filePreviews.push(preview);
         }
       }
+
+      // Update hasChanges property
+      this.updateHasChanges();
+      
+      // Force change detection to update template
+      this.cdr.detectChanges();
 
       // Upload files if in edit mode
       if (this.isEditMode && this.productId) {
@@ -438,22 +503,29 @@ export class ProductFormComponent implements OnInit {
   }
 
   onDrop(event: DragEvent): void {
+    console.log('onDrop triggered!', event);
     event.preventDefault();
     event.stopPropagation();
     this.isDragOver = false;
 
     const files = event.dataTransfer?.files;
+    console.log('Files from drag & drop:', files, files?.length);
     if (files && files.length > 0) {
+      console.log('Calling handleFiles with', files.length, 'files');
       this.handleFiles(files);
+    } else {
+      console.log('No files detected in drag & drop');
     }
   }
 
   private handleFiles(files: FileList): void {
+    console.log('handleFiles called with', files.length, 'files');
     const imageFiles: File[] = [];
     const videoFiles: File[] = [];
 
     // Separar archivos por tipo
     Array.from(files).forEach(file => {
+      console.log('Processing file:', file.name, 'type:', file.type);
       if (file.type.startsWith('image/')) {
         imageFiles.push(file);
       } else if (file.type.startsWith('video/')) {
@@ -461,14 +533,18 @@ export class ProductFormComponent implements OnInit {
       }
     });
 
+    console.log('Image files:', imageFiles.length, 'Video files:', videoFiles.length);
+
     // Procesar imágenes
     if (imageFiles.length > 0) {
+      console.log('Processing', imageFiles.length, 'image files');
       const event = { target: { files: imageFiles } } as any;
       this.onFileChange(event, 'image');
     }
 
     // Procesar videos
     if (videoFiles.length > 0) {
+      console.log('Processing', videoFiles.length, 'video files');
       const event = { target: { files: videoFiles } } as any;
       this.onFileChange(event, 'video');
     }
@@ -607,8 +683,28 @@ export class ProductFormComponent implements OnInit {
           .filter(preview => preview.type === 'image')
           .map(preview => preview.file);
 
-        if (newImageFiles.length > 0) {
-          // Use updateProductWithImages when we have new images
+        // Check if we have any image changes (new, deleted, or modified)
+        const hasAnyImageChanges = newImageFiles.length > 0 || this.hasUploadedImageChanges();
+        
+        console.log('Image update logic:', {
+          newImageFiles: newImageFiles.length,
+          hasUploadedImageChanges: this.hasUploadedImageChanges(),
+          hasAnyImageChanges,
+          currentImages: this.uploadedImages.length,
+          originalImages: this.originalImages.length
+        });
+
+        if (hasAnyImageChanges) {
+          // Add existing images info to updateData so backend knows which ones to keep
+          updateData.existing_images = this.uploadedImages.map(img => ({
+            id: img.id,
+            is_primary: img.is_primary,
+            display_order: img.display_order || 0
+          }));
+          
+          console.log('Sending existing images info:', updateData.existing_images);
+          
+          // Use updateProductWithImages when we have any image changes
           this.productService.updateProductWithImages(this.productId, updateData, newImageFiles).subscribe({
             next: (response) => {
               console.log('Product updated with images successfully:', response);
@@ -672,9 +768,18 @@ export class ProductFormComponent implements OnInit {
   }
 
   removeImage(imageId: string): void {
+    console.log('🗑️ REMOVING IMAGE:', imageId);
     // For existing uploaded images, just remove from display - will be handled during update
     this.uploadedImages = this.uploadedImages.filter(img => img.id !== imageId);
     this.productForm.get('images')?.setValue(this.uploadedImages);
+    
+    console.log('Images after removal:', this.uploadedImages.length);
+    
+    // Update hasChanges state after removing image
+    this.updateHasChanges();
+    
+    // Force change detection to update template
+    this.cdr.detectChanges();
   }
 
   setPrimaryImage(imageId: string): void {
