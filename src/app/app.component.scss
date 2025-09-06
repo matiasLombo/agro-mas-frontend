@@ -1,3 +1,5 @@
+@import '../styles/variables';
+
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -368,6 +370,14 @@
 
       .footer-section {
         &:first-child {
+          .footer-logo {
+            justify-content: center;
+
+            .logo-image {
+              margin: 0 auto;
+            }
+          }
+
           .footer-social {
             justify-content: center;
           }
@@ -395,6 +405,12 @@
       .footer-section {
         &:first-child {
           .footer-logo {
+            justify-content: center;
+
+            .logo-image {
+              margin: 0 auto;
+            }
+
             .footer-brand {
               font-size: 1.3rem;
             }
@@ -476,13 +492,13 @@
       flex-wrap: wrap;
 
       .user-section {
-        flex-direction: column;
         gap: 8px;
         padding: 8px;
         background: rgba(255, 255, 255, 0.08);
+        flex-wrap: wrap;
+        justify-content: center;
 
         .user-greeting {
-          order: -1;
           font-size: 13px;
         }
 
@@ -495,6 +511,10 @@
         .logout-button {
           padding: 6px 12px;
           font-size: 11px;
+        }
+
+        .user-menu-container {
+          position: relative;
         }
       }
     }
@@ -568,7 +588,7 @@
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
-  
+
   @media (max-width: 480px) {
     width: 85vw;
     max-width: 320px;
@@ -890,13 +910,13 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
   }
-  
+
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
     background: rgba(255, 255, 255, 0.15);
   }
-  
+
   &:active {
     transform: translateY(0);
     background: rgba(255, 255, 255, 0.3);
@@ -927,6 +947,11 @@
 .user-menu-container {
   position: relative;
 
+  // Maintain relative position for proper dropdown positioning
+  @media (max-width: $breakpoint-sm) {
+    position: relative;
+  }
+
   .user-menu-trigger {
     background: none;
     border: none;
@@ -939,7 +964,8 @@
     transition: all 0.3s ease;
     border-radius: 25px;
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: rgba(255, 255, 255, 0.1);
     }
 
@@ -989,6 +1015,39 @@
     pointer-events: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
+
+    // Responsive adjustments for mobile
+    @media (max-width: $breakpoint-md) {
+      right: -16px;
+      left: -16px;
+      min-width: auto;
+      max-width: calc(100vw - 32px);
+      margin: 0 16px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      right: -8px;
+      left: -8px;
+      max-width: calc(100vw - 16px);
+      margin: 0 8px;
+      border-radius: 12px;
+    }
+
+    // Ensure it doesn't go off-screen on the right
+    @media (max-width: 480px) {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      left: auto;
+      margin: 0;
+      max-width: calc(100vw - 16px);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 12px 24px rgba(0, 0, 0, 0.12);
+      
+      // Adjust position if dropdown would go off screen
+      min-width: 280px;
+      transform-origin: top right;
+    }
 
     &.show {
       opacity: 1;
@@ -1132,4 +1191,11 @@
       }
     }
   }
+}
+
+.logo-image {
+  width: 175px;
+  flex-shrink: 0;
+  display: block;
+  margin-right: auto;
 }

@@ -226,14 +226,20 @@ select:focus {
 
 .custom-dialog-container {
   border-radius: 16px !important;
-  box-shadow: 
+  box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  padding: 0 !important;
   overflow: hidden !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 12px 30px rgba(0, 0, 0, 0.12) !important;
 }
 
 .custom-dialog-container .mat-mdc-dialog-container {
   padding: 0 !important;
+  border-radius: 20px !important;
   border-radius: 16px !important;
   overflow: hidden !important;
   margin: 0 !important;
@@ -243,12 +249,12 @@ select:focus {
 .success-snackbar {
   --mdc-snackbar-container-color: #4caf50 !important;
   --mdc-snackbar-supporting-text-color: #ffffff !important;
-  
+
   .mat-mdc-snack-bar-label {
     color: white !important;
     font-weight: 500;
   }
-  
+
   .mat-mdc-button {
     --mdc-text-button-label-text-color: #ffffff !important;
   }
@@ -257,12 +263,12 @@ select:focus {
 .error-snackbar {
   --mdc-snackbar-container-color: #f44336 !important;
   --mdc-snackbar-supporting-text-color: #ffffff !important;
-  
+
   .mat-mdc-snack-bar-label {
     color: white !important;
     font-weight: 500;
   }
-  
+
   .mat-mdc-button {
     --mdc-text-button-label-text-color: #ffffff !important;
   }
@@ -271,12 +277,12 @@ select:focus {
 .info-snackbar {
   --mdc-snackbar-container-color: #2196f3 !important;
   --mdc-snackbar-supporting-text-color: #ffffff !important;
-  
+
   .mat-mdc-snack-bar-label {
     color: white !important;
     font-weight: 500;
   }
-  
+
   .mat-mdc-button {
     --mdc-text-button-label-text-color: #ffffff !important;
   }
@@ -285,12 +291,12 @@ select:focus {
 .warning-snackbar {
   --mdc-snackbar-container-color: #ff9800 !important;
   --mdc-snackbar-supporting-text-color: #ffffff !important;
-  
+
   .mat-mdc-snack-bar-label {
     color: white !important;
     font-weight: 500;
   }
-  
+
   .mat-mdc-button {
     --mdc-text-button-label-text-color: #ffffff !important;
   }

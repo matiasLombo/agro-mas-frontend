@@ -125,7 +125,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>CUIT</mat-label>
-            <input matInput formControlName="cuit" placeholder="20-12345678-9" 
+            <input matInput formControlName="cuit" placeholder="20-12345678-9"
                    (input)="onCuitInput($event)" maxlength="13">
             <mat-icon matSuffix>assignment_ind</mat-icon>
             <mat-hint>Formato: XX-XXXXXXXX-X</mat-hint>
@@ -154,7 +154,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>CBU / CVU</mat-label>
-            <input matInput formControlName="cbu" placeholder="1234 5678 9012 3456 7890 12" 
+            <input matInput formControlName="cbu" placeholder="1234 5678 9012 3456 7890 12"
                    (input)="onCbuInput($event)" maxlength="27">
             <mat-icon matSuffix>account_balance_wallet</mat-icon>
             <mat-hint>22 dígitos para recibir pagos</mat-hint>
@@ -187,7 +187,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Código RENSPA</mat-label>
-            <input matInput formControlName="renspa" placeholder="1234.5678.9012.345" 
+            <input matInput formControlName="renspa" placeholder="1234.5678.9012.345"
                    (input)="onRenspaInput($event)" maxlength="19">
             <mat-icon matSuffix>verified</mat-icon>
             <mat-hint>Código del establecimiento agropecuario</mat-hint>
@@ -196,15 +196,16 @@
         </div>
 
         <div class="form-row">
-          <mat-form-field appearance="outline" class="half-width">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Nombre del Establecimiento (Opcional)</mat-label>
-            <input matInput formControlName="establishment_name" placeholder="Estancia">
+            <input matInput formControlName="establishment_name" placeholder="Ej: Estancia San Martín">
             <mat-icon matSuffix>business</mat-icon>
           </mat-form-field>
-
-          <mat-form-field appearance="outline" class="half-width">
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Ubicación del Establecimiento (Opcional)</mat-label>
-            <input matInput formControlName="establishment_location" placeholder="Ubicación">
+            <input matInput formControlName="establishment_location" placeholder="Ej: Ruta 9, Km 145, Buenos Aires">
             <mat-icon matSuffix>location_on</mat-icon>
           </mat-form-field>
         </div>
@@ -228,9 +229,9 @@
 
   <div mat-dialog-actions class="modal-actions">
     <!-- Back button -->
-    <button mat-stroked-button (click)="prevStep()" 
-      *ngIf="currentStep > 0 && needsPersonalInfo" 
-      [disabled]="isSubmitting || isLoading" 
+    <button mat-stroked-button (click)="prevStep()"
+      *ngIf="currentStep > 0 && needsPersonalInfo"
+      [disabled]="isSubmitting || isLoading"
       class="back-button">
       <mat-icon>arrow_back</mat-icon>
       Anterior
@@ -248,7 +249,7 @@
       <mat-icon *ngIf="!isSubmitting && !isLoading && (currentStep < totalSteps - 1)">arrow_forward</mat-icon>
       <mat-icon *ngIf="!isSubmitting && !isLoading && (currentStep === totalSteps - 1)">check_circle</mat-icon>
       <mat-icon *ngIf="isLoading">refresh</mat-icon>
-      
+
       <span *ngIf="isSubmitting && currentStep === 0">Actualizando información...</span>
       <span *ngIf="isSubmitting && currentStep > 0">Configurando perfil...</span>
       <span *ngIf="!isSubmitting && !isLoading && currentStep < totalSteps - 1">Siguiente</span>

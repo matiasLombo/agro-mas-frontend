@@ -164,4 +164,44 @@ export class ProductService {
     return this.http.delete<void>(`${this.apiUrl}/${productId}`);
   }
 
+    /**
+     * Upload an image for a product
+     */
+    uploadProductImage(productId: string, file: File, altText?: string, isPrimary = false, displayOrder?: number): Observable<{ image: ProductImage }> {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('product_id', productId);
+        if (altText) formData.append('alt_text', altText);
+        formData.append('is_primary', isPrimary.toString());
+        if (displayOrder !== undefined) formData.append('display_order', displayOrder.toString());
+
+        return this.http.post<{ image: ProductImage }>(`${this.apiUrl}/images`, formData);
+    }
+
+    /**
+     * Update an existing product image
+     */
+    updateProductImage(imageId: string, updates: { altText?: string; isPrimary?: boolean; displayOrder?: number }): Observable<void> {
+        const body: any = {};
+        if (updates.altText !== undefined) body.alt_text = updates.altText;
+        if (updates.isPrimary !== undefined) body.is_primary = updates.isPrimary;
+        if (updates.displayOrder !== undefined) body.display_order = updates.displayOrder;
+
+        return this.http.put<void>(`${this.apiUrl}/images/${imageId}`, body);
+    }
+
+    /**
+     * Delete a product image
+     */
+    deleteProductImage(imageId: string): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/images/${imageId}`);
+    }
+
+    /**
+     * Get all images for a product
+     */
+    getProductImages(productId: string): Observable<ProductImage[]> {
+        return this.http.get<ProductImage[]>(`${this.apiUrl}/${productId}/images`);
+    }
+
 }
