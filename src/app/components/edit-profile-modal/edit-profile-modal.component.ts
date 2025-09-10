@@ -11,7 +11,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { AuthService } from '../../core/services/auth.service';
 import { LocationService } from '../../core/services/location.service';
 import { User } from '../../core/models/user.model';
-import { Province, Settlement } from '../../core/models/location.model';
+import { Province, Department, Settlement } from '../../core/models/location.model';
 
 @Component({
   selector: 'app-edit-profile-modal',
@@ -37,6 +37,7 @@ export class EditProfileModalComponent implements OnInit {
   
   // Location data
   provinces: Province[] = [];
+  departments: Department[] = [];
   settlements: Settlement[] = [];
   selectedProvinceId: string = '';
 
@@ -53,6 +54,7 @@ export class EditProfileModalComponent implements OnInit {
       phone: [''],
       address: [''],
       province: [''],
+      department: [{value: '', disabled: true}],
       city: [{value: '', disabled: true}]
     });
   }
@@ -64,24 +66,73 @@ export class EditProfileModalComponent implements OnInit {
     setTimeout(() => {
       this.currentUser = this.authService.currentUser;
       if (this.currentUser) {
+        // Populate basic form fields
         this.profileForm.patchValue({
           first_name: this.currentUser.first_name || '',
           last_name: this.currentUser.last_name || '',
           phone: this.currentUser.phone || '',
-          address: this.currentUser.address || '',
-          province: this.currentUser.province || '',
-          city: this.currentUser.city || ''
+          address: this.currentUser.address || ''
         });
         
-        // Load settlements if province is set
-        if (this.currentUser.province) {
-          this.selectedProvinceId = this.currentUser.province;
-          this.profileForm.get('city')?.enable(); // Enable city field when province is already set
-          this.loadSettlements(this.currentUser.province);
-        }
+        // Handle location data separately after provinces are loaded
+        this.setLocationData();
       }
       this.isInitialLoading = false;
     }, 800);
+  }
+
+  private setLocationData(): void {
+    if (!this.currentUser) return;
+    
+    // Wait for provinces to be loaded, then set location data
+    const checkProvincesLoaded = () => {
+      if (this.provinces.length > 0) {
+        // Set province if it exists
+        if (this.currentUser?.province) {
+          const provinceName = this.currentUser.province;
+          this.profileForm.patchValue({
+            province: provinceName
+          });
+          this.selectedProvinceId = provinceName;
+          
+          // Enable department selector and load departments
+          this.profileForm.get('department')?.enable();
+          this.loadDepartments(provinceName, () => {
+            // After departments are loaded, check if user has a department
+            if (this.currentUser?.department) {
+              this.profileForm.patchValue({
+                department: this.currentUser.department
+              });
+              
+              // Load settlements filtered by province and department
+              this.profileForm.get('city')?.enable();
+              this.loadSettlements(provinceName, this.currentUser.department, () => {
+                if (this.currentUser?.city) {
+                  this.profileForm.patchValue({
+                    city: this.currentUser.city
+                  });
+                }
+              });
+            } else {
+              // No department saved, but if we have a city, try to find its department first
+              this.profileForm.get('city')?.enable();
+              if (this.currentUser?.city) {
+                // Try to find the department that contains this city
+                this.findDepartmentForCity(provinceName, this.currentUser.city);
+              } else {
+                // No city either, just load all settlements for the province
+                this.loadSettlements(provinceName, undefined);
+              }
+            }
+          });
+        }
+      } else {
+        // Retry after a short delay if provinces aren't loaded yet
+        setTimeout(checkProvincesLoaded, 100);
+      }
+    };
+    
+    checkProvincesLoaded();
   }
 
   loadProvinces(): void {
@@ -95,11 +146,37 @@ export class EditProfileModalComponent implements OnInit {
     });
   }
 
-  loadSettlements(provinceId: string): void {
-    if (provinceId) {
-      this.locationService.getSettlements({ provincia: provinceId }).subscribe({
+  loadDepartments(provinceName: string, callback?: () => void): void {
+    if (provinceName) {
+      this.locationService.getDepartments({ provincia: provinceName }).subscribe({
+        next: (response) => {
+          this.departments = response.departamentos;
+          // Execute callback after departments are loaded
+          if (callback) {
+            callback();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading departments:', error);
+        }
+      });
+    }
+  }
+
+  loadSettlements(provinceName: string, departmentName?: string, callback?: () => void): void {
+    if (provinceName) {
+      const params: any = { provincia: provinceName };
+      if (departmentName) {
+        params.departamento = departmentName;
+      }
+      
+      this.locationService.getSettlements(params).subscribe({
         next: (response) => {
           this.settlements = response.asentamientos;
+          // Execute callback after settlements are loaded
+          if (callback) {
+            callback();
+          }
         },
         error: (error) => {
           console.error('Error loading settlements:', error);
@@ -109,17 +186,87 @@ export class EditProfileModalComponent implements OnInit {
   }
 
   onProvinceChange(event: any): void {
-    const provinceId = event.value;
-    this.selectedProvinceId = provinceId;
+    const provinceName = event.value;
+    this.selectedProvinceId = provinceName;
+    
+    // Reset dependent fields
+    this.departments = [];
+    this.settlements = [];
+    this.profileForm.patchValue({ department: '', city: '' });
+    
+    if (provinceName) {
+      // Enable department selector and load departments
+      this.profileForm.get('department')?.enable();
+      this.loadDepartments(provinceName);
+      
+      // Load settlements for the province (without department filter initially)
+      this.loadSettlements(provinceName);
+      this.profileForm.get('city')?.enable();
+    } else {
+      // Disable both department and city selectors
+      this.profileForm.get('department')?.disable();
+      this.profileForm.get('city')?.disable();
+    }
+  }
+
+  onDepartmentChange(event: any): void {
+    const departmentName = event.value;
+    
+    // Reset settlements
     this.settlements = [];
     this.profileForm.patchValue({ city: '' });
     
-    if (provinceId) {
-      this.profileForm.get('city')?.enable();
-      this.loadSettlements(provinceId);
-    } else {
-      this.profileForm.get('city')?.disable();
+    if (departmentName && this.selectedProvinceId) {
+      // Load settlements filtered by both province and department
+      this.loadSettlements(this.selectedProvinceId, departmentName);
+    } else if (this.selectedProvinceId) {
+      // Load settlements for the province only (no department filter)
+      this.loadSettlements(this.selectedProvinceId);
     }
+  }
+
+  private findDepartmentForCity(provinceName: string, cityName: string): void {
+    // Search through each department to find which one contains this city
+    if (this.departments.length === 0) {
+      // If departments aren't loaded yet, just load all settlements
+      this.loadSettlements(provinceName, undefined, () => {
+        this.profileForm.patchValue({ city: cityName });
+      });
+      return;
+    }
+
+    let foundDepartment = false;
+    let departmentIndex = 0;
+
+    const checkNextDepartment = () => {
+      if (departmentIndex >= this.departments.length) {
+        // Didn't find the city in any department, load all settlements
+        this.loadSettlements(provinceName, undefined, () => {
+          this.profileForm.patchValue({ city: cityName });
+        });
+        return;
+      }
+
+      const department = this.departments[departmentIndex];
+      this.loadSettlements(provinceName, department.nombre, () => {
+        // Check if our city is in the loaded settlements
+        const cityFound = this.settlements.find(s => s.nombre === cityName);
+        if (cityFound && !foundDepartment) {
+          foundDepartment = true;
+          // Found the department! Set it and the city
+          this.profileForm.patchValue({
+            department: department.nombre,
+            city: cityName
+          });
+        } else {
+          // Not found in this department, try next
+          departmentIndex++;
+          setTimeout(checkNextDepartment, 200);
+        }
+      });
+    };
+
+    checkNextDepartment();
   }
 
   closeModal(): void {
@@ -130,7 +277,11 @@ export class EditProfileModalComponent implements OnInit {
     if (this.profileForm.valid && !this.isLoading) {
       this.isLoading = true;
       
-      const updatedProfile = this.profileForm.value;
+      // Include disabled fields in the payload
+      const updatedProfile = {
+        ...this.profileForm.value,
+        ...this.profileForm.getRawValue() // This includes disabled fields
+      };
 
       console.log('Updating profile:', updatedProfile);
       

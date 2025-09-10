@@ -52,11 +52,11 @@ export class ProductDetailComponent implements OnInit {
 
   loadProductImages(productId: string): void {
     this.productService.getProductImages(productId).subscribe({
-      next: (images) => {
-        this.images = images.sort((a, b) => a.display_order - b.display_order);
+      next: (images: ProductImage[]) => {
+        this.images = images.sort((a: ProductImage, b: ProductImage) => a.display_order - b.display_order);
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading images:', error);
         this.isLoading = false;
       }
@@ -111,9 +111,18 @@ export class ProductDetailComponent implements OnInit {
     return priceText;
   }
 
-  openQuotationDialog(): void {
+  contactSeller(): void {
     if (!this.product) return;
     
+    // Check if user is authenticated
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) {
+      // Redirect to login if not authenticated
+      this.router.navigate(['/login']);
+      return;
+    }
+    
+    // If authenticated, open contact dialog
     const dialogRef = this.dialog.open(QuotationDialogComponent, {
       width: '500px',
       data: { product: this.product }
@@ -121,8 +130,8 @@ export class ProductDetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Quotation submitted:', result);
-        // Aquí enviarías la cotización al backend
+        console.log('Contact request submitted:', result);
+        // Aquí enviarías la solicitud de contacto al backend
       }
     });
   }
@@ -144,5 +153,21 @@ export class ProductDetailComponent implements OnInit {
       'supplies': 'Suministros'
     };
     return categoryNames[category] || category;
+  }
+
+  getFormattedLocation(product: Product): string {
+    const locationParts: string[] = [];
+    
+    if (product.settlement_name) {
+      locationParts.push(product.settlement_name);
+    }
+    if (product.department_name) {
+      locationParts.push(product.department_name);
+    }
+    if (product.province_name) {
+      locationParts.push(product.province_name);
+    }
+    
+    return locationParts.length > 0 ? locationParts.join(', ') : 'Ubicación no especificada';
   }
 }

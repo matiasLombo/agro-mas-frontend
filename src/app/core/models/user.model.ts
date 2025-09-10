@@ -43,6 +43,7 @@ export interface RegisterRequest {
   business_name?: string;
   business_type?: 'individual' | 'company' | 'cooperative';
   province?: string;
+  department?: string;
   city?: string;
   address?: string;
 }

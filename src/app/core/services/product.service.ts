@@ -119,7 +119,7 @@ export class ProductService {
   /**
    * Update product with new images using FormData
    */
-  updateProductWithImages(productId: string, product: Partial<Product>, images: File[]): Observable<Product> {
+  updateProductWithImages(productId: string, product: Partial<Product>, images: File[], existingImages?: ProductImage[]): Observable<Product> {
     const formData = new FormData();
     
     // Clean product data - remove undefined/null values
@@ -129,6 +129,15 @@ export class ProductService {
       }
       return acc;
     }, {} as any);
+
+    // Add existing images information if provided
+    if (existingImages !== undefined) {
+      cleanProduct.existing_images = existingImages.map(img => ({
+        id: img.id,
+        is_primary: img.is_primary,
+        display_order: img.display_order
+      }));
+    }
     
     console.log('Product data being sent:', cleanProduct);
     
@@ -167,35 +176,10 @@ export class ProductService {
     /**
      * Upload an image for a product
      */
-    uploadProductImage(productId: string, file: File, altText?: string, isPrimary = false, displayOrder?: number): Observable<{ image: ProductImage }> {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('product_id', productId);
-        if (altText) formData.append('alt_text', altText);
-        formData.append('is_primary', isPrimary.toString());
-        if (displayOrder !== undefined) formData.append('display_order', displayOrder.toString());
+    // Individual image upload removed - use createProductWithImages() or updateProductWithImages()
 
-        return this.http.post<{ image: ProductImage }>(`${this.apiUrl}/images`, formData);
-    }
-
-    /**
-     * Update an existing product image
-     */
-    updateProductImage(imageId: string, updates: { altText?: string; isPrimary?: boolean; displayOrder?: number }): Observable<void> {
-        const body: any = {};
-        if (updates.altText !== undefined) body.alt_text = updates.altText;
-        if (updates.isPrimary !== undefined) body.is_primary = updates.isPrimary;
-        if (updates.displayOrder !== undefined) body.display_order = updates.displayOrder;
-
-        return this.http.put<void>(`${this.apiUrl}/images/${imageId}`, body);
-    }
-
-    /**
-     * Delete a product image
-     */
-    deleteProductImage(imageId: string): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/images/${imageId}`);
-    }
+    // Note: Individual image management should be done through product updates
+    // All image operations should go through createProductWithImages() or updateProductWithImages()
 
     /**
      * Get all images for a product

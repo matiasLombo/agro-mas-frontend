@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { LocationService } from '../../core/services/location.service';
+import { Province, Department, Settlement } from '../../core/models/location.model';
 
 @Component({
   selector: 'app-register',
@@ -13,13 +15,23 @@ export class RegisterComponent implements OnInit {
   loading = false;
   errorMessage = '';
   currentStep = 1;
-  totalSteps = 2;
+  totalSteps = 3;
+
+  // Location data
+  provinces: Province[] = [];
+  departments: Department[] = [];
+  settlements: Settlement[] = [];
+  
+  selectedProvinceName = '';
+  selectedDepartmentName = '';
+  selectedSettlementName = '';
 
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private locationService: LocationService
   ) {
     this.registerForm = this.formBuilder.group({
       // Paso 1: Información básica
@@ -30,7 +42,13 @@ export class RegisterComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       phone: ['', [Validators.pattern(/^[+]?[0-9\s\-()]+$/)]],
       
-      // Paso 2: Registro (role fijo como buyer)
+      // Paso 2: Ubicación
+      address: ['', [Validators.required, Validators.minLength(5)]],
+      provinceId: ['', [Validators.required]],
+      departmentId: [''],
+      settlementId: ['', [Validators.required]],
+      
+      // Paso 3: Registro (role fijo como buyer)
       role: ['buyer']
     }, {
       validators: this.passwordMatchValidator
@@ -41,7 +59,9 @@ export class RegisterComponent implements OnInit {
     if (this.authService.isAuthenticated) {
       this.router.navigate(['/marketplace']);
     }
-
+    
+    // Load provinces for location selector
+    this.loadProvinces();
   }
 
 
@@ -95,14 +115,27 @@ export class RegisterComponent implements OnInit {
   }
 
   nextStep(): void {
-    if (this.currentStep === 1 && this.isStep1Valid()) {
-      this.currentStep = 2;
+    if (this.currentStep < this.totalSteps && this.isCurrentStepValid()) {
+      this.currentStep++;
     }
   }
 
   prevStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+    }
+  }
+
+  isCurrentStepValid(): boolean {
+    switch (this.currentStep) {
+      case 1:
+        return this.isStep1Valid();
+      case 2:
+        return this.isStep2Valid();
+      case 3:
+        return this.isStep3Valid();
+      default:
+        return false;
     }
   }
 
@@ -115,22 +148,51 @@ export class RegisterComponent implements OnInit {
   }
 
   isStep2Valid(): boolean {
-    // Step 2 is always valid for simplified flow
+    const step2Fields = ['address', 'provinceId', 'settlementId'];
+    return step2Fields.every(field => {
+      const control = this.registerForm.get(field);
+      return control && control.valid;
+    }) && !!this.selectedProvinceName && !!this.selectedSettlementName;
+  }
+
+  isStep3Valid(): boolean {
+    // Step 3 is always valid for simplified flow
     return true;
   }
 
   onSubmit(): void {
-    if (this.registerForm.valid && this.currentStep === 2) {
+    if (this.registerForm.valid && this.currentStep === 3) {
       this.loading = true;
       this.errorMessage = '';
 
       const formValue = this.registerForm.value;
+      
+      // Validate required location data before sending
+      if (!formValue.address || !formValue.provinceId || !formValue.settlementId) {
+        this.errorMessage = 'Todos los campos de ubicación son obligatorios';
+        this.loading = false;
+        return;
+      }
+
+      if (!this.selectedProvinceName || !this.selectedSettlementName) {
+        this.errorMessage = 'Por favor selecciona una provincia y localidad válidas';
+        this.loading = false;
+        return;
+      }
+
       const userData = {
         email: formValue.email,
         password: formValue.password,
         first_name: formValue.firstName,
         last_name: formValue.lastName,
         phone: formValue.phone || undefined,
+        address: formValue.address,
+        province_id: formValue.provinceId,
+        province_name: this.selectedProvinceName,
+        department_id: formValue.departmentId || undefined,
+        department_name: this.selectedDepartmentName || undefined,
+        settlement_id: formValue.settlementId,
+        settlement_name: this.selectedSettlementName,
         role: 'buyer' as const // Always buyer by default
       };
 
@@ -209,6 +271,10 @@ export class RegisterComponent implements OnInit {
       firstName: 'El nombre',
       lastName: 'El apellido',
       phone: 'El teléfono',
+      address: 'La dirección',
+      provinceId: 'La provincia',
+      departmentId: 'El departamento',
+      settlementId: 'La localidad/asentamiento',
       role: 'El tipo de usuario'
     };
     return labels[fieldName] || fieldName;
@@ -244,5 +310,123 @@ export class RegisterComponent implements OnInit {
   passwordHasSpecialChar(): boolean {
     const password = this.registerForm.get('password')?.value || '';
     return /[!@#$%^&*]/.test(password);
+  }
+
+  // Location methods
+  loadProvinces(): void {
+    this.locationService.getProvinces().subscribe({
+      next: (response) => {
+        this.provinces = response.provincias;
+      },
+      error: (error) => {
+        console.error('Error loading provinces:', error);
+      }
+    });
+  }
+
+  onProvinceChange(): void {
+    const provinceId = this.registerForm.get('provinceId')?.value;
+    if (provinceId) {
+      const selectedProvince = this.provinces.find(p => p.id === provinceId);
+      this.selectedProvinceName = selectedProvince?.nombre || '';
+      
+      // Reset dependent fields
+      this.registerForm.get('departmentId')?.setValue('');
+      this.registerForm.get('settlementId')?.setValue('');
+      this.departments = [];
+      this.settlements = [];
+      this.selectedDepartmentName = '';
+      this.selectedSettlementName = '';
+
+      // Load departments for selected province
+      this.loadDepartments(selectedProvince?.nombre || '');
+      this.loadSettlements(selectedProvince?.nombre || '');
+    } else {
+      // Clear all dependent data when no province selected
+      this.registerForm.get('departmentId')?.setValue('');
+      this.registerForm.get('settlementId')?.setValue('');
+      this.departments = [];
+      this.settlements = [];
+      this.selectedProvinceName = '';
+      this.selectedDepartmentName = '';
+      this.selectedSettlementName = '';
+    }
+  }
+
+  onDepartmentChange(): void {
+    const departmentId = this.registerForm.get('departmentId')?.value;
+    if (departmentId) {
+      const selectedDepartment = this.departments.find(d => d.id === departmentId);
+      this.selectedDepartmentName = selectedDepartment?.nombre || '';
+      
+      // Reset settlement field and reload settlements filtered by department
+      this.registerForm.get('settlementId')?.setValue('');
+      this.selectedSettlementName = '';
+      
+      // Reload settlements filtered by province and department
+      const provinceId = this.registerForm.get('provinceId')?.value;
+      const selectedProvince = this.provinces.find(p => p.id === provinceId);
+      if (selectedProvince) {
+        this.loadSettlements(selectedProvince.nombre, selectedDepartment?.nombre);
+      }
+    } else {
+      // Clear dependent fields when no department selected
+      this.registerForm.get('settlementId')?.setValue('');
+      this.selectedDepartmentName = '';
+      this.selectedSettlementName = '';
+      
+      // Reload settlements without department filter
+      const provinceId = this.registerForm.get('provinceId')?.value;
+      const selectedProvince = this.provinces.find(p => p.id === provinceId);
+      if (selectedProvince) {
+        this.loadSettlements(selectedProvince.nombre);
+      }
+    }
+  }
+
+  onSettlementChange(): void {
+    const settlementId = this.registerForm.get('settlementId')?.value;
+    if (settlementId) {
+      const selectedSettlement = this.settlements.find(s => s.id === settlementId);
+      this.selectedSettlementName = selectedSettlement?.nombre || '';
+    } else {
+      // Clear settlement name when no settlement selected
+      this.selectedSettlementName = '';
+    }
+  }
+
+  private loadDepartments(provinceName: string): void {
+    this.locationService.getDepartments({ provincia: provinceName }).subscribe({
+      next: (response) => {
+        this.departments = response.departamentos;
+      },
+      error: (error) => {
+        console.error('Error loading departments:', error);
+      }
+    });
+  }
+
+  private loadSettlements(provinceName: string, departmentName?: string): void {
+    const params: any = { provincia: provinceName };
+    if (departmentName) {
+      params.departamento = departmentName;
+    }
+
+    this.locationService.getSettlements(params).subscribe({
+      next: (response) => {
+        this.settlements = response.asentamientos;
+      },
+      error: (error) => {
+        console.error('Error loading settlements:', error);
+      }
+    });
+  }
+
+  getLocationSummary(): string {
+    const parts = [];
+    if (this.selectedSettlementName) parts.push(this.selectedSettlementName);
+    if (this.selectedDepartmentName) parts.push(this.selectedDepartmentName);
+    if (this.selectedProvinceName) parts.push(this.selectedProvinceName);
+    return parts.join(', ') || 'No especificado';
   }
 }

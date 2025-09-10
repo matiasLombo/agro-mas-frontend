@@ -69,23 +69,8 @@
           <div class="location-info">
             <mat-icon class="location-icon">place</mat-icon>
             <span class="info-text">
-              {{ product.settlement || product.department || product.province }}
+              {{ getFormattedLocation(product) }}
             </span>
-          </div>
-        </div>
-
-        <!-- Availability -->
-        <div class="info-group">
-          <label>Modalidades de entrega</label>
-          <div class="delivery-options">
-            <div class="delivery-option" *ngIf="product.pickup_available">
-              <mat-icon class="option-icon">local_shipping</mat-icon>
-              <span>Retiro en origen</span>
-            </div>
-            <div class="delivery-option" *ngIf="product.delivery_available">
-              <mat-icon class="option-icon">delivery_dining</mat-icon>
-              <span>Entrega a domicilio</span>
-            </div>
           </div>
         </div>
 
@@ -111,15 +96,15 @@
             Editar Publicación
           </button>
 
-          <!-- Show quotation button only for non-owners -->
+          <!-- Show contact button only for non-owners -->
           <button 
             *ngIf="!isOwner" 
             mat-raised-button 
             color="primary" 
-            (click)="openQuotationDialog()"
+            (click)="contactSeller()"
             class="action-button primary-action">
-            <mat-icon>request_quote</mat-icon>
-            Solicitar Cotización
+            <mat-icon>contact_mail</mat-icon>
+            Contactar Vendedor
           </button>
         </div>
       </div>

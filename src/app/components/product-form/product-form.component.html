@@ -130,17 +130,92 @@
         </mat-form-field>
       </div>
 
-      <div *ngIf="!isEditMode" class="file-upload-section">
-        <label class="file-upload-label">
-          <mat-icon>cloud_upload</mat-icon>
-          Subir Imágenes
-          <input type="file" (change)="onFileChange($event, 'images')" multiple accept="image/*">
-        </label>
-        <label class="file-upload-label">
-          <mat-icon>cloud_upload</mat-icon>
-          Subir Videos
-          <input type="file" (change)="onFileChange($event, 'videos')" multiple accept="video/*">
-        </label>
+      <!-- File Upload Section -->
+      <div class="file-upload-section">
+        <h3>Archivos Multimedia</h3>
+        
+        <!-- Drag & Drop Zone -->
+        <div class="drag-drop-zone" 
+             [class.drag-over]="isDragOver"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)">
+          
+          <div class="drag-drop-content">
+            <mat-icon>cloud_upload</mat-icon>
+            <p>Arrastra y suelta tus archivos aquí</p>
+            <p class="drag-subtitle">o haz clic en los botones de abajo</p>
+          </div>
+          
+          <!-- Upload Buttons -->
+          <div class="upload-buttons">
+            <label class="file-upload-button" for="imageUpload">
+              <mat-icon>photo_camera</mat-icon>
+              <span>{{ isEditMode ? 'Agregar Imágenes' : 'Subir Imágenes' }}</span>
+              <span class="file-limit">(máx. 10)</span>
+            </label>
+            <input type="file" 
+                   id="imageUpload"
+                   (change)="onFileChange($event, 'image')" 
+                   multiple 
+                   accept="image/*"
+                   [disabled]="isImageUploadDisabled"
+                   style="display: none;">
+            
+            <label class="file-upload-button video-upload" for="videoUpload">
+              <mat-icon>videocam</mat-icon>
+              <span>{{ isEditMode ? 'Agregar Videos' : 'Subir Videos' }}</span>
+              <span class="file-limit">(máx. 3)</span>
+            </label>
+            <input type="file" 
+                   id="videoUpload"
+                   (change)="onFileChange($event, 'video')" 
+                   multiple 
+                   accept="video/*"
+                   [disabled]="isVideoUploadDisabled"
+                   style="display: none;">
+          </div>
+        </div>
+
+        <!-- File Previews -->
+        <div class="file-previews" *ngIf="filePreviews.length > 0">
+          <h4>Archivos seleccionados ({{ filePreviews.length }})</h4>
+          <div class="preview-grid">
+            <div class="file-preview-card" *ngFor="let preview of filePreviews; let i = index">
+              <!-- Image Preview -->
+              <div class="preview-thumbnail" *ngIf="preview.type === 'image'">
+                <img [src]="preview.url" [alt]="preview.file.name">
+                <div class="file-type-badge">IMG</div>
+              </div>
+              
+              <!-- Video Preview -->
+              <div class="preview-thumbnail" *ngIf="preview.type === 'video'">
+                <video [src]="preview.url" muted></video>
+                <div class="file-type-badge video">VID</div>
+              </div>
+              
+              <!-- File Info -->
+              <div class="file-info">
+                <div class="file-name">{{ preview.file.name }}</div>
+                <div class="file-details">
+                  <span class="file-size">{{ getFileSizeText(preview.compressedSize || preview.originalSize) }}</span>
+                  <span class="compression-info" *ngIf="preview.compressed">
+                    <mat-icon class="compress-icon">compress</mat-icon>
+                    {{ Math.round(((preview.originalSize - preview.compressedSize!) / preview.originalSize) * 100) }}% reducido
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Remove Button -->
+              <button class="remove-file-btn" 
+                      (click)="removeFile(i)"
+                      type="button"
+                      mat-icon-button>
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="isUploading" class="upload-indicator">
@@ -148,10 +223,43 @@
         <span>Subiendo archivos... {{ uploadProgress | number:'1.0-0' }}%</span>
       </div>
 
-      <div class="file-list-section">
-        <h4 *ngIf="uploadedImages.length > 0">Imágenes subidas:</h4>
-        <div class="file-list">
-          <span *ngFor="let image of uploadedImages">{{ image.cloud_storage_path | slice:0:30 }}...</span>
+      <!-- Existing Images Section -->
+      <div class="existing-images-section" *ngIf="uploadedImages.length > 0">
+        <h4>Imágenes existentes ({{ uploadedImages.length }})</h4>
+        <div class="existing-images-grid">
+          <div class="existing-image-card" *ngFor="let image of uploadedImages; let i = index">
+            <!-- Image Preview -->
+            <div class="existing-image-thumbnail">
+              <img [src]="getImageDisplayUrl(image)" 
+                   [alt]="image.alt_text || 'Imagen del producto'"
+                   (error)="$any($event.target).src = 'data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;200&quot; height=&quot;150&quot; viewBox=&quot;0 0 200 150&quot;><rect width=&quot;200&quot; height=&quot;150&quot; fill=&quot;%23f8fafc&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; text-anchor=&quot;middle&quot; font-family=&quot;Arial,sans-serif&quot; font-size=&quot;14&quot; fill=&quot;%236b7280&quot; dy=&quot;.3em&quot;>Imagen no disponible</text></svg>'">
+              <div class="image-badge" *ngIf="image.is_primary">PRINCIPAL</div>
+            </div>
+            
+            <!-- Image Actions -->
+            <div class="existing-image-actions">
+              <button type="button" 
+                      class="image-action-btn set-primary" 
+                      *ngIf="!image.is_primary && isEditMode"
+                      (click)="setPrimaryImage(image.id)"
+                      title="Establecer como principal">
+                <mat-icon>star</mat-icon>
+              </button>
+              
+              <button type="button" 
+                      class="image-action-btn remove" 
+                      *ngIf="isEditMode"
+                      (click)="removeImage(image.id)"
+                      title="Eliminar imagen">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            
+            <!-- Image Info -->
+            <div class="existing-image-info">
+              <span class="image-order">{{ image.display_order || i + 1 }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -163,7 +271,7 @@
           class="btn btn-primary"
           [disabled]="productForm.invalid || isUploading"
         >
-          {{ isEditMode ? 'Contactar Vendedor' : 'Publicar' }}
+          {{ isEditMode ? 'Actualizar Producto' : 'Publicar' }}
         </button>
       </div>
 

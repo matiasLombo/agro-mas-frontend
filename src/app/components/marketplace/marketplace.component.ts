@@ -231,9 +231,9 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
    */
   getPlaceholderImage(category: string): string {
     const placeholders: { [key: string]: string } = {
-      'transport': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🚛</text></g></svg>',
+      'transport': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🚚</text></g></svg>',
       'livestock': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🐄</text></g></svg>',
-      'supplies': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🌾</text></g></svg>'
+      'supplies': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8fafc"/><g fill="%234CAF50"><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" dy=".3em">🌿</text></g></svg>'
     };
 
     return placeholders[category] || placeholders['supplies'];

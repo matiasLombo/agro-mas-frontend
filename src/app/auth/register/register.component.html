@@ -13,7 +13,8 @@
       </div>
       <div class="step-labels">
         <span [class.active]="currentStep >= 1">1. Datos personales</span>
-        <span [class.active]="currentStep >= 2">2. Crear cuenta</span>
+        <span [class.active]="currentStep >= 2">2. Ubicación</span>
+        <span [class.active]="currentStep >= 3">3. Crear cuenta</span>
       </div>
     </div>
 
@@ -158,8 +159,80 @@
         </div>
       </div>
 
-      <!-- Step 2: Final Registration -->
+      <!-- Step 2: Location Info -->
       <div class="step-content" *ngIf="currentStep === 2">
+        <h3>📍 Información de Ubicación</h3>
+        <p class="step-description">Necesitamos conocer tu ubicación para brindarte una mejor experiencia en el marketplace.</p>
+        
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección *</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="address"
+              placeholder="Tu dirección completa"
+            >
+            <mat-icon matSuffix>home</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('address')">
+              {{ getFieldError('address') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Provincia *</mat-label>
+              <mat-select formControlName="provinceId" (selectionChange)="onProvinceChange()">
+                <mat-option value="">Selecciona una provincia</mat-option>
+                <mat-option *ngFor="let province of provinces" [value]="province.id">
+                  {{ province.nombre }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>location_on</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('provinceId')">
+                {{ getFieldError('provinceId') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Departamento</mat-label>
+              <mat-select formControlName="departmentId" (selectionChange)="onDepartmentChange()" [disabled]="!departments.length">
+                <mat-option value="">Selecciona un departamento</mat-option>
+                <mat-option *ngFor="let department of departments" [value]="department.id">
+                  {{ department.nombre }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>place</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('departmentId')">
+                {{ getFieldError('departmentId') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Localidad/Asentamiento *</mat-label>
+            <mat-select formControlName="settlementId" (selectionChange)="onSettlementChange()" [disabled]="!settlements.length">
+              <mat-option value="">Selecciona una localidad</mat-option>
+              <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
+                {{ settlement.nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>location_city</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('settlementId')">
+              {{ getFieldError('settlementId') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Step 3: Final Registration -->
+      <div class="step-content" *ngIf="currentStep === 3">
         <h3>¡Listo para crear tu cuenta!</h3>
         <p class="step-description">Tu cuenta se creará como comprador. Podrás configurar tu perfil de vendedor más adelante si deseas publicar productos.</p>
         
@@ -169,6 +242,8 @@
             <li><strong>Nombre:</strong> {{ registerForm.get('firstName')?.value }} {{ registerForm.get('lastName')?.value }}</li>
             <li><strong>Email:</strong> {{ registerForm.get('email')?.value }}</li>
             <li><strong>Teléfono:</strong> {{ registerForm.get('phone')?.value || 'No especificado' }}</li>
+            <li><strong>Dirección:</strong> {{ registerForm.get('address')?.value }}</li>
+            <li><strong>Ubicación:</strong> {{ getLocationSummary() }}</li>
             <li><strong>Tipo:</strong> Comprador (puedes vender productos más adelante)</li>
           </ul>
         </div>
@@ -195,7 +270,7 @@
           class="btn btn-primary"
           *ngIf="currentStep < totalSteps"
           (click)="nextStep()"
-          [disabled]="!isStep1Valid()"
+          [disabled]="!isCurrentStepValid()"
         >
           Siguiente →
         </button>

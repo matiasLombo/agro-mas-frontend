@@ -144,9 +144,9 @@ export class MyProductsComponent implements OnInit, OnDestroy {
 
   getPlaceholderImage(category: string): string {
     const placeholders: { [key: string]: string } = {
-      'transport': '/assets/images/placeholder-transport.svg',
-      'livestock': '/assets/images/placeholder-livestock.svg',
-      'supplies': '/assets/images/placeholder-supplies.svg'
+      'transport': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f8fafc"/><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" dy=".3em">🚚</text></svg>',
+      'livestock': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f8fafc"/><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" dy=".3em">🐄</text></svg>',
+      'supplies': 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f8fafc"/><text x="50%" y="50%" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" dy=".3em">🌿</text></svg>'
     };
     return placeholders[category] || placeholders['supplies'];
   }

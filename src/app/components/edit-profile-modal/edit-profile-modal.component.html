@@ -80,17 +80,29 @@
             <mat-label>Provincia</mat-label>
             <mat-select formControlName="province" (selectionChange)="onProvinceChange($event)">
               <mat-option value="">Selecciona una provincia</mat-option>
-              <mat-option *ngFor="let province of provinces" [value]="province.id">
+              <mat-option *ngFor="let province of provinces" [value]="province.nombre">
                 {{ province.nombre }}
               </mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Departamento</mat-label>
+            <mat-select formControlName="department" (selectionChange)="onDepartmentChange($event)">
+              <mat-option value="">Selecciona un departamento</mat-option>
+              <mat-option *ngFor="let department of departments" [value]="department.nombre">
+                {{ department.nombre }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Localidad/Asentamiento</mat-label>
             <mat-select formControlName="city">
               <mat-option value="">Selecciona una localidad</mat-option>
-              <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
+              <mat-option *ngFor="let settlement of settlements" [value]="settlement.nombre">
                 {{ settlement.nombre }}
               </mat-option>
             </mat-select>
