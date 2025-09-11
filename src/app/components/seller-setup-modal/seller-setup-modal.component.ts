@@ -147,7 +147,7 @@ export class SellerSetupModalComponent implements OnInit {
           this.isFirstTimeSetup = false;
           this.sellerForm.patchValue({
             business_name: response.profile.business_name || '',
-            cuit: response.profile.cuit || '',
+            cuit: this.formatCuitForDisplay(response.profile.cuit || ''),
             cbu: response.profile.cbu || '',
             cbu_alias: response.profile.cbu_alias || '',
             bank_name: response.profile.bank_name || '',
@@ -164,6 +164,21 @@ export class SellerSetupModalComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private formatCuitForDisplay(cuit: string): string {
+    if (!cuit) return '';
+    
+    // Remove any non-digit characters
+    const digits = cuit.replace(/\D/g, '');
+    
+    // Format as XX-XXXXXXXX-X if we have 11 digits
+    if (digits.length === 11) {
+      return `${digits.substring(0, 2)}-${digits.substring(2, 10)}-${digits.substring(10, 11)}`;
+    }
+    
+    // Return as is if not 11 digits
+    return digits;
   }
 
   onSubmit(): void {
@@ -357,23 +372,9 @@ export class SellerSetupModalComponent implements OnInit {
     // Remove any non-digit characters
     const digits = control.value.toString().replace(/\D/g, '');
     
+    // Solo validar que tenga exactamente 11 dígitos
     if (digits.length !== 11) {
-      return { cuitLength: { message: 'El CUIT debe tener 11 dígitos' } };
-    }
-    
-    // CUIT validation algorithm
-    const multipliers = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
-    let sum = 0;
-    
-    for (let i = 0; i < 10; i++) {
-      sum += parseInt(digits[i]) * multipliers[i];
-    }
-    
-    const remainder = sum % 11;
-    const checkDigit = remainder < 2 ? remainder : 11 - remainder;
-    
-    if (parseInt(digits[10]) !== checkDigit) {
-      return { cuitInvalid: { message: 'El CUIT ingresado no es válido' } };
+      return { cuitLength: { message: 'El CUIT debe tener exactamente 11 dígitos' } };
     }
     
     return null;
@@ -414,15 +415,14 @@ export class SellerSetupModalComponent implements OnInit {
       value = value.substring(0, 11);
     }
     
-    // Format as XX-XXXXXXXX-X
-    let formattedValue = '';
-    if (value.length > 0) {
-      formattedValue = value.substring(0, 2);
-      if (value.length > 2) {
-        formattedValue += '-' + value.substring(2, 10);
-        if (value.length > 10) {
-          formattedValue += '-' + value.substring(10, 11);
-        }
+    // Format as XX-XXXXXXXX-X only when there are enough digits
+    let formattedValue = value;
+    if (value.length >= 3) {
+      formattedValue = value.substring(0, 2) + '-';
+      if (value.length >= 11) {
+        formattedValue += value.substring(2, 10) + '-' + value.substring(10, 11);
+      } else {
+        formattedValue += value.substring(2);
       }
     }
     
@@ -479,9 +479,6 @@ export class SellerSetupModalComponent implements OnInit {
       }
       if (field.errors['cuitLength']) {
         return field.errors['cuitLength'].message;
-      }
-      if (field.errors['cuitInvalid']) {
-        return field.errors['cuitInvalid'].message;
       }
       if (field.errors['cbuLength']) {
         return field.errors['cbuLength'].message;

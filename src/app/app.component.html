@@ -170,10 +170,9 @@
                           <span>Editar Perfil</span>
                         </button>
 
-                        <button class="menu-item" *ngIf="(currentUser$ | async)?.role === 'seller'"
-                          (click)="openSellerSettings(); closeUserMenu()">
-                          <mat-icon>store</mat-icon>
-                          <span>Perfil de Vendedor</span>
+                        <button class="menu-item" (click)="openSellerSettings(); closeUserMenu()">
+                          <mat-icon>{{ (currentUser$ | async)?.role === 'seller' ? 'store' : 'store_mall_directory' }}</mat-icon>
+                          <span>{{ (currentUser$ | async)?.role === 'seller' ? 'Perfil de Vendedor' : 'Configurar Vendedor' }}</span>
                         </button>
 
                         <button class="menu-item" (click)="viewMyActivity(); closeUserMenu()">
