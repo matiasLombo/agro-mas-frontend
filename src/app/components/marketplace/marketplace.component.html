@@ -5,12 +5,8 @@
       <div class="hero-text">
         <h1 class="hero-title">Marketplace Agropecuario</h1>
         <p class="hero-subtitle">Conectamos productores y compradores en el sector agropecuario</p>
-        <p class="hero-description">La plataforma de confianza donde encontrarás los mejores productos del campo argentino</p>
-      </div>
-      <div class="hero-image">
-        <div class="hero-placeholder">
-          <mat-icon class="hero-icon">agriculture</mat-icon>
-        </div>
+        <p class="hero-description">La plataforma de confianza donde encontrarás los mejores productos del campo
+          argentino</p>
       </div>
     </div>
   </section>
@@ -83,10 +79,8 @@
         <div class="search-bar">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>¿Qué estás buscando?</mat-label>
-            <input matInput 
-                   placeholder="Buscar transporte, ganado, suministros..." 
-                   [(ngModel)]="searchQuery" 
-                   (keyup.enter)="searchProducts()">
+            <input matInput placeholder="Buscar transporte, ganado, suministros..." [(ngModel)]="searchQuery"
+              (keyup.enter)="searchProducts()">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
           <button class="search-button" mat-raised-button color="primary" (click)="searchProducts()">

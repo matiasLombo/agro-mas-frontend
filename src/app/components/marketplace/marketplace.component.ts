@@ -4,6 +4,7 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Product, ProductSearchResponse } from '@core/models/product.model';
+import { images } from '@core/constants/images.constants';
 
 @Component({
   selector: 'app-marketplace',
@@ -297,5 +298,9 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       }
     ];
     this.totalProducts = 1;
+  }
+
+  get images() {
+    return images.banner
   }
 }
