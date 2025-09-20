@@ -83,28 +83,28 @@
               (keyup.enter)="searchProducts()">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
-          <button class="search-button" mat-raised-button color="primary" (click)="searchProducts()">
+          <button class="search-button" mat-raised-button (click)="searchProducts()">
             <mat-icon>search</mat-icon>
             Buscar
           </button>
         </div>
         <div class="category-filters">
-          <button class="filter-btn" [class.active]="selectedCategory === ''"
+          <button mat-flat-button class="filter-btn" [class.active]="selectedCategory === ''"
             (click)="selectedCategory = ''; loadFeaturedProducts()">
             <mat-icon>apps</mat-icon>
             Todos
           </button>
-          <button class="filter-btn" [class.active]="selectedCategory === 'transport'"
+          <button mat-flat-button class="filter-btn" [class.active]="selectedCategory === 'transport'"
             (click)="loadProductsByCategory('transport')">
             <mat-icon>local_shipping</mat-icon>
             Transporte
           </button>
-          <button class="filter-btn" [class.active]="selectedCategory === 'livestock'"
+          <button mat-flat-button class="filter-btn" [class.active]="selectedCategory === 'livestock'"
             (click)="loadProductsByCategory('livestock')">
             <mat-icon>agriculture</mat-icon>
             Ganado
           </button>
-          <button class="filter-btn" [class.active]="selectedCategory === 'supplies'"
+          <button mat-flat-button class="filter-btn" [class.active]="selectedCategory === 'supplies'"
             (click)="loadProductsByCategory('supplies')">
             <mat-icon>grass</mat-icon>
             Suministros

@@ -80,7 +80,7 @@
 
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #4a90e2, #357abd);
+      background: linear-gradient(90deg, #E4661A, #D97706);
       transition: width 0.3s ease;
     }
   }
@@ -95,7 +95,7 @@
       transition: color 0.3s ease;
       
       &.active {
-        color: #4a90e2;
+        color: #E4661A;
         font-weight: 600;
       }
     }
@@ -250,9 +250,9 @@
       display: none;
 
       &:checked + .role-card {
-        border-color: #4a90e2;
-        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        background: linear-gradient(135deg, #f8fbff, #e3f2fd);
+        border-color: #E4661A;
+        box-shadow: 0 0 0 3px rgba(228, 102, 26, 0.1);
+        background: linear-gradient(135deg, #fff9f5, #fdf2e9);
       }
     }
 
@@ -267,7 +267,7 @@
       height: 100%;
 
       &:hover {
-        border-color: #4a90e2;
+        border-color: #E4661A;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
@@ -346,13 +346,13 @@
     min-width: 120px;
 
     &.btn-primary {
-      background: linear-gradient(135deg, #4a90e2, #357abd);
+      background: linear-gradient(135deg, #E4661A, #D97706);
       color: white;
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #357abd, #2968a3);
+        background: linear-gradient(135deg, #D97706, #E4661A);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        box-shadow: 0 4px 12px rgba(228, 102, 26, 0.3);
       }
 
       &:disabled {
