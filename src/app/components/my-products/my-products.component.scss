@@ -444,11 +444,11 @@
     }
 
     &.view-btn {
-      background: linear-gradient(135deg, $accent-blue 0%, #1e40af 100%);
+      background: linear-gradient(135deg, $accent-orange 0%, $accent-amber 100%);
       color: $white;
 
       &:hover {
-        background: linear-gradient(135deg, #1e40af 0%, $accent-blue 100%);
+        background: linear-gradient(135deg, $accent-amber 0%, $accent-orange 100%);
         transform: scale(1.1);
       }
     }
