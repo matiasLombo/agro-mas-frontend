@@ -128,7 +128,7 @@
 
             <div class="nav-right">
               <ng-container *ngIf="!(isAuthenticated$ | async)">
-                <button mat-button routerLink="/login" routerLinkActive="active" class="nav-link">Iniciar
+                <button mat-flat-button routerLink="/login" routerLinkActive="active" class="nav-button-secondary">Iniciar
                   Sesión</button>
                 <button mat-flat-button routerLink="/register" routerLinkActive="active"
                   class="nav-button">Registrarse</button>

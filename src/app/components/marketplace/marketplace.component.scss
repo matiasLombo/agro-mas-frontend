@@ -1,4 +1,4 @@
-/* ===== MARKETPLACE REDESIGN - PROFESSIONAL E-COMMERCE ===== */
+/* ===== MARKETPLACE DESIGN - PROFESSIONAL AGRO PLATFORM ===== */
 
 @import '../../../styles/variables';
 
@@ -25,7 +25,7 @@
   z-index: 1;
 }
 
-/* === HERO SECTION - MercadoLibre Inspired === */
+/* === HERO SECTION === */
 .hero-section {
   background-image: url('/assets/images/campo.jpg');
   background-size: cover;
@@ -44,7 +44,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
     pointer-events: none;
     z-index: 1;
   }
@@ -58,8 +58,8 @@
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, 
-      rgba(76, 175, 80, 0.3) 0%, 
-      rgba(76, 175, 80, 0.1) 50%,
+      rgba(82, 177, 86, 0.2) 0%, 
+      rgba(82, 177, 86, 0.05) 50%,
       transparent 100%
     );
     pointer-events: none;
@@ -234,7 +234,7 @@
       transform: translateX(-50%);
       width: 60px;
       height: 3px;
-      background: linear-gradient(135deg, $primary-green 0%, $accent-teal 100%);
+      background: linear-gradient(135deg, $primary-green 0%, $primary-green-light 100%);
       border-radius: 2px;
     }
   }
@@ -264,9 +264,10 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     &:hover {
-      transform: translateY(-8px);
+      transform: translateY(-6px);
       .icon-circle {
-        background: linear-gradient(135deg, $primary-green 0%, $accent-teal 100%);
+        background: linear-gradient(135deg, $primary-green 0%, $primary-green-light 100%);
+        box-shadow: $shadow-green;
         .icon-style {
           color: $white;
         }
@@ -367,10 +368,27 @@
 // Removed old search input styles - now using mat-form-field
 
 .search-button {
-  height: 56px;
-  padding: $spacing-4 $spacing-6;
+  height: 56px !important;
+  padding: $spacing-4 $spacing-6 !important;
   min-width: 120px;
-  border-radius: $radius-lg;
+  border-radius: $radius-lg !important;
+  background: linear-gradient(135deg, $accent-orange 0%, $accent-amber 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(228, 102, 26, 0.25) !important;
+  border: none !important;
+  
+  &:hover {
+    background: linear-gradient(135deg, $accent-amber 0%, $accent-orange 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(228, 102, 26, 0.35) !important;
+  }
+  
+  &:active {
+    transform: translateY(0) !important;
+    transition-duration: 0.1s !important;
+  }
   
   @media (max-width: $breakpoint-sm) {
     width: 100%;
@@ -395,26 +413,44 @@
 }
 
 .filter-btn {
-  @include button-outline;
-  border-radius: $radius-full;
-  padding: $spacing-3 $spacing-5;
-  font-size: $text-sm;
-  font-weight: 600;
+  border-radius: $radius-full !important;
+  padding: $spacing-3 $spacing-5 !important;
+  font-size: $text-sm !important;
+  font-weight: 600 !important;
   position: relative;
+  background: $white !important;
+  color: $gray-700 !important;
+  border: 1px solid $gray-300 !important;
+  transition: all 0.2s ease !important;
+  transform: none !important;
+  box-shadow: $shadow-sm !important;
+  min-width: auto !important;
+  height: auto !important;
+  
+  &:hover {
+    background: $gray-50 !important;
+    border-color: $gray-400 !important;
+    transform: none !important;
+    box-shadow: $shadow-sm !important;
+  }
   
   &.active {
-    @include button-primary;
-    border: none;
+    background: $primary-green !important;
+    color: $white !important;
+    border-color: $primary-green !important;
+    transform: none !important;
+    box-shadow: $shadow-green !important;
   }
   
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: $spacing-2 !important;
   }
 }
 
-/* === PRODUCTS SECTION - MercadoLibre Style === */
+/* === PRODUCTS SECTION === */
 .products-section {
   @include container;
   padding: $spacing-16 $spacing-6 $spacing-20;
@@ -440,7 +476,7 @@
       transform: translateX(-50%);
       width: 80px;
       height: 3px;
-      background: linear-gradient(135deg, $primary-green 0%, $accent-teal 100%);
+      background: linear-gradient(135deg, $primary-green 0%, $primary-green-light 100%);
       border-radius: 2px;
     }
   }
@@ -559,7 +595,7 @@
     position: absolute;
     top: $spacing-3;
     left: $spacing-3;
-    background: linear-gradient(135deg, $primary-green 0%, $accent-teal 100%);
+    background: linear-gradient(135deg, $primary-green 0%, $primary-green-light 100%);
     color: $white;
     padding: $spacing-1 $spacing-3;
     border-radius: $radius-full;

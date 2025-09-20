@@ -95,13 +95,13 @@
     transition: all 0.3s ease;
 
     &.btn-primary {
-      background: linear-gradient(135deg, #4a90e2, #357abd);
+      background: linear-gradient(135deg, #E4661A, #D97706);
       color: white;
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #357abd, #2968a3);
+        background: linear-gradient(135deg, #D97706, #E4661A);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        box-shadow: 0 4px 12px rgba(228, 102, 26, 0.3);
       }
 
       &:disabled {
@@ -126,12 +126,13 @@
   }
 
   .link {
-    color: #4a90e2;
+    color: #E4661A;
     text-decoration: none;
     font-weight: 500;
 
     &:hover {
       text-decoration: underline;
+      color: #D97706;
     }
   }
 }
