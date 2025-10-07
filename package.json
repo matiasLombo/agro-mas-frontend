@@ -1,7 +1,7 @@
 {
   "name": "agro-mas-frontend",
   "version": "1.0.0",
-  "description": "Frontend Angular para Agro Mas - Marketplace Agropecuario",
+  "description": "Frontend Angular para CorralOK - Marketplace Agropecuario",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
