@@ -12,7 +12,7 @@ import { logo } from './core/constants/images.constants';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'Agro Mas';
+  title = 'CorralOK';
   backendStatus = 'Verificando...';
   backendConnected = false;
   backendEnvironment = '';
