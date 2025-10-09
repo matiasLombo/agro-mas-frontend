@@ -263,6 +263,37 @@
         </div>
       </div>
 
+      <!-- Existing Videos Section -->
+      <div class="existing-videos-section" *ngIf="uploadedVideos.length > 0">
+        <h4>Videos existentes ({{ uploadedVideos.length }})</h4>
+        <div class="existing-videos-grid">
+          <div class="existing-video-card" *ngFor="let video of uploadedVideos; let i = index">
+            <!-- Video Preview -->
+            <div class="existing-video-thumbnail">
+              <video [src]="video.video_url" controls muted></video>
+              <div class="video-badge" *ngIf="video.is_primary">PRINCIPAL</div>
+            </div>
+
+            <!-- Video Actions -->
+            <div class="existing-video-actions">
+              <button type="button"
+                      class="video-action-btn remove"
+                      *ngIf="isEditMode"
+                      (click)="removeVideo(video.id)"
+                      title="Eliminar video">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <!-- Video Info -->
+            <div class="existing-video-info">
+              <span class="video-order">{{ video.display_order || i + 1 }}</span>
+              <span class="video-size" *ngIf="video.file_size">{{ (video.file_size / 1024 / 1024).toFixed(2) }} MB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Form Actions -->
       <div class="form-actions">
         <div></div> <!-- Empty div for spacing -->

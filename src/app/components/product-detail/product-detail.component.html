@@ -14,10 +14,20 @@
       <!-- Multimedia Section (Left) -->
       <div class="multimedia-section">
         <div class="image-container">
-          <img [src]="getCurrentImage()" [alt]="product.title" class="main-image">
-          
-          <!-- Navigation arrows for multiple images -->
-          <div class="image-navigation" *ngIf="images.length > 1">
+          <ng-container *ngIf="getCurrentMediaItem()">
+            <img *ngIf="getCurrentMediaItem()?.type === 'image'"
+                 [src]="getCurrentMediaItem()!.url"
+                 [alt]="product.title"
+                 class="main-image">
+            <video *ngIf="getCurrentMediaItem()?.type === 'video'"
+                   [src]="getCurrentMediaItem()!.url"
+                   controls
+                   class="main-video">
+            </video>
+          </ng-container>
+
+          <!-- Navigation arrows for multiple media items -->
+          <div class="image-navigation" *ngIf="mediaItems.length > 1">
             <button mat-icon-button (click)="prevImage()" class="nav-button prev">
               <mat-icon>chevron_left</mat-icon>
             </button>
@@ -26,25 +36,29 @@
             </button>
           </div>
 
-          <!-- Image indicators -->
-          <div class="image-indicators" *ngIf="images.length > 1">
-            <div 
-              *ngFor="let image of images; let i = index"
+          <!-- Media indicators -->
+          <div class="image-indicators" *ngIf="mediaItems.length > 1 && getCurrentMediaItem()?.type === 'image'">
+            <div
+              *ngFor="let media of mediaItems; let i = index"
               class="indicator"
-              [class.active]="i === currentImageIndex"
-              (click)="currentImageIndex = i">
+              [class.active]="i === currentMediaIndex"
+              (click)="currentMediaIndex = i">
             </div>
           </div>
         </div>
 
         <!-- Thumbnail strip -->
-        <div class="thumbnail-strip" *ngIf="images.length > 1">
-          <div 
-            *ngFor="let image of images; let i = index"
+        <div class="thumbnail-strip" *ngIf="mediaItems.length > 1">
+          <div
+            *ngFor="let media of mediaItems; let i = index"
             class="thumbnail"
-            [class.active]="i === currentImageIndex"
-            (click)="currentImageIndex = i">
-            <img [src]="image.image_url" [alt]="'Vista ' + (i + 1)">
+            [class.active]="i === currentMediaIndex"
+            (click)="currentMediaIndex = i">
+            <img *ngIf="media.type === 'image'" [src]="media.url" [alt]="'Vista ' + (i + 1)">
+            <div *ngIf="media.type === 'video'" class="video-thumbnail">
+              <video [src]="media.url" muted></video>
+              <mat-icon class="play-icon">play_circle</mat-icon>
+            </div>
           </div>
         </div>
       </div>
