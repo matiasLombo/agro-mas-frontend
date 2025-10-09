@@ -679,3 +679,126 @@ mat-card-actions {
     font-weight: bold;
   }
 }
+
+// Existing Videos Section Styles
+.existing-videos-section {
+  margin-top: 24px;
+
+  h4 {
+    color: #374151;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.existing-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.existing-video-card {
+  position: relative;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.existing-video-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #000;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .video-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(245, 158, 11, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+}
+
+.existing-video-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  .existing-video-card:hover & {
+    opacity: 1;
+  }
+}
+
+.video-action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &.remove {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+
+    &:hover {
+      background: #dc2626;
+      transform: scale(1.1);
+    }
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.existing-video-info {
+  padding: 12px;
+  background: #f9fafb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .video-order {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .video-size {
+    font-size: 11px;
+    color: #6b7280;
+  }
+}

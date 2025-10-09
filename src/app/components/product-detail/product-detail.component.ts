@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
-import { Product, ProductImage } from '../../core/models/product.model';
+import { Product, ProductImage, ProductVideo } from '../../core/models/product.model';
 import { AuthService } from '../../core/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.component';
+
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video';
+  alt?: string;
+  displayOrder: number;
+}
 
 @Component({
   selector: 'app-product-detail',
@@ -14,6 +21,9 @@ import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.c
 export class ProductDetailComponent implements OnInit {
   product: Product | null = null;
   images: ProductImage[] = [];
+  videos: ProductVideo[] = [];
+  mediaItems: MediaItem[] = [];
+  currentMediaIndex = 0;
   currentImageIndex = 0;
   isLoading = true;
   isOwner = false;
@@ -39,8 +49,11 @@ export class ProductDetailComponent implements OnInit {
       next: (product) => {
         if (product) {
           this.product = product;
+          this.images = product.images || [];
+          this.videos = product.videos || [];
+          this.buildMediaItems();
           this.checkOwnership();
-          this.loadProductImages(id);
+          this.isLoading = false;
         }
       },
       error: (error) => {
@@ -50,17 +63,31 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  loadProductImages(productId: string): void {
-    this.productService.getProductImages(productId).subscribe({
-      next: (images: ProductImage[]) => {
-        this.images = images.sort((a: ProductImage, b: ProductImage) => a.display_order - b.display_order);
-        this.isLoading = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading images:', error);
-        this.isLoading = false;
-      }
+  buildMediaItems(): void {
+    this.mediaItems = [];
+
+    // Add images
+    this.images.forEach(img => {
+      this.mediaItems.push({
+        url: img.image_url,
+        type: 'image',
+        alt: img.alt_text || '',
+        displayOrder: img.display_order
+      });
     });
+
+    // Add videos
+    this.videos.forEach(vid => {
+      this.mediaItems.push({
+        url: vid.video_url,
+        type: 'video',
+        alt: vid.alt_text || '',
+        displayOrder: vid.display_order
+      });
+    });
+
+    // Sort by display order
+    this.mediaItems.sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
   checkOwnership(): void {
@@ -69,22 +96,26 @@ export class ProductDetailComponent implements OnInit {
   }
 
   nextImage(): void {
-    if (this.images.length > 1) {
-      this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+    if (this.mediaItems.length > 1) {
+      this.currentMediaIndex = (this.currentMediaIndex + 1) % this.mediaItems.length;
     }
   }
 
   prevImage(): void {
-    if (this.images.length > 1) {
-      this.currentImageIndex = this.currentImageIndex === 0 ? this.images.length - 1 : this.currentImageIndex - 1;
+    if (this.mediaItems.length > 1) {
+      this.currentMediaIndex = this.currentMediaIndex === 0 ? this.mediaItems.length - 1 : this.currentMediaIndex - 1;
     }
   }
 
   getCurrentImage(): string {
-    if (this.images.length > 0) {
-      return this.images[this.currentImageIndex]?.image_url || this.getPlaceholderImage();
+    if (this.mediaItems.length > 0 && this.mediaItems[this.currentMediaIndex]?.type === 'image') {
+      return this.mediaItems[this.currentMediaIndex].url;
     }
     return this.getPlaceholderImage();
+  }
+
+  getCurrentMediaItem(): MediaItem | null {
+    return this.mediaItems.length > 0 ? this.mediaItems[this.currentMediaIndex] : null;
   }
 
   getPlaceholderImage(): string {
@@ -148,9 +179,9 @@ export class ProductDetailComponent implements OnInit {
 
   getCategoryName(category: string): string {
     const categoryNames: { [key: string]: string } = {
-      'transport': 'Transporte',
-      'livestock': 'Ganado',
-      'supplies': 'Suministros'
+      'transport': '\uD83D\uDE9A Transporte',
+      'livestock': '\uD83D\uDC04 Ganado',
+      'supplies': '\uD83C\uDF3E Insumos'
     };
     return categoryNames[category] || category;
   }

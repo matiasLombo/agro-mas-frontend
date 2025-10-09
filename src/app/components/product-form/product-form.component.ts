@@ -6,7 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { LocationService } from '../../core/services/location.service';
 import { SellerService } from '../../services/seller.service';
-import { Product, ProductImage } from '../../core/models/product.model';
+import { Product, ProductImage, ProductVideo } from '../../core/models/product.model';
 import { Province, Department, Settlement } from '../../core/models/location.model';
 import { SellerSetupModalComponent } from '../seller-setup-modal/seller-setup-modal.component';
 import { Observable, forkJoin } from 'rxjs';
@@ -33,7 +33,7 @@ export class ProductFormComponent implements OnInit {
   categories = ['Ganado', 'Insumo', 'Transporte'];
 
   uploadedImages: ProductImage[] = [];
-  uploadedVideos: any[] = [];
+  uploadedVideos: ProductVideo[] = [];
   filePreviews: FilePreview[] = [];
   
   isUploading: boolean = false;
@@ -129,6 +129,7 @@ export class ProductFormComponent implements OnInit {
       this.isEditMode = isEditQueryParam === 'true';
       this.loadProductData(this.productId);
       this.loadProductImages(this.productId);
+      this.loadProductVideos(this.productId);
     }
   }
 
@@ -191,6 +192,20 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading product images:', error);
+      }
+    });
+  }
+
+  loadProductVideos(productId: string): void {
+    this.productService.getProduct(productId).subscribe({
+      next: (product: Product) => {
+        if (product.videos && product.videos.length > 0) {
+          this.uploadedVideos = product.videos;
+          console.log('Loaded videos:', this.uploadedVideos);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading product videos:', error);
       }
     });
   }
@@ -505,13 +520,17 @@ export class ProductFormComponent implements OnInit {
       // For now, we'll just use empty array since images are handled separately
 
       if (this.isEditMode && this.productId) {
-        // Get new image files from filePreviews
+        // Get new media files from filePreviews
         const newImageFiles: File[] = this.filePreviews
           .filter(preview => preview.type === 'image')
           .map(preview => preview.file);
 
+        const newVideoFiles: File[] = this.filePreviews
+          .filter(preview => preview.type === 'video')
+          .map(preview => preview.file);
+
         // Update existing product
-        this.productService.updateProductWithImages(this.productId, productData, newImageFiles, this.uploadedImages).subscribe({
+        this.productService.updateProductWithMedia(this.productId, productData, newImageFiles, newVideoFiles, this.uploadedImages).subscribe({
           next: (response) => {
             console.log('Producto actualizado:', response);
             this.snackBar.open('Producto actualizado exitosamente', 'Cerrar', {
@@ -529,14 +548,18 @@ export class ProductFormComponent implements OnInit {
           }
         });
       } else {
-        // Extract image files from filePreviews for new products
+        // Extract media files from filePreviews for new products
         const imageFiles: File[] = this.filePreviews
           .filter(preview => preview.type === 'image')
           .map(preview => preview.file);
 
-        if (imageFiles.length > 0) {
-          // Use FormData method for products with images
-          this.productService.createProductWithImages(productData, imageFiles).subscribe({
+        const videoFiles: File[] = this.filePreviews
+          .filter(preview => preview.type === 'video')
+          .map(preview => preview.file);
+
+        if (imageFiles.length > 0 || videoFiles.length > 0) {
+          // Use FormData method for products with media
+          this.productService.createProductWithMedia(productData, imageFiles, videoFiles).subscribe({
             next: (response) => {
               this.snackBar.open('¡Producto creado exitosamente!', 'Cerrar', { duration: 3000 });
               this.router.navigate(['/my-products']);
@@ -547,7 +570,7 @@ export class ProductFormComponent implements OnInit {
             }
           });
         } else {
-          // Use regular JSON method for products without images
+          // Use regular JSON method for products without media
           this.productService.createProduct(productData).subscribe({
             next: (response) => {
               this.snackBar.open('¡Producto creado exitosamente!', 'Cerrar', { duration: 3000 });
@@ -577,6 +600,32 @@ export class ProductFormComponent implements OnInit {
     if (this.isEditMode && this.productId) {
       // For existing products, update immediately on the backend
       this.updateProductWithCurrentImages();
+    }
+  }
+
+  removeVideo(videoId: string): void {
+    // Remove video from local array for immediate UI feedback
+    this.uploadedVideos = this.uploadedVideos.filter(vid => vid.id !== videoId);
+
+    if (this.isEditMode && this.productId) {
+      // Delete video from backend
+      this.productService.deleteVideo(videoId).subscribe({
+        next: () => {
+          this.snackBar.open('Video eliminado exitosamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: (error) => {
+          console.error('Error deleting video:', error);
+          this.snackBar.open('Error al eliminar video', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+          // Reload videos on error
+          this.loadProductVideos(this.productId!);
+        }
+      });
     }
   }
 

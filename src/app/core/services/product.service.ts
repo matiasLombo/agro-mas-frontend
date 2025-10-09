@@ -97,15 +97,37 @@ export class ProductService {
    */
   createProductWithImages(product: Partial<Product>, images: File[]): Observable<Product> {
     const formData = new FormData();
-    
+
     // Add product data as JSON string
     formData.append('product', JSON.stringify(product));
-    
+
     // Add each image file
     images.forEach((image, index) => {
       formData.append('image', image, image.name);
     });
-    
+
+    return this.http.post<Product>(`${this.apiUrl}/`, formData);
+  }
+
+  /**
+   * Create product with images and videos using FormData
+   */
+  createProductWithMedia(product: Partial<Product>, images: File[], videos: File[]): Observable<Product> {
+    const formData = new FormData();
+
+    // Add product data as JSON string
+    formData.append('product', JSON.stringify(product));
+
+    // Add each image file
+    images.forEach((image, index) => {
+      formData.append('image', image, image.name);
+    });
+
+    // Add each video file
+    videos.forEach((video, index) => {
+      formData.append('video', video, video.name);
+    });
+
     return this.http.post<Product>(`${this.apiUrl}/`, formData);
   }
 
@@ -167,10 +189,55 @@ export class ProductService {
   }
 
   /**
+   * Update product with new images and videos using FormData
+   */
+  updateProductWithMedia(productId: string, product: Partial<Product>, images: File[], videos: File[], existingImages?: ProductImage[]): Observable<Product> {
+    const formData = new FormData();
+
+    // Clean product data - remove undefined/null values
+    const cleanProduct = Object.entries(product).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as any);
+
+    // Add existing images information if provided
+    if (existingImages !== undefined) {
+      cleanProduct.existing_images = existingImages.map(img => ({
+        id: img.id,
+        is_primary: img.is_primary,
+        display_order: img.display_order
+      }));
+    }
+
+    formData.append('product', JSON.stringify(cleanProduct));
+
+    // Add each image file
+    images.forEach((image, index) => {
+      formData.append('image', image, image.name);
+    });
+
+    // Add each video file
+    videos.forEach((video, index) => {
+      formData.append('video', video, video.name);
+    });
+
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, formData);
+  }
+
+  /**
    * Delete a product
    */
   deleteProduct(productId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${productId}`);
+  }
+
+  /**
+   * Delete a video
+   */
+  deleteVideo(videoId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/videos/${videoId}`);
   }
 
     /**

@@ -43,6 +43,7 @@ export interface Product {
     metadata?: any;
     tags: string[];
     images?: ProductImage[];
+    videos?: ProductVideo[];
 }
 
 export interface ProductImage {
@@ -50,6 +51,22 @@ export interface ProductImage {
     product_id: string;
     image_url: string;
     cloud_storage_path?: string;
+    alt_text?: string;
+    is_primary: boolean;
+    display_order: number;
+    file_size?: number;
+    mime_type?: string;
+    uploaded_at: string;
+}
+
+export interface ProductVideo {
+    id: string;
+    product_id: string;
+    video_url: string;
+    cloud_storage_path?: string;
+    thumbnail_url?: string;
+    thumbnail_storage_path?: string;
+    duration_seconds?: number;
     alt_text?: string;
     is_primary: boolean;
     display_order: number;
