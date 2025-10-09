@@ -253,10 +253,21 @@ export class SellerSetupModalComponent implements OnInit {
       
       this.sellerService.upgradeToSeller(profileData).subscribe({
         next: (response) => {
-          const message = this.isFirstTimeSetup 
+          // Save the new token and user data
+          if (response.token && response.user) {
+            localStorage.setItem('accessToken', response.token.access_token);
+            localStorage.setItem('refreshToken', response.token.refresh_token);
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
+
+            // Update auth service state
+            this.authService['currentUserSubject'].next(response.user);
+            this.authService['isAuthenticatedSubject'].next(true);
+          }
+
+          const message = this.isFirstTimeSetup
             ? '🎉 ¡Perfil de vendedor configurado correctamente!'
             : 'Información actualizada correctamente';
-            
+
           this.snackBar.open(message, 'Cerrar', {
             duration: 5000,
             panelClass: ['success-snackbar']
