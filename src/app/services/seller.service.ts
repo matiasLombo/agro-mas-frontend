@@ -59,7 +59,7 @@ export class SellerService {
   /**
    * Upgrade user to seller with complete profile
    */
-  upgradeToSeller(profile: SellerProfileRequest): Observable<{message: string}> {
-    return this.http.post<{message: string}>('/auth/upgrade-to-seller', profile);
+  upgradeToSeller(profile: SellerProfileRequest): Observable<{message: string, token: any, user: any}> {
+    return this.http.post<{message: string, token: any, user: any}>('/auth/upgrade-to-seller', profile);
   }
 }
