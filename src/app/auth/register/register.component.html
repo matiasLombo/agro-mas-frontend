@@ -6,10 +6,7 @@
     <!-- Progress indicator -->
     <div class="progress-container">
       <div class="progress-bar">
-        <div 
-          class="progress-fill" 
-          [style.width.%]="(currentStep / totalSteps) * 100"
-        ></div>
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
       </div>
       <div class="step-labels">
         <span [class.active]="currentStep >= 1">1. Datos personales</span>
@@ -19,21 +16,16 @@
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
-      
+
       <!-- Step 1: Personal Info -->
       <div class="step-content" *ngIf="currentStep === 1">
         <h3>Información Personal</h3>
-        
+
         <div class="form-row">
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Nombre *</mat-label>
-              <input
-                matInput
-                type="text"
-                formControlName="firstName"
-                placeholder="Tu nombre"
-              >
+              <mat-label>Nombre</mat-label>
+              <input matInput type="text" formControlName="firstName" placeholder="Tu nombre">
               <mat-icon matSuffix>person</mat-icon>
               <mat-error *ngIf="isFieldInvalid('firstName')">
                 {{ getFieldError('firstName') }}
@@ -43,13 +35,8 @@
 
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Apellido *</mat-label>
-              <input
-                matInput
-                type="text"
-                formControlName="lastName"
-                placeholder="Tu apellido"
-              >
+              <mat-label>Apellido</mat-label>
+              <input matInput type="text" formControlName="lastName" placeholder="Tu apellido">
               <mat-icon matSuffix>person_outline</mat-icon>
               <mat-error *ngIf="isFieldInvalid('lastName')">
                 {{ getFieldError('lastName') }}
@@ -60,13 +47,8 @@
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Correo Electrónico *</mat-label>
-            <input
-              matInput
-              type="email"
-              formControlName="email"
-              placeholder="tu@email.com"
-            >
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="tu@email.com">
             <mat-icon matSuffix>email</mat-icon>
             <mat-error *ngIf="isFieldInvalid('email')">
               {{ getFieldError('email') }}
@@ -77,12 +59,7 @@
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Teléfono</mat-label>
-            <input
-              matInput
-              type="tel"
-              formControlName="phone"
-              placeholder="+54 11 1234-5678"
-            >
+            <input matInput type="tel" formControlName="phone" placeholder="+54 11 1234-5678">
             <mat-icon matSuffix>phone</mat-icon>
             <mat-error *ngIf="isFieldInvalid('phone')">
               {{ getFieldError('phone') }}
@@ -93,47 +70,43 @@
         <div class="form-row">
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Contraseña *</mat-label>
-              <input
-                matInput
-                type="password"
-                formControlName="password"
-                placeholder="••••••••"
-                autocomplete="new-password"
-              >
+              <mat-label>Contraseña</mat-label>
+              <input matInput type="password" formControlName="password" placeholder="••••••••"
+                autocomplete="new-password">
               <mat-icon matSuffix>lock</mat-icon>
-            
-            <!-- Password Requirements -->
-            <div class="password-requirements" *ngIf="registerForm.get('password')?.value || registerForm.get('password')?.touched">
-              <h4>Requisitos de contraseña:</h4>
-              <ul>
-                <li [class.valid]="passwordHasMinLength()" [class.invalid]="!passwordHasMinLength()">
-                  <span class="check-icon">{{ passwordHasMinLength() ? '✓' : '✗' }}</span>
-                  Al menos 8 caracteres
-                </li>
-                <li [class.valid]="passwordHasMaxLength()" [class.invalid]="!passwordHasMaxLength()">
-                  <span class="check-icon">{{ passwordHasMaxLength() ? '✓' : '✗' }}</span>
-                  Máximo 128 caracteres
-                </li>
-                <li [class.valid]="passwordHasUppercase()" [class.invalid]="!passwordHasUppercase()">
-                  <span class="check-icon">{{ passwordHasUppercase() ? '✓' : '✗' }}</span>
-                  Una letra mayúscula (A-Z)
-                </li>
-                <li [class.valid]="passwordHasLowercase()" [class.invalid]="!passwordHasLowercase()">
-                  <span class="check-icon">{{ passwordHasLowercase() ? '✓' : '✗' }}</span>
-                  Una letra minúscula (a-z)
-                </li>
-                <li [class.valid]="passwordHasNumber()" [class.invalid]="!passwordHasNumber()">
-                  <span class="check-icon">{{ passwordHasNumber() ? '✓' : '✗' }}</span>
-                  Un número (0-9)
-                </li>
-                <li [class.valid]="passwordHasSpecialChar()" [class.invalid]="!passwordHasSpecialChar()">
-                  <span class="check-icon">{{ passwordHasSpecialChar() ? '✓' : '✗' }}</span>
-                  Un carácter especial (!&#64;#$%^&*)
-                </li>
-              </ul>
-            </div>
-            
+
+              <!-- Password Requirements -->
+              <div class="password-requirements"
+                *ngIf="registerForm.get('password')?.value || registerForm.get('password')?.touched">
+                <h4>Requisitos de contraseña:</h4>
+                <ul>
+                  <li [class.valid]="passwordHasMinLength()" [class.invalid]="!passwordHasMinLength()">
+                    <span class="check-icon">{{ passwordHasMinLength() ? '✓' : '✗' }}</span>
+                    Al menos 8 caracteres
+                  </li>
+                  <li [class.valid]="passwordHasMaxLength()" [class.invalid]="!passwordHasMaxLength()">
+                    <span class="check-icon">{{ passwordHasMaxLength() ? '✓' : '✗' }}</span>
+                    Máximo 128 caracteres
+                  </li>
+                  <li [class.valid]="passwordHasUppercase()" [class.invalid]="!passwordHasUppercase()">
+                    <span class="check-icon">{{ passwordHasUppercase() ? '✓' : '✗' }}</span>
+                    Una letra mayúscula (A-Z)
+                  </li>
+                  <li [class.valid]="passwordHasLowercase()" [class.invalid]="!passwordHasLowercase()">
+                    <span class="check-icon">{{ passwordHasLowercase() ? '✓' : '✗' }}</span>
+                    Una letra minúscula (a-z)
+                  </li>
+                  <li [class.valid]="passwordHasNumber()" [class.invalid]="!passwordHasNumber()">
+                    <span class="check-icon">{{ passwordHasNumber() ? '✓' : '✗' }}</span>
+                    Un número (0-9)
+                  </li>
+                  <li [class.valid]="passwordHasSpecialChar()" [class.invalid]="!passwordHasSpecialChar()">
+                    <span class="check-icon">{{ passwordHasSpecialChar() ? '✓' : '✗' }}</span>
+                    Un carácter especial (!&#64;#$%^&*)
+                  </li>
+                </ul>
+              </div>
+
               <mat-error *ngIf="isFieldInvalid('password')">
                 {{ getFieldError('password') }}
               </mat-error>
@@ -142,14 +115,9 @@
 
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Confirmar Contraseña *</mat-label>
-              <input
-                matInput
-                type="password"
-                formControlName="confirmPassword"
-                placeholder="••••••••"
-                autocomplete="new-password"
-              >
+              <mat-label>Confirmar Contraseña</mat-label>
+              <input matInput type="password" formControlName="confirmPassword" placeholder="••••••••"
+                autocomplete="new-password">
               <mat-icon matSuffix>lock_outline</mat-icon>
               <mat-error *ngIf="isFieldInvalid('confirmPassword')">
                 {{ getFieldError('confirmPassword') }}
@@ -162,17 +130,13 @@
       <!-- Step 2: Location Info -->
       <div class="step-content" *ngIf="currentStep === 2">
         <h3>📍 Información de Ubicación</h3>
-        <p class="step-description">Necesitamos conocer tu ubicación para brindarte una mejor experiencia en el marketplace.</p>
-        
+        <p class="step-description">Necesitamos conocer tu ubicación para brindarte una mejor experiencia en el
+          marketplace.</p>
+
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Dirección *</mat-label>
-            <input
-              matInput
-              type="text"
-              formControlName="address"
-              placeholder="Tu dirección completa"
-            >
+            <mat-label>Dirección</mat-label>
+            <input matInput type="text" formControlName="address" placeholder="Tu dirección completa">
             <mat-icon matSuffix>home</mat-icon>
             <mat-error *ngIf="isFieldInvalid('address')">
               {{ getFieldError('address') }}
@@ -183,7 +147,7 @@
         <div class="form-row">
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Provincia *</mat-label>
+              <mat-label>Provincia</mat-label>
               <mat-select formControlName="provinceId" (selectionChange)="onProvinceChange()">
                 <mat-option value="">Selecciona una provincia</mat-option>
                 <mat-option *ngFor="let province of provinces" [value]="province.id">
@@ -200,7 +164,8 @@
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Departamento</mat-label>
-              <mat-select formControlName="departmentId" (selectionChange)="onDepartmentChange()" [disabled]="!departments.length">
+              <mat-select formControlName="departmentId" (selectionChange)="onDepartmentChange()"
+                [disabled]="!departments.length">
                 <mat-option value="">Selecciona un departamento</mat-option>
                 <mat-option *ngFor="let department of departments" [value]="department.id">
                   {{ department.nombre }}
@@ -216,8 +181,9 @@
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Localidad/Asentamiento *</mat-label>
-            <mat-select formControlName="settlementId" (selectionChange)="onSettlementChange()" [disabled]="!settlements.length">
+            <mat-label>Localidad/Asentamiento</mat-label>
+            <mat-select formControlName="settlementId" (selectionChange)="onSettlementChange()"
+              [disabled]="!settlements.length">
               <mat-option value="">Selecciona una localidad</mat-option>
               <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
                 {{ settlement.nombre }}
@@ -234,12 +200,14 @@
       <!-- Step 3: Final Registration -->
       <div class="step-content" *ngIf="currentStep === 3">
         <h3>¡Listo para crear tu cuenta!</h3>
-        <p class="step-description">Tu cuenta se creará como comprador. Podrás configurar tu perfil de vendedor más adelante si deseas publicar productos.</p>
-        
+        <p class="step-description">Tu cuenta se creará como comprador. Podrás configurar tu perfil de vendedor más
+          adelante si deseas publicar productos.</p>
+
         <div class="registration-summary">
           <h4>📋 Resumen de tu cuenta:</h4>
           <ul>
-            <li><strong>Nombre:</strong> {{ registerForm.get('firstName')?.value }} {{ registerForm.get('lastName')?.value }}</li>
+            <li><strong>Nombre:</strong> {{ registerForm.get('firstName')?.value }} {{
+              registerForm.get('lastName')?.value }}</li>
             <li><strong>Email:</strong> {{ registerForm.get('email')?.value }}</li>
             <li><strong>Teléfono:</strong> {{ registerForm.get('phone')?.value || 'No especificado' }}</li>
             <li><strong>Dirección:</strong> {{ registerForm.get('address')?.value }}</li>
@@ -256,31 +224,16 @@
 
       <!-- Navigation buttons -->
       <div class="form-navigation">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          *ngIf="currentStep > 1"
-          (click)="prevStep()"
-        >
+        <button type="button" class="btn btn-secondary" *ngIf="currentStep > 1" (click)="prevStep()">
           ← Anterior
         </button>
 
-        <button
-          type="button"
-          class="btn btn-primary"
-          *ngIf="currentStep < totalSteps"
-          (click)="nextStep()"
-          [disabled]="!isCurrentStepValid()"
-        >
+        <button type="button" class="btn btn-primary" *ngIf="currentStep < totalSteps" (click)="nextStep()"
+          [disabled]="!isCurrentStepValid()">
           Siguiente →
         </button>
 
-        <button
-          type="submit"
-          class="btn btn-primary"
-          *ngIf="currentStep === totalSteps"
-          [disabled]="loading"
-        >
+        <button type="submit" class="btn btn-primary" *ngIf="currentStep === totalSteps" [disabled]="loading">
           <span *ngIf="loading">🔄 Creando cuenta...</span>
           <span *ngIf="!loading">Crear Cuenta</span>
         </button>
@@ -288,7 +241,7 @@
     </form>
 
     <div class="form-footer">
-      <p>¿Ya tienes cuenta? 
+      <p>¿Ya tienes cuenta?
         <a routerLink="/login" class="link">Inicia sesión aquí</a>
       </p>
     </div>

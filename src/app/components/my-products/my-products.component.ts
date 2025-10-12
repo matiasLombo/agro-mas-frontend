@@ -5,7 +5,7 @@ import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Product } from '../../core/models/product.model';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-my-products',
@@ -14,7 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class MyProductsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   products: Product[] = [];
   isLoading = false;
   hasError = false;
@@ -25,8 +25,8 @@ export class MyProductsComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
-  ) {}
+    private toastService: ToastService
+  ) { }
 
   ngOnInit(): void {
     this.loadMyProducts();
@@ -59,7 +59,7 @@ export class MyProductsComponent implements OnInit, OnDestroy {
           this.hasError = true;
           this.errorMessage = 'Error al cargar tus productos';
           this.isLoading = false;
-          this.snackBar.open('Error al cargar productos', 'Cerrar', { duration: 3000 });
+          this.toastService.showError('Error al cargar productos', 'Error');
         }
       });
   }
@@ -75,18 +75,18 @@ export class MyProductsComponent implements OnInit, OnDestroy {
   toggleProductStatus(product: Product): void {
     const newStatus = !product.is_active;
     const action = newStatus ? 'activar' : 'desactivar';
-    
+
     if (confirm(`¿Estás seguro de que quieres ${action} este producto?`)) {
       this.productService.updateProduct(product.id, { is_active: newStatus })
         .subscribe({
           next: () => {
             product.is_active = newStatus;
             const message = newStatus ? 'Producto activado' : 'Producto desactivado';
-            this.snackBar.open(message, 'Cerrar', { duration: 3000 });
+            this.toastService.showSuccess(message, 'Éxito');
           },
           error: (error) => {
             console.error('Error updating product status:', error);
-            this.snackBar.open('Error al actualizar el producto', 'Cerrar', { duration: 3000 });
+            this.toastService.showError('Error al actualizar el producto', 'Error');
           }
         });
     }
@@ -94,17 +94,17 @@ export class MyProductsComponent implements OnInit, OnDestroy {
 
   deleteProduct(product: Product): void {
     const confirmMessage = `¿Estás seguro de que quieres eliminar "${product.title}"? Esta acción no se puede deshacer.`;
-    
+
     if (confirm(confirmMessage)) {
       this.productService.deleteProduct(product.id)
         .subscribe({
           next: () => {
             this.products = this.products.filter(p => p.id !== product.id);
-            this.snackBar.open('Producto eliminado exitosamente', 'Cerrar', { duration: 3000 });
+            this.toastService.showSuccess('Producto eliminado exitosamente', 'Éxito');
           },
           error: (error) => {
             console.error('Error deleting product:', error);
-            this.snackBar.open('Error al eliminar el producto', 'Cerrar', { duration: 3000 });
+            this.toastService.showError('Error al eliminar el producto', 'Error');
           }
         });
     }
@@ -154,7 +154,7 @@ export class MyProductsComponent implements OnInit, OnDestroy {
   getCategoryName(category: string): string {
     const categoryNames: { [key: string]: string } = {
       'transport': 'Transporte',
-      'livestock': 'Ganado', 
+      'livestock': 'Ganado',
       'supplies': 'Suministros'
     };
     return categoryNames[category] || category;

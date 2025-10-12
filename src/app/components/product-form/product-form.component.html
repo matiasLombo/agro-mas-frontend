@@ -1,18 +1,15 @@
 <div class="product-form-container">
   <div class="product-form-card">
     <h2>{{ isEditMode ? '📄 Detalles del Anuncio' : '📝 Publicar un Producto' }}</h2>
-    <p class="subtitle">{{ isEditMode ? 'Aquí puedes ver los detalles del producto.' : 'Completa los campos para publicar tu anuncio.' }}</p>
+    <p class="subtitle">{{ isEditMode ? 'Aquí puedes ver los detalles del producto.' : 'Completa los campos para
+      publicar tu anuncio.' }}</p>
 
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="product-form">
 
       <div class="form-group">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Título de la publicación *</mat-label>
-          <input
-            matInput
-            formControlName="title"
-            placeholder="Ej. Toros Angus de alta calidad"
-          >
+          <mat-label>Título de la publicación</mat-label>
+          <input matInput formControlName="title" placeholder="Ej. Toros Angus de alta calidad">
           <mat-icon matSuffix>title</mat-icon>
           <mat-error *ngIf="productForm.get('title')?.hasError('required')">
             El título es obligatorio.
@@ -23,13 +20,8 @@
       <div class="form-row">
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Precio ($) *</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="price"
-              placeholder="Ej. 15000"
-            >
+            <mat-label>Precio ($)</mat-label>
+            <input matInput type="number" formControlName="price" placeholder="Ej. 15000">
             <span matTextPrefix>$</span>
             <mat-icon matSuffix>attach_money</mat-icon>
             <mat-error *ngIf="productForm.get('price')?.hasError('required')">
@@ -43,7 +35,7 @@
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Categoría *</mat-label>
+            <mat-label>Categoría</mat-label>
             <mat-select formControlName="category">
               <mat-option value="">Selecciona una categoría</mat-option>
               <mat-option *ngFor="let cat of categories" [value]="cat">
@@ -61,11 +53,11 @@
       <!-- Location Section -->
       <div class="location-section">
         <h3>Ubicación *</h3>
-        
+
         <div class="form-row">
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Provincia *</mat-label>
+              <mat-label>Provincia</mat-label>
               <mat-select formControlName="province" (selectionChange)="onProvinceChange($event)">
                 <mat-option value="">Selecciona una provincia</mat-option>
                 <mat-option *ngFor="let province of provinces" [value]="province.id">
@@ -82,9 +74,7 @@
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Departamento</mat-label>
-              <mat-select 
-                formControlName="department" 
-                [disabled]="!selectedProvinceId"
+              <mat-select formControlName="department" [disabled]="!selectedProvinceId"
                 (selectionChange)="onDepartmentChange($event)">
                 <mat-option value="">Selecciona un departamento</mat-option>
                 <mat-option *ngFor="let department of departments" [value]="department.id">
@@ -100,9 +90,7 @@
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Asentamiento</mat-label>
-              <mat-select 
-                formControlName="settlement" 
-                [disabled]="!selectedProvinceId"
+              <mat-select formControlName="settlement" [disabled]="!selectedProvinceId"
                 (selectionChange)="onSettlementChange($event)">
                 <mat-option value="">Selecciona un asentamiento</mat-option>
                 <mat-option *ngFor="let settlement of settlements" [value]="settlement.id">
@@ -119,12 +107,8 @@
       <div class="form-group">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Descripción</mat-label>
-          <textarea
-            matInput
-            formControlName="description"
-            rows="4"
-            placeholder="Describe tu producto o servicio..."
-          ></textarea>
+          <textarea matInput formControlName="description" rows="4"
+            placeholder="Describe tu producto o servicio..."></textarea>
           <mat-icon matSuffix>description</mat-icon>
           <mat-hint>Describe las características principales de tu producto</mat-hint>
         </mat-form-field>
@@ -133,20 +117,17 @@
       <!-- File Upload Section -->
       <div class="file-upload-section">
         <h3>Archivos Multimedia</h3>
-        
+
         <!-- Drag & Drop Zone -->
-        <div class="drag-drop-zone" 
-             [class.drag-over]="isDragOver"
-             (dragover)="onDragOver($event)"
-             (dragleave)="onDragLeave($event)"
-             (drop)="onDrop($event)">
-          
+        <div class="drag-drop-zone" [class.drag-over]="isDragOver" (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+
           <div class="drag-drop-content">
             <mat-icon>cloud_upload</mat-icon>
             <p>Arrastra y suelta tus archivos aquí</p>
             <p class="drag-subtitle">o haz clic en los botones de abajo</p>
           </div>
-          
+
           <!-- Upload Buttons -->
           <div class="upload-buttons">
             <label class="file-upload-button" for="imageUpload">
@@ -154,26 +135,16 @@
               <span>{{ isEditMode ? 'Agregar Imágenes' : 'Subir Imágenes' }}</span>
               <span class="file-limit">(máx. 10)</span>
             </label>
-            <input type="file" 
-                   id="imageUpload"
-                   (change)="onFileChange($event, 'image')" 
-                   multiple 
-                   accept="image/*"
-                   [disabled]="isImageUploadDisabled"
-                   style="display: none;">
-            
+            <input type="file" id="imageUpload" (change)="onFileChange($event, 'image')" multiple accept="image/*"
+              [disabled]="isImageUploadDisabled" style="display: none;">
+
             <label class="file-upload-button video-upload" for="videoUpload">
               <mat-icon>videocam</mat-icon>
               <span>{{ isEditMode ? 'Agregar Videos' : 'Subir Videos' }}</span>
               <span class="file-limit">(máx. 3)</span>
             </label>
-            <input type="file" 
-                   id="videoUpload"
-                   (change)="onFileChange($event, 'video')" 
-                   multiple 
-                   accept="video/*"
-                   [disabled]="isVideoUploadDisabled"
-                   style="display: none;">
+            <input type="file" id="videoUpload" (change)="onFileChange($event, 'video')" multiple accept="video/*"
+              [disabled]="isVideoUploadDisabled" style="display: none;">
           </div>
         </div>
 
@@ -187,13 +158,13 @@
                 <img [src]="preview.url" [alt]="preview.file.name">
                 <div class="file-type-badge">IMG</div>
               </div>
-              
+
               <!-- Video Preview -->
               <div class="preview-thumbnail" *ngIf="preview.type === 'video'">
                 <video [src]="preview.url" muted></video>
                 <div class="file-type-badge video">VID</div>
               </div>
-              
+
               <!-- File Info -->
               <div class="file-info">
                 <div class="file-name">{{ preview.file.name }}</div>
@@ -201,16 +172,14 @@
                   <span class="file-size">{{ getFileSizeText(preview.compressedSize || preview.originalSize) }}</span>
                   <span class="compression-info" *ngIf="preview.compressed">
                     <mat-icon class="compress-icon">compress</mat-icon>
-                    {{ Math.round(((preview.originalSize - preview.compressedSize!) / preview.originalSize) * 100) }}% reducido
+                    {{ Math.round(((preview.originalSize - preview.compressedSize!) / preview.originalSize) * 100) }}%
+                    reducido
                   </span>
                 </div>
               </div>
-              
+
               <!-- Remove Button -->
-              <button class="remove-file-btn" 
-                      (click)="removeFile(i)"
-                      type="button"
-                      mat-icon-button>
+              <button class="remove-file-btn" (click)="removeFile(i)" type="button" mat-icon-button>
                 <mat-icon>close</mat-icon>
               </button>
             </div>
@@ -230,31 +199,24 @@
           <div class="existing-image-card" *ngFor="let image of uploadedImages; let i = index">
             <!-- Image Preview -->
             <div class="existing-image-thumbnail">
-              <img [src]="getImageDisplayUrl(image)" 
-                   [alt]="image.alt_text || 'Imagen del producto'"
-                   (error)="$any($event.target).src = 'data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;200&quot; height=&quot;150&quot; viewBox=&quot;0 0 200 150&quot;><rect width=&quot;200&quot; height=&quot;150&quot; fill=&quot;%23f8fafc&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; text-anchor=&quot;middle&quot; font-family=&quot;Arial,sans-serif&quot; font-size=&quot;14&quot; fill=&quot;%236b7280&quot; dy=&quot;.3em&quot;>Imagen no disponible</text></svg>'">
+              <img [src]="getImageDisplayUrl(image)" [alt]="image.alt_text || 'Imagen del producto'"
+                (error)="$any($event.target).src = 'data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;200&quot; height=&quot;150&quot; viewBox=&quot;0 0 200 150&quot;><rect width=&quot;200&quot; height=&quot;150&quot; fill=&quot;%23f8fafc&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; text-anchor=&quot;middle&quot; font-family=&quot;Arial,sans-serif&quot; font-size=&quot;14&quot; fill=&quot;%236b7280&quot; dy=&quot;.3em&quot;>Imagen no disponible</text></svg>'">
               <div class="image-badge" *ngIf="image.is_primary">PRINCIPAL</div>
             </div>
-            
+
             <!-- Image Actions -->
             <div class="existing-image-actions">
-              <button type="button" 
-                      class="image-action-btn set-primary" 
-                      *ngIf="!image.is_primary && isEditMode"
-                      (click)="setPrimaryImage(image.id)"
-                      title="Establecer como principal">
+              <button type="button" class="image-action-btn set-primary" *ngIf="!image.is_primary && isEditMode"
+                (click)="setPrimaryImage(image.id)" title="Establecer como principal">
                 <mat-icon>star</mat-icon>
               </button>
-              
-              <button type="button" 
-                      class="image-action-btn remove" 
-                      *ngIf="isEditMode"
-                      (click)="removeImage(image.id)"
-                      title="Eliminar imagen">
+
+              <button type="button" class="image-action-btn remove" *ngIf="isEditMode" (click)="removeImage(image.id)"
+                title="Eliminar imagen">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
-            
+
             <!-- Image Info -->
             <div class="existing-image-info">
               <span class="image-order">{{ image.display_order || i + 1 }}</span>
@@ -276,11 +238,8 @@
 
             <!-- Video Actions -->
             <div class="existing-video-actions">
-              <button type="button"
-                      class="video-action-btn remove"
-                      *ngIf="isEditMode"
-                      (click)="removeVideo(video.id)"
-                      title="Eliminar video">
+              <button type="button" class="video-action-btn remove" *ngIf="isEditMode" (click)="removeVideo(video.id)"
+                title="Eliminar video">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -288,7 +247,8 @@
             <!-- Video Info -->
             <div class="existing-video-info">
               <span class="video-order">{{ video.display_order || i + 1 }}</span>
-              <span class="video-size" *ngIf="video.file_size">{{ (video.file_size / 1024 / 1024).toFixed(2) }} MB</span>
+              <span class="video-size" *ngIf="video.file_size">{{ (video.file_size / 1024 / 1024).toFixed(2) }}
+                MB</span>
             </div>
           </div>
         </div>
@@ -296,12 +256,13 @@
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <div></div> <!-- Empty div for spacing -->
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [disabled]="productForm.invalid || isUploading"
-        >
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          {{ isEditMode ? 'Volver' : 'Cancelar' }}
+        </button>
+
+        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isUploading">
+          <mat-icon>{{ isEditMode ? 'save' : 'publish' }}</mat-icon>
           {{ isEditMode ? 'Actualizar Producto' : 'Publicar' }}
         </button>
       </div>

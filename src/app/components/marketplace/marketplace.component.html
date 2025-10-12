@@ -178,17 +178,3 @@
 
 
 </div>
-
-<!-- Notification System -->
-<div class="notification-container" [class.show]="showNotification">
-  <div class="notification" [class]="'notification notification-' + notificationType">
-    <div class="notification-content">
-      <i class="notification-icon">
-        {{ notificationType === 'success' ? '✓' : notificationType === 'error' ? '❌' : notificationType === 'warning' ?
-        '⚠️' : 'ℹ️' }}
-      </i>
-      <span class="notification-message">{{ notificationMessage }}</span>
-    </div>
-    <button class="notification-close" (click)="closeNotification()">×</button>
-  </div>
-</div>

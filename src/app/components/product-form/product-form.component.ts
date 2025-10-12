@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { LocationService } from '../../core/services/location.service';
 import { SellerService } from '../../services/seller.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Product, ProductImage, ProductVideo } from '../../core/models/product.model';
 import { Province, Department, Settlement } from '../../core/models/location.model';
 import { SellerSetupModalComponent } from '../seller-setup-modal/seller-setup-modal.component';
@@ -35,34 +35,34 @@ export class ProductFormComponent implements OnInit {
   uploadedImages: ProductImage[] = [];
   uploadedVideos: ProductVideo[] = [];
   filePreviews: FilePreview[] = [];
-  
+
   isUploading: boolean = false;
   uploadProgress: number = 0;
   isDragOver: boolean = false;
-  
+
   // File compression settings
   readonly MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
   readonly MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10MB
   readonly IMAGE_QUALITY = 0.8;
   readonly MAX_IMAGE_WIDTH = 1920;
   readonly MAX_IMAGE_HEIGHT = 1080;
-  
+
   // Make Math available in template
   Math = Math;
-  
+
   // Template helper methods to avoid inline arrow functions
   get imageCount(): number {
     return this.filePreviews.filter(f => f.type === 'image').length;
   }
-  
+
   get videoCount(): number {
     return this.filePreviews.filter(f => f.type === 'video').length;
   }
-  
+
   get isImageUploadDisabled(): boolean {
     return this.imageCount >= 10;
   }
-  
+
   get isVideoUploadDisabled(): boolean {
     return this.videoCount >= 3;
   }
@@ -82,7 +82,7 @@ export class ProductFormComponent implements OnInit {
     private locationService: LocationService,
     private sellerService: SellerService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
+    private toastService: ToastService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
@@ -91,7 +91,7 @@ export class ProductFormComponent implements OnInit {
   ngOnInit(): void {
     // Check seller profile status when component initializes
     this.checkSellerProfileAndShowModal();
-    
+
     this.productForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
@@ -100,8 +100,11 @@ export class ProductFormComponent implements OnInit {
       price_type: ['fixed', Validators.required],
       currency: ['ARS', Validators.required],
       province: ['', Validators.required],
+      province_name: [''],
       department: [''],
+      department_name: [''],
       settlement: [''],
+      settlement_name: [''],
       city: [''],
       location_coordinates: this.fb.group({
         lat: [''],
@@ -122,7 +125,7 @@ export class ProductFormComponent implements OnInit {
     // Check for product ID from route parameter
     const routeProductId = this.route.snapshot.paramMap.get('id');
     const isEditQueryParam = this.route.snapshot.queryParams['edit'];
-    
+
     if (routeProductId) {
       this.productId = routeProductId;
       // Solo permitir edición si el query param 'edit' está presente
@@ -137,17 +140,31 @@ export class ProductFormComponent implements OnInit {
     this.productService.getProduct(id).subscribe({
       next: (product) => {
         if (product) {
+          // Map backend categories to frontend values
+          const categoryMapping: { [key: string]: string } = {
+            'livestock': 'Ganado',
+            'supplies': 'Insumo',
+            'transport': 'Transporte'
+          };
+
+          const mappedCategory = product.category && categoryMapping[product.category]
+            ? categoryMapping[product.category]
+            : product.category;
+
           // Update form with product data
           this.productForm.patchValue({
             title: product.title,
             description: product.description,
-            category: product.category,
+            category: mappedCategory,
             price: product.price,
             price_type: product.price_type,
             currency: product.currency,
             province: product.province,
+            province_name: product.province_name || '',
             department: product.department,
+            department_name: product.department_name || '',
             settlement: product.settlement,
+            settlement_name: product.settlement_name || '',
             city: product.city,
             pickup_available: product.pickup_available,
             delivery_available: product.delivery_available,
@@ -161,12 +178,12 @@ export class ProductFormComponent implements OnInit {
             this.selectedProvinceId = product.province;
             this.loadDepartments(product.province);
             this.loadSettlements(product.province);
-            
+
             if (product.department) {
               this.selectedDepartmentId = product.department;
               this.loadSettlementsByDepartment(product.province, product.department);
             }
-            
+
             if (product.settlement) {
               this.selectedSettlementId = product.settlement;
             }
@@ -222,7 +239,7 @@ export class ProductFormComponent implements OnInit {
     // Validate file count
     const currentFileCount = this.filePreviews.length;
     const maxFiles = type === 'image' ? 10 : 3;
-    
+
     if (currentFileCount + files.length > maxFiles) {
       this.showNotification(`Máximo ${maxFiles} ${type === 'image' ? 'imágenes' : 'videos'} permitidos`, 'error');
       return;
@@ -243,7 +260,7 @@ export class ProductFormComponent implements OnInit {
           this.filePreviews.push(preview);
         }
       }
-      
+
       // Force change detection to update template
       this.cdr.detectChanges();
 
@@ -327,7 +344,7 @@ export class ProductFormComponent implements OnInit {
           // Calculate new dimensions
           let { width, height } = img;
           const ratio = Math.min(this.MAX_IMAGE_WIDTH / width, this.MAX_IMAGE_HEIGHT / height);
-          
+
           if (ratio < 1) {
             width *= ratio;
             height *= ratio;
@@ -339,7 +356,7 @@ export class ProductFormComponent implements OnInit {
 
           // Draw and compress
           ctx?.drawImage(img, 0, 0, width, height);
-          
+
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -368,7 +385,7 @@ export class ProductFormComponent implements OnInit {
   private async uploadProcessedFiles(): Promise<void> {
     if (!this.productId) return;
 
-    const filesToUpload = this.filePreviews.filter(preview => 
+    const filesToUpload = this.filePreviews.filter(preview =>
       preview.type === 'image' // Only upload images for now
     );
 
@@ -380,7 +397,7 @@ export class ProductFormComponent implements OnInit {
       try {
         const isPrimary = this.uploadedImages.length === 0 && i === 0;
         const displayOrder = this.uploadedImages.length + i + 1;
-        
+
         // Images are now processed during product creation/update, not separately
         console.log('Image will be processed with product creation/update');
       } catch (error) {
@@ -388,7 +405,7 @@ export class ProductFormComponent implements OnInit {
         this.showNotification(`Error al subir ${preview.file.name}`, 'error');
       }
     }
-    
+
     // Update form
     this.productForm.get('images')?.setValue(this.uploadedImages);
     this.showNotification(`${filesToUpload.length} archivo(s) subido(s) exitosamente`, 'success');
@@ -410,10 +427,19 @@ export class ProductFormComponent implements OnInit {
   }
 
   private showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: type === 'error' ? 5000 : 3000,
-      panelClass: [`snackbar-${type}`]
-    });
+    const title = type === 'success' ? 'Éxito' : type === 'error' ? 'Error' : 'Advertencia';
+
+    switch (type) {
+      case 'success':
+        this.toastService.showSuccess(message, title);
+        break;
+      case 'error':
+        this.toastService.showError(message, title);
+        break;
+      case 'warning':
+        this.toastService.showWarning(message, title);
+        break;
+    }
   }
 
   // Drag & Drop handlers
@@ -484,7 +510,7 @@ export class ProductFormComponent implements OnInit {
     if (!image.image_url) {
       return '';
     }
-    
+
     // The image_url from the API is already the correct URL, use it directly
     return image.image_url;
   }
@@ -500,18 +526,18 @@ export class ProductFormComponent implements OnInit {
       delete productData.location_coordinates; // Remove empty coordinates
       delete productData.user_id; // Backend will set this
       delete productData.seller_name; // Backend will set this
-      
+
       // Map frontend categories to backend values
       const categoryMapping: { [key: string]: string } = {
         'Ganado': 'livestock',
         'Insumo': 'supplies',
         'Transporte': 'transport'
       };
-      
+
       if (productData.category && categoryMapping[productData.category]) {
         productData.category = categoryMapping[productData.category];
       }
-      
+
       console.log('Product data being sent:', productData);
 
       // Get uploaded image files if any (for new uploads)
@@ -533,18 +559,12 @@ export class ProductFormComponent implements OnInit {
         this.productService.updateProductWithMedia(this.productId, productData, newImageFiles, newVideoFiles, this.uploadedImages).subscribe({
           next: (response) => {
             console.log('Producto actualizado:', response);
-            this.snackBar.open('Producto actualizado exitosamente', 'Cerrar', {
-              duration: 3000,
-              panelClass: ['success-snackbar']
-            });
+            this.toastService.showSuccess('Producto actualizado exitosamente', 'Éxito');
             this.router.navigate(['/my-products']);
           },
           error: (error) => {
             console.error('Error al actualizar producto:', error);
-            this.snackBar.open('Error al actualizar producto', 'Cerrar', {
-              duration: 3000,
-              panelClass: ['error-snackbar']
-            });
+            this.toastService.showError('Error al actualizar producto', 'Error');
           }
         });
       } else {
@@ -561,34 +581,31 @@ export class ProductFormComponent implements OnInit {
           // Use FormData method for products with media
           this.productService.createProductWithMedia(productData, imageFiles, videoFiles).subscribe({
             next: (response) => {
-              this.snackBar.open('¡Producto creado exitosamente!', 'Cerrar', { duration: 3000 });
+              this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
               this.router.navigate(['/my-products']);
             },
             error: (error) => {
               console.error('Error creating product:', error);
-              this.snackBar.open('Error al crear el producto', 'Cerrar', { duration: 3000 });
+              this.toastService.showError('Error al crear el producto', 'Error');
             }
           });
         } else {
           // Use regular JSON method for products without media
           this.productService.createProduct(productData).subscribe({
             next: (response) => {
-              this.snackBar.open('¡Producto creado exitosamente!', 'Cerrar', { duration: 3000 });
+              this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
               this.router.navigate(['/my-products']);
             },
             error: (error) => {
               console.error('Error creating product:', error);
-              this.snackBar.open('Error al crear el producto', 'Cerrar', { duration: 3000 });
+              this.toastService.showError('Error al crear el producto', 'Error');
             }
           });
         }
       }
     } else {
       console.log('Formulario no válido o subida en curso.');
-      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['warning-snackbar']
-      });
+      this.toastService.showWarning('Por favor completa todos los campos requeridos', 'Advertencia');
     }
   }
 
@@ -611,17 +628,11 @@ export class ProductFormComponent implements OnInit {
       // Delete video from backend
       this.productService.deleteVideo(videoId).subscribe({
         next: () => {
-          this.snackBar.open('Video eliminado exitosamente', 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.toastService.showSuccess('Video eliminado exitosamente', 'Éxito');
         },
         error: (error) => {
           console.error('Error deleting video:', error);
-          this.snackBar.open('Error al eliminar video', 'Cerrar', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.toastService.showError('Error al eliminar video', 'Error');
           // Reload videos on error
           this.loadProductVideos(this.productId!);
         }
@@ -649,7 +660,7 @@ export class ProductFormComponent implements OnInit {
       'Insumo': 'supplies',
       'Transporte': 'transport'
     };
-    
+
     if (productData.category && categoryMapping[productData.category]) {
       productData.category = categoryMapping[productData.category];
     }
@@ -664,17 +675,17 @@ export class ProductFormComponent implements OnInit {
       next: (response) => {
         console.log('Product updated after image removal:', response);
         this.showNotification('Imagen eliminada exitosamente', 'success');
-        
+
         // Clear any new file previews since they've been processed
         this.filePreviews = [];
-        
+
         // Reload images to get the updated state from server
         this.loadProductImages(this.productId!);
       },
       error: (error: any) => {
         console.error('Error updating product after image removal:', error);
         this.showNotification('Error al eliminar la imagen. Intenta de nuevo.', 'error');
-        
+
         // Reload images to restore correct state
         if (this.productId) {
           this.loadProductImages(this.productId);
@@ -725,16 +736,10 @@ export class ProductFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // User completed the seller setup
-        this.snackBar.open('¡Perfil configurado! Ahora puedes publicar productos', 'Cerrar', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toastService.showSuccess('¡Perfil configurado! Ahora puedes publicar productos', 'Éxito');
       } else {
         // User cancelled - redirect back to marketplace
-        this.snackBar.open('Debes completar tu perfil de vendedor para publicar productos', 'Cerrar', {
-          duration: 4000,
-          panelClass: ['warning-snackbar']
-        });
+        this.toastService.showWarning('Debes completar tu perfil de vendedor para publicar productos', 'Advertencia');
         this.router.navigate(['/marketplace']);
       }
     });
@@ -755,16 +760,23 @@ export class ProductFormComponent implements OnInit {
   onProvinceChange(event: any): void {
     const provinceId = event.value || event.target?.value;
     this.selectedProvinceId = provinceId;
-    
+
+    // Find province name
+    const selectedProvince = this.provinces.find(p => p.id === provinceId);
+    const provinceName = selectedProvince?.nombre || '';
+
     // Clear dependent selects
     this.departments = [];
     this.settlements = [];
     this.selectedDepartmentId = '';
     this.selectedSettlementId = '';
-    
+
     this.productForm.patchValue({
+      province_name: provinceName,
       department: '',
-      settlement: ''
+      department_name: '',
+      settlement: '',
+      settlement_name: ''
     });
 
     if (provinceId) {
@@ -776,9 +788,17 @@ export class ProductFormComponent implements OnInit {
   onDepartmentChange(event: any): void {
     const departmentId = event.value || event.target?.value;
     this.selectedDepartmentId = departmentId;
-    
+
+    // Find department name
+    const selectedDepartment = this.departments.find(d => d.id === departmentId);
+    const departmentName = selectedDepartment?.nombre || '';
+
     this.settlements = [];
-    this.productForm.patchValue({ settlement: '' });
+    this.productForm.patchValue({
+      department_name: departmentName,
+      settlement: '',
+      settlement_name: ''
+    });
 
     if (departmentId && this.selectedProvinceId) {
       this.loadSettlementsByDepartment(this.selectedProvinceId, departmentId);
@@ -786,7 +806,16 @@ export class ProductFormComponent implements OnInit {
   }
 
   onSettlementChange(event: any): void {
-    this.selectedSettlementId = event.value || event.target?.value;
+    const settlementId = event.value || event.target?.value;
+    this.selectedSettlementId = settlementId;
+
+    // Find settlement name
+    const selectedSettlement = this.settlements.find(s => s.id === settlementId);
+    const settlementName = selectedSettlement?.nombre || '';
+
+    this.productForm.patchValue({
+      settlement_name: settlementName
+    });
   }
 
   loadDepartments(provinceId: string): void {
@@ -823,5 +852,16 @@ export class ProductFormComponent implements OnInit {
         this.settlements = [];
       }
     });
+  }
+
+  // Navigation method
+  goBack(): void {
+    if (this.isEditMode) {
+      // Si estamos editando, volver a mis productos
+      this.router.navigate(['/my-products']);
+    } else {
+      // Si estamos creando, volver al marketplace
+      this.router.navigate(['/marketplace']);
+    }
   }
 }
