@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { SellerService, SellerProfileRequest } from '../../services/seller.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { provinces } from '../../core/data/argentina.data';
 import { LocationService } from '../../core/services/location.service';
 import { Province, Department, Settlement } from '../../core/models/location.model';
@@ -21,12 +21,13 @@ export class SellerSetupModalComponent implements OnInit {
   provinces: Province[] = [];
   departments: Department[] = [];
   settlements: Settlement[] = [];
-  
+  selectedProvinceId: string = '';
+
   // Step management
   currentStep: number = 1;
   totalSteps: number = 2;
   needsPersonalInfo: boolean = false;
-  
+
   // Loading states
   isSubmitting = false;
   isLoading = true;
@@ -38,7 +39,7 @@ export class SellerSetupModalComponent implements OnInit {
     private sellerService: SellerService,
     private authService: AuthService,
     private locationService: LocationService,
-    private snackBar: MatSnackBar,
+    private toastService: ToastService,
     public dialogRef: MatDialogRef<SellerSetupModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
@@ -78,7 +79,7 @@ export class SellerSetupModalComponent implements OnInit {
   private checkPersonalInfoCompletion(): void {
     const currentUser = this.authService.currentUser;
     if (!currentUser) {
-      this.snackBar.open('Error: No se pudo obtener información del usuario', 'Cerrar');
+      this.toastService.showError('Error: No se pudo obtener información del usuario', 'Error');
       this.dialogRef.close(false);
       return;
     }
@@ -92,14 +93,13 @@ export class SellerSetupModalComponent implements OnInit {
     };
 
     this.needsPersonalInfo = Object.values(missingInfo).some(Boolean);
-    
+
     if (this.needsPersonalInfo) {
       this.currentStep = 0;
       this.totalSteps = 3;
-      this.loadLocations().then(() => {
-        this.populatePersonalInfoForm(currentUser, missingInfo);
-        this.isLoading = false;
-      });
+      this.loadLocations();
+      this.populatePersonalInfoForm(currentUser, missingInfo);
+      this.isLoading = false;
     } else {
       this.currentStep = 1;
       this.totalSteps = 2;
@@ -107,13 +107,15 @@ export class SellerSetupModalComponent implements OnInit {
     }
   }
 
-  private async loadLocations(): Promise<void> {
-    try {
-      const response = await this.locationService.getProvinces().toPromise();
-      this.provinces = response?.provincias || [];
-    } catch (error) {
-      console.error('Error loading provinces:', error);
-    }
+  private loadLocations(): void {
+    this.locationService.getProvinces().subscribe({
+      next: (response) => {
+        this.provinces = response?.provincias || [];
+      },
+      error: (error) => {
+        console.error('Error loading provinces:', error);
+      }
+    });
   }
 
   private populatePersonalInfoForm(currentUser: User, missingInfo: any): void {
@@ -168,15 +170,15 @@ export class SellerSetupModalComponent implements OnInit {
 
   private formatCuitForDisplay(cuit: string): string {
     if (!cuit) return '';
-    
+
     // Remove any non-digit characters
     const digits = cuit.replace(/\D/g, '');
-    
+
     // Format as XX-XXXXXXXX-X if we have 11 digits
     if (digits.length === 11) {
       return `${digits.substring(0, 2)}-${digits.substring(2, 10)}-${digits.substring(10, 11)}`;
     }
-    
+
     // Return as is if not 11 digits
     return digits;
   }
@@ -192,24 +194,18 @@ export class SellerSetupModalComponent implements OnInit {
   private submitPersonalInfo(): void {
     if (this.personalInfoForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      
+
       const profileData = this.personalInfoForm.value;
-      
+
       this.authService.updateProfile(profileData).subscribe({
         next: (updatedUser) => {
-          this.snackBar.open('Información personal actualizada', 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.toastService.showSuccess('Información personal actualizada', 'Éxito');
           this.isSubmitting = false;
           this.nextStep();
         },
         error: (error) => {
           this.isSubmitting = false;
-          this.snackBar.open('Error al actualizar información personal', 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.toastService.showError('Error al actualizar información personal', 'Error');
         }
       });
     }
@@ -218,20 +214,17 @@ export class SellerSetupModalComponent implements OnInit {
   private submitSellerProfile(): void {
     if (this.sellerForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      
+
       const currentUser = this.authService.currentUser;
       if (!currentUser) {
-        this.snackBar.open('Error: No se pudo obtener información del usuario', 'Cerrar', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        this.toastService.showError('Error: No se pudo obtener información del usuario', 'Error');
         this.isSubmitting = false;
         return;
       }
 
       // Clean formatted values before sending to backend
       const formValues = { ...this.sellerForm.value };
-      
+
       // Remove formatting from CUIT, CBU, and RENSPA
       if (formValues.cuit) {
         formValues.cuit = formValues.cuit.replace(/\D/g, ''); // Keep only digits
@@ -250,7 +243,7 @@ export class SellerSetupModalComponent implements OnInit {
         city: currentUser.city || '',
         province: currentUser.province || ''
       };
-      
+
       this.sellerService.upgradeToSeller(profileData).subscribe({
         next: (response) => {
           // Save the new token and user data
@@ -268,26 +261,20 @@ export class SellerSetupModalComponent implements OnInit {
             ? '🎉 ¡Perfil de vendedor configurado correctamente!'
             : 'Información actualizada correctamente';
 
-          this.snackBar.open(message, 'Cerrar', {
-            duration: 5000,
-            panelClass: ['success-snackbar']
-          });
+          this.toastService.showSuccess(message, 'Éxito');
           this.dialogRef.close(true);
         },
         error: (error) => {
           this.isSubmitting = false;
           let errorMessage = 'Error al configurar el perfil de vendedor';
-          
+
           if (error.error?.code === 'CUIT_EXISTS') {
             errorMessage = 'Este CUIT ya está registrado por otro usuario';
           } else if (error.error?.message) {
             errorMessage = error.error.message;
           }
-          
-          this.snackBar.open(errorMessage, 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+
+          this.toastService.showError(errorMessage, 'Error');
         }
       });
     }
@@ -316,9 +303,10 @@ export class SellerSetupModalComponent implements OnInit {
   // Location handling
   onProvinceChange(provinceId: string): void {
     this.isLoadingLocations = true;
+    this.selectedProvinceId = provinceId;
     this.departments = [];
     this.settlements = [];
-    
+
     if (provinceId) {
       this.locationService.getDepartments({ provincia: provinceId }).subscribe({
         next: (response) => {
@@ -337,9 +325,12 @@ export class SellerSetupModalComponent implements OnInit {
   onDepartmentChange(departmentId: string): void {
     this.isLoadingLocations = true;
     this.settlements = [];
-    
-    if (departmentId) {
-      this.locationService.getSettlements({ departamento: departmentId }).subscribe({
+
+    if (departmentId && this.selectedProvinceId) {
+      this.locationService.getSettlements({
+        provincia: this.selectedProvinceId,
+        departamento: departmentId
+      }).subscribe({
         next: (response) => {
           this.settlements = response.asentamientos || [];
           this.isLoadingLocations = false;
@@ -355,7 +346,7 @@ export class SellerSetupModalComponent implements OnInit {
 
 
   private getFieldDisplayName(fieldName: string): string {
-    const displayNames: {[key: string]: string} = {
+    const displayNames: { [key: string]: string } = {
       'business_name': 'Nombre comercial',
       'cuit': 'CUIT',
       'cbu': 'CBU/CVU',
@@ -379,53 +370,53 @@ export class SellerSetupModalComponent implements OnInit {
   // Custom validators
   private cuitValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
-    
+
     // Remove any non-digit characters
     const digits = control.value.toString().replace(/\D/g, '');
-    
+
     // Solo validar que tenga exactamente 11 dígitos
     if (digits.length !== 11) {
       return { cuitLength: { message: 'El CUIT debe tener exactamente 11 dígitos' } };
     }
-    
+
     return null;
   }
-  
+
   private cbuValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
-    
+
     // Remove any non-digit characters
     const digits = control.value.toString().replace(/\D/g, '');
-    
+
     if (digits.length !== 22) {
       return { cbuLength: { message: 'El CBU/CVU debe tener 22 dígitos' } };
     }
-    
+
     return null;
   }
-  
+
   private renspaValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
-    
+
     // RENSPA format: 123456789012 (12 digits)
     const digits = control.value.toString().replace(/\D/g, '');
-    
+
     if (digits.length < 10 || digits.length > 15) {
       return { renspaLength: { message: 'El código RENSPA debe tener entre 10 y 15 dígitos' } };
     }
-    
+
     return null;
   }
-  
+
   // Input formatting methods
   onCuitInput(event: any): void {
     let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
-    
+
     // Limit to 11 digits max
     if (value.length > 11) {
       value = value.substring(0, 11);
     }
-    
+
     // Format as XX-XXXXXXXX-X only when there are enough digits
     let formattedValue = value;
     if (value.length >= 3) {
@@ -436,29 +427,29 @@ export class SellerSetupModalComponent implements OnInit {
         formattedValue += value.substring(2);
       }
     }
-    
+
     this.sellerForm.patchValue({ cuit: formattedValue }, { emitEvent: false });
     event.target.value = formattedValue;
   }
-  
+
   onCbuInput(event: any): void {
     let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
-    
+
     if (value.length <= 22) {
       // Format as XXXX XXXX XXXX XXXX XXXX XX
       value = value.match(/.{1,4}/g)?.join(' ') || value;
       if (value.length > 27) { // 22 digits + 5 spaces = 27 chars max
         value = value.substring(0, 27);
       }
-      
+
       this.sellerForm.patchValue({ cbu: value }, { emitEvent: false });
       event.target.value = value;
     }
   }
-  
+
   onRenspaInput(event: any): void {
     let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
-    
+
     if (value.length <= 15) {
       // Format as XXXX.XXXX.XXXX.XXX or similar
       if (value.length > 4) {
@@ -470,7 +461,7 @@ export class SellerSetupModalComponent implements OnInit {
       if (value.length > 14) {
         value = value.substring(0, 14) + '.' + value.substring(14);
       }
-      
+
       this.sellerForm.patchValue({ renspa: value }, { emitEvent: false });
       event.target.value = value;
     }
@@ -480,7 +471,7 @@ export class SellerSetupModalComponent implements OnInit {
   getFieldError(fieldName: string, formName: 'seller' | 'personal' = 'seller'): string {
     const form = formName === 'seller' ? this.sellerForm : this.personalInfoForm;
     const field = form.get(fieldName);
-    
+
     if (field?.errors && field.touched) {
       if (field.errors['required']) {
         return `${this.getFieldDisplayName(fieldName)} es requerido`;

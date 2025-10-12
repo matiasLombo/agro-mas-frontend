@@ -1,0 +1,46 @@
+/* Toast Styles */
+.success-toast {
+    background-color: #4caf50 !important;
+    color: white !important;
+}
+
+.error-toast {
+    background-color: #f44336 !important;
+    color: white !important;
+}
+
+.info-toast {
+    background-color: #2196f3 !important;
+    color: white !important;
+}
+
+.warning-toast {
+    background-color: #ff9800 !important;
+    color: white !important;
+}
+
+/* Toast container styles */
+.mat-mdc-snack-bar-container {
+
+    &.success-toast,
+    &.error-toast,
+    &.info-toast,
+    &.warning-toast {
+        .mat-mdc-snack-bar-surface {
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .mat-mdc-snack-bar-label {
+            font-weight: 500 !important;
+        }
+
+        .mat-mdc-snack-bar-action {
+            color: rgba(255, 255, 255, 0.8) !important;
+
+            &:hover {
+                color: white !important;
+            }
+        }
+    }
+}

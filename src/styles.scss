@@ -7,6 +7,9 @@
 // Import Design System Variables
 @import 'styles/variables';
 
+// Import Toast Styles  
+@import 'styles/toast';
+
 // Import Google Fonts
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -43,41 +46,7 @@ body {
   text-align: center;
 }
 
-// Fix mat-form-field outline colors
-.mat-mdc-form-field {
-  &.mat-focused {
-    .mat-mdc-form-field-focus-overlay {
-      opacity: 0 !important;
-    }
-    
-    // Orange label when focused
-    .mat-mdc-floating-label {
-      color: #E4661A !important;
-    }
-  }
-}
 
-// Remove green tint on focused form fields
-.mat-mdc-text-field-wrapper {
-  &.mdc-text-field--focused {
-    .mdc-notched-outline {
-
-      .mdc-notched-outline__leading,
-      .mdc-notched-outline__notch,
-      .mdc-notched-outline__trailing {
-        border-color: #4CAF50 !important;
-        border-width: 1px !important;
-      }
-    }
-  }
-}
-
-// Ensure consistent form field styling
-.mat-mdc-form-field-appearance-outline {
-  .mat-mdc-form-field-focus-overlay {
-    background-color: transparent !important;
-  }
-}
 
 .spacer {
   flex: 1 1 auto;
@@ -252,59 +221,32 @@ select:focus {
   margin: 0 !important;
 }
 
-// Custom Snackbar Styles
-.success-snackbar {
-  --mdc-snackbar-container-color: #4caf50 !important;
-  --mdc-snackbar-supporting-text-color: #ffffff !important;
+// Custom Toast Container - Sin fondo negro
+.custom-toast-container {
+  background-color: transparent !important;
 
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-    font-weight: 500;
+  .mat-mdc-snack-bar-surface {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    min-width: auto !important;
+    width: auto !important;
   }
 
-  .mat-mdc-button {
-    --mdc-text-button-label-text-color: #ffffff !important;
-  }
-}
-
-.error-snackbar {
-  --mdc-snackbar-container-color: #f44336 !important;
-  --mdc-snackbar-supporting-text-color: #ffffff !important;
-
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-    font-weight: 500;
+  .mdc-snackbar {
+    background-color: transparent !important;
   }
 
-  .mat-mdc-button {
-    --mdc-text-button-label-text-color: #ffffff !important;
-  }
-}
-
-.info-snackbar {
-  --mdc-snackbar-container-color: #2196f3 !important;
-  --mdc-snackbar-supporting-text-color: #ffffff !important;
-
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-    font-weight: 500;
+  .mdc-snackbar__surface {
+    background-color: transparent !important;
+    box-shadow: none !important;
   }
 
-  .mat-mdc-button {
-    --mdc-text-button-label-text-color: #ffffff !important;
-  }
-}
-
-.warning-snackbar {
-  --mdc-snackbar-container-color: #ff9800 !important;
-  --mdc-snackbar-supporting-text-color: #ffffff !important;
-
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-    font-weight: 500;
-  }
-
-  .mat-mdc-button {
-    --mdc-text-button-label-text-color: #ffffff !important;
+  // Asegurar que el contenedor del snackbar sea completamente transparente
+  &.mat-mdc-snack-bar-container {
+    background: none !important;
+    backdrop-filter: none !important;
   }
 }

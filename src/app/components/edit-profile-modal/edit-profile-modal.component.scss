@@ -1,30 +1,26 @@
-.edit-profile-modal {
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  padding: 32px;
+// Header styles - idénticos al seller-setup-modal
+.dialog-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 32px 32px 24px 32px;
+  border-bottom: 2px solid #f0f0f0;
 
-  .modal-header {
-    text-align: center;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 2px solid #f0f0f0;
+  .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
 
-    .header-icon {
-      margin-bottom: 12px;
-      
-      mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        color: #4caf50;
-      }
-    }
+  .header-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #4caf50;
+    margin-bottom: 12px;
+  }
 
+  .header-text {
     h2 {
       margin: 0 0 8px 0;
       font-size: 24px;
@@ -32,180 +28,192 @@
       color: #333;
     }
 
-    .subtitle {
+    p {
       margin: 0;
       color: #666;
       font-size: 14px;
     }
   }
+}
 
-  .modal-content {
-    padding: 0;
-    max-height: none;
+// Content styles - idénticos al seller-setup-modal
+.dialog-content {
+  padding: 0 32px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 16px;
+}
 
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 40px;
-      text-align: center;
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
 
-      .loading-spinner {
-        margin-bottom: 24px;
-
-        mat-icon {
-          font-size: 48px;
-          width: 48px;
-          height: 48px;
-          color: #4caf50;
-          animation: spin 2s linear infinite;
-        }
-      }
-
-      p {
-        margin: 0;
-        font-size: 16px;
-        color: #666;
-        font-weight: 500;
-      }
-    }
-
-    .form-section {
-      margin-bottom: 40px;
-      padding: 24px;
-      background: #fafafa;
-      border-radius: 12px;
-      border: 1px solid #e8e8e8;
-
-      .section-title {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 24px;
-        margin-top: -8px;
-        font-size: 20px;
-        font-weight: 600;
-        color: #2c3e50;
-        padding-bottom: 12px;
-        border-bottom: 1px solid #e0e0e0;
-
-        mat-icon {
-          color: #4caf50;
-        }
-      }
-
-      .form-row {
-        display: flex;
-        gap: 24px;
-        margin-bottom: 20px;
-        align-items: flex-start;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-
-        .full-width {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .half-width {
-          flex: 1;
-          min-width: 0;
-          max-width: 50%;
-        }
-
-        mat-form-field {
-          width: 100%;
-          
-          .mat-mdc-form-field-wrapper {
-            margin-bottom: 0;
-          }
-        }
-      }
-    }
+  mat-spinner {
+    margin-bottom: 24px;
   }
 
-  .modal-actions {
-    padding: 24px 0 0 0;
-    margin-top: 32px;
-    border-top: 2px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
+  p {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+  }
+}
 
-    .cancel-button {
-      color: #666;
-      border: 2px solid #ddd;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 8px;
-      
-      &:hover {
-        background-color: #f5f5f5;
-        border-color: #bbb;
-        transform: translateY(-1px);
-      }
+// Form sections - idénticos al seller-setup-modal
+.form-section {
+  margin-bottom: 40px;
+  padding: 24px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+
+  mat-card-header {
+    margin-bottom: 24px;
+    margin-top: -8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+
+    .mat-mdc-card-avatar {
+      color: #4caf50;
     }
 
-    .submit-button {
-      background-color: #4caf50;
-      min-width: 200px;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: 500;
-      border-radius: 8px;
-      
-      &:hover:not(:disabled) {
-        background-color: #45a049;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-      }
-
-      &:disabled {
-        background-color: #ccc;
-        color: #888;
-      }
-
-      mat-icon {
-        margin-right: 8px;
-      }
+    mat-card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2c3e50;
     }
   }
 }
 
-// Responsive design
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+
+    .mat-mdc-form-field-wrapper {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.form-row-three {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+
+    .mat-mdc-form-field-wrapper {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.full-width {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+// Dialog actions - idénticos al seller-setup-modal
+.dialog-actions {
+  padding: 24px 32px 32px 32px;
+  margin-top: 32px;
+  border-top: 2px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+
+  .mat-mdc-stroked-button {
+    color: #666;
+    border: 2px solid #ddd;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+
+    &:hover {
+      background-color: #f5f5f5;
+      border-color: #bbb;
+      transform: translateY(-1px);
+    }
+  }
+
+  button[mat-raised-button] {
+    background-color: #4caf50;
+    min-width: 200px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 8px;
+
+    &:hover:not(:disabled) {
+      background-color: #45a049;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      color: #888;
+    }
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Responsive design - idénticos al seller-setup-modal
 @media (max-width: 600px) {
-  .edit-profile-modal {
-    .modal-content {
-      .form-section {
-        .form-row {
-          flex-direction: column;
-          gap: 8px;
-        }
-      }
-    }
 
-    .modal-actions {
-      flex-direction: column-reverse;
-      
-      button {
-        width: 100%;
-      }
+  .form-row,
+  .form-row-three {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
     }
   }
 }
 
-// Custom Material Design overrides
-::ng-deep .edit-profile-modal {
+// Custom Material Design overrides - idénticos al seller-setup-modal
+::ng-deep .mat-mdc-dialog-container {
   .mat-mdc-form-field {
     margin-bottom: 8px;
-    
+
     .mat-mdc-text-field-wrapper {
       background-color: white;
       border-radius: 8px;
-      
+
       .mat-mdc-form-field-flex {
         .mat-mdc-form-field-infix {
           padding: 16px 12px;
@@ -216,7 +224,7 @@
     &.mat-form-field-appearance-outline {
       .mat-mdc-form-field-outline {
         border-radius: 8px;
-        
+
         .mat-mdc-form-field-outline-start,
         .mat-mdc-form-field-outline-end,
         .mat-mdc-form-field-outline-gap {
@@ -228,6 +236,7 @@
       &.mat-focused {
         .mat-mdc-form-field-outline {
           .mat-mdc-form-field-outline-thick {
+
             .mat-mdc-form-field-outline-start,
             .mat-mdc-form-field-outline-end,
             .mat-mdc-form-field-outline-gap {
@@ -237,9 +246,10 @@
           }
         }
       }
-      
+
       &:hover:not(.mat-focused):not(.mat-form-field-invalid) {
         .mat-mdc-form-field-outline {
+
           .mat-mdc-form-field-outline-start,
           .mat-mdc-form-field-outline-end,
           .mat-mdc-form-field-outline-gap {
@@ -248,12 +258,12 @@
         }
       }
     }
-    
+
     .mat-mdc-form-field-label {
       color: #666 !important;
       font-weight: 500;
     }
-    
+
     .mdc-text-field--focused .mat-mdc-form-field-label {
       color: #4caf50 !important;
     }
@@ -264,57 +274,47 @@
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
-  
+
   .mat-mdc-option {
     padding: 12px 16px;
-    
+
     &:hover:not(.mdc-list-item--disabled) {
       background-color: #f0f8f0;
     }
-    
+
     &.mat-mdc-option-active {
       background-color: #e8f5e8;
     }
   }
-  
+
   // Fix select dropdown arrow
-  .mat-mdc-select {
-    .mat-mdc-select-arrow-wrapper {
-      .mat-mdc-select-arrow {
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid #666;
-        margin: 0;
-      }
-    }
-    
-    .mat-mdc-select-value {
-      color: inherit;
-    }
-  }
-  
+  // .mat-mdc-select {
+  //   .mat-mdc-select-arrow-wrapper {
+  //     .mat-mdc-select-arrow {
+  //       width: 0;
+  //       height: 0;
+  //       border-left: 5px solid transparent;
+  //       border-right: 5px solid transparent;
+  //       border-top: 5px solid #666;
+  //       margin: 0;
+  //     }
+  //   }
+
+  //   .mat-mdc-select-value {
+  //     color: inherit;
+  //   }
+  // }
+
   // Remove any conflicting suffix icons on select fields
   .mat-mdc-form-field:has(.mat-mdc-select) {
     .mat-mdc-form-field-suffix {
       .mat-mdc-icon-button {
         display: none;
       }
-      
+
       mat-icon[matSuffix] {
         display: none;
       }
     }
   }
-}
-
-// Loading animation
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.spinning {
-  animation: spin 2s linear infinite;
 }

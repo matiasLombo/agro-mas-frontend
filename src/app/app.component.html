@@ -122,13 +122,15 @@
               <div class="logo-section">
                 <a routerLink="/marketplace" class="logo-link">
                   <img src={{logo}} alt="CorralOK" class="logo-image">
+                  <span class="logo-text">CorralOK</span>
                 </a>
               </div>
             </div>
 
             <div class="nav-right">
               <ng-container *ngIf="!(isAuthenticated$ | async)">
-                <button mat-flat-button routerLink="/login" routerLinkActive="active" class="nav-button-secondary">Iniciar
+                <button mat-flat-button routerLink="/login" routerLinkActive="active"
+                  class="nav-button-secondary">Iniciar
                   Sesión</button>
                 <button mat-flat-button routerLink="/register" routerLinkActive="active"
                   class="nav-button">Registrarse</button>
@@ -171,8 +173,10 @@
                         </button>
 
                         <button class="menu-item" (click)="openSellerSettings(); closeUserMenu()">
-                          <mat-icon>{{ (currentUser$ | async)?.role === 'seller' ? 'store' : 'store_mall_directory' }}</mat-icon>
-                          <span>{{ (currentUser$ | async)?.role === 'seller' ? 'Perfil de Vendedor' : 'Configurar Vendedor' }}</span>
+                          <mat-icon>{{ (currentUser$ | async)?.role === 'seller' ? 'store' : 'store_mall_directory'
+                            }}</mat-icon>
+                          <span>{{ (currentUser$ | async)?.role === 'seller' ? 'Perfil de Vendedor' : 'Configurar
+                            Vendedor' }}</span>
                         </button>
 
                         <button class="menu-item" (click)="viewMyActivity(); closeUserMenu()">
@@ -204,7 +208,8 @@
         <div class="footer-content">
           <div class="footer-section">
             <div class="footer-logo">
-              <img src={{logo}} alt="CorralOK" class="logo-image">
+              <img src={{logo}} alt="CorralOK" class="footer-logo-image">
+              <span class="footer-logo-text">CorralOK</span>
             </div>
             <p class="footer-description">
               Tu marketplace de confianza para productos agropecuarios. Conectamos productores locales con compradores.

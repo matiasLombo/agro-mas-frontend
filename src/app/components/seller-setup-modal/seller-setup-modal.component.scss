@@ -100,7 +100,7 @@
 
     .header-icon {
       margin-bottom: 12px;
-      
+
       mat-icon {
         font-size: 48px;
         width: 48px;
@@ -213,7 +213,7 @@
 
         mat-form-field {
           width: 100%;
-          
+
           .mat-mdc-form-field-wrapper {
             margin-bottom: 0;
           }
@@ -253,7 +253,7 @@
         ul {
           margin: 0;
           padding-left: 16px;
-          
+
           li {
             font-size: 14px;
             color: #6a1b9a;
@@ -284,7 +284,7 @@
       padding: 12px 24px;
       font-size: 16px;
       border-radius: 8px;
-      
+
       &:hover {
         background-color: #f5f5f5;
         border-color: #bbb;
@@ -299,7 +299,7 @@
       font-size: 16px;
       font-weight: 500;
       border-radius: 8px;
-      
+
       &:hover:not(:disabled) {
         background-color: #45a049;
         transform: translateY(-1px);
@@ -332,7 +332,7 @@
 
     .modal-actions {
       flex-direction: column-reverse;
-      
+
       button {
         width: 100%;
       }
@@ -344,11 +344,11 @@
 ::ng-deep .seller-setup-modal {
   .mat-mdc-form-field {
     margin-bottom: 8px;
-    
+
     .mat-mdc-text-field-wrapper {
       background-color: white;
       border-radius: 8px;
-      
+
       .mat-mdc-form-field-flex {
         .mat-mdc-form-field-infix {
           padding: 16px 12px;
@@ -359,7 +359,7 @@
     &.mat-form-field-appearance-outline {
       .mat-mdc-form-field-outline {
         border-radius: 8px;
-        
+
         .mat-mdc-form-field-outline-start,
         .mat-mdc-form-field-outline-end,
         .mat-mdc-form-field-outline-gap {
@@ -371,6 +371,7 @@
       &.mat-focused {
         .mat-mdc-form-field-outline {
           .mat-mdc-form-field-outline-thick {
+
             .mat-mdc-form-field-outline-start,
             .mat-mdc-form-field-outline-end,
             .mat-mdc-form-field-outline-gap {
@@ -380,9 +381,10 @@
           }
         }
       }
-      
+
       &:hover:not(.mat-focused):not(.mat-form-field-invalid) {
         .mat-mdc-form-field-outline {
+
           .mat-mdc-form-field-outline-start,
           .mat-mdc-form-field-outline-end,
           .mat-mdc-form-field-outline-gap {
@@ -391,12 +393,12 @@
         }
       }
     }
-    
+
     .mat-mdc-form-field-label {
       color: #666 !important;
       font-weight: 500;
     }
-    
+
     .mdc-text-field--focused .mat-mdc-form-field-label {
       color: #4caf50 !important;
     }
@@ -407,44 +409,44 @@
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
-  
+
   .mat-mdc-option {
     padding: 12px 16px;
-    
+
     &:hover:not(.mdc-list-item--disabled) {
       background-color: #f0f8f0;
     }
-    
+
     &.mat-mdc-option-active {
       background-color: #e8f5e8;
     }
   }
-  
+
   // Fix select dropdown arrow
-  .mat-mdc-select {
-    .mat-mdc-select-arrow-wrapper {
-      .mat-mdc-select-arrow {
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid #666;
-        margin: 0;
-      }
-    }
-    
-    .mat-mdc-select-value {
-      color: inherit;
-    }
-  }
-  
+  // .mat-mdc-select {
+  //   .mat-mdc-select-arrow-wrapper {
+  //     .mat-mdc-select-arrow {
+  //       width: 0;
+  //       height: 0;
+  //       border-left: 5px solid transparent;
+  //       border-right: 5px solid transparent;
+  //       border-top: 5px solid #666;
+  //       margin: 0;
+  //     }
+  //   }
+
+  //   .mat-mdc-select-value {
+  //     color: inherit;
+  //   }
+  // }
+
   // Remove any conflicting suffix icons on select fields
   .mat-mdc-form-field:has(.mat-mdc-select) {
     .mat-mdc-form-field-suffix {
       .mat-mdc-icon-button {
         display: none;
       }
-      
+
       mat-icon[matSuffix] {
         display: none;
       }
@@ -452,21 +454,15 @@
   }
 }
 
-// Success and error snackbar styles
-::ng-deep .success-snackbar {
-  background-color: #4caf50 !important;
-  color: white !important;
-}
-
-::ng-deep .error-snackbar {
-  background-color: #f44336 !important;
-  color: white !important;
-}
-
 // Loading animation
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .spinning {

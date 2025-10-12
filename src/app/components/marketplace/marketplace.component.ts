@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Product, ProductSearchResponse } from '@core/models/product.model';
 import { images } from '@core/constants/images.constants';
 
@@ -21,11 +22,6 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   errorMessage = '';
   totalProducts = 0;
 
-  // UI state
-  showNotification = false;
-  notificationMessage = '';
-  notificationType: 'success' | 'info' | 'warning' | 'error' = 'info';
-
   // Search and filters
   searchQuery = '';
   selectedCategory = '';
@@ -34,7 +30,8 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) { }
 
   ngOnInit() {
@@ -76,7 +73,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
           console.error('Error loading products:', error);
           this.hasError = true;
           this.errorMessage = 'Error al cargar los productos. Por favor, intenta de nuevo.';
-          this.showToast('Error al cargar productos', 'error');
+          this.toastService.showError('Error al cargar productos', 'Error');
           // Fallback to show some placeholder data
           this.loadPlaceholderProducts();
         }
@@ -103,7 +100,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading products by category:', error);
-          this.showToast('Error al cargar productos por categoría', 'error');
+          this.toastService.showError('Error al cargar productos por categoría', 'Error');
         }
       });
   }
@@ -137,7 +134,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error searching products:', error);
-          this.showToast('Error en la búsqueda', 'error');
+          this.toastService.showError('Error en la búsqueda', 'Error');
         }
       });
   }
@@ -147,9 +144,9 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
    */
   requireLogin(action: string) {
     if (this.isAuthenticated) {
-      this.showToast(`Funcionalidad "${action}" en desarrollo. ¡Pronto estará disponible!`, 'info');
+      this.toastService.showInfo(`Funcionalidad "${action}" en desarrollo. ¡Pronto estará disponible!`, 'Información');
     } else {
-      this.showToast(`Para ${action.toLowerCase()} necesitas iniciar sesión`, 'warning');
+      this.toastService.showWarning(`Para ${action.toLowerCase()} necesitas iniciar sesión`, 'Advertencia');
       setTimeout(() => {
         window.location.href = '/auth';
       }, 2000);
@@ -175,25 +172,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   }
 
 
-  /**
-   * Show notification toast
-   */
-  private showToast(message: string, type: 'success' | 'info' | 'warning' | 'error') {
-    this.notificationMessage = message;
-    this.notificationType = type;
-    this.showNotification = true;
 
-    setTimeout(() => {
-      this.showNotification = false;
-    }, 4000);
-  }
-
-  /**
-   * Close notification
-   */
-  closeNotification() {
-    this.showNotification = false;
-  }
 
   /**
    * Get category name in Spanish

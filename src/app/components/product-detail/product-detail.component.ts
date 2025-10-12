@@ -51,6 +51,18 @@ export class ProductDetailComponent implements OnInit {
           this.product = product;
           this.images = product.images || [];
           this.videos = product.videos || [];
+
+          // Debug location properties
+          console.log('Product location data:', {
+            province: product.province,
+            province_name: product.province_name,
+            department: product.department,
+            department_name: product.department_name,
+            settlement: product.settlement,
+            settlement_name: product.settlement_name,
+            city: product.city
+          });
+
           this.buildMediaItems();
           this.checkOwnership();
           this.isLoading = false;
@@ -144,7 +156,7 @@ export class ProductDetailComponent implements OnInit {
 
   contactSeller(): void {
     if (!this.product) return;
-    
+
     // Check if user is authenticated
     const currentUser = this.authService.currentUser;
     if (!currentUser) {
@@ -152,7 +164,7 @@ export class ProductDetailComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-    
+
     // If authenticated, open contact dialog
     const dialogRef = this.dialog.open(QuotationDialogComponent, {
       width: '500px',
@@ -188,17 +200,22 @@ export class ProductDetailComponent implements OnInit {
 
   getFormattedLocation(product: Product): string {
     const locationParts: string[] = [];
-    
-    if (product.settlement_name) {
-      locationParts.push(product.settlement_name);
+
+    // Use name properties first, fallback to ID properties
+    const settlement = product.settlement_name || product.city;
+    const department = product.department_name;
+    const province = product.province_name;
+
+    if (settlement) {
+      locationParts.push(settlement);
     }
-    if (product.department_name) {
-      locationParts.push(product.department_name);
+    if (department) {
+      locationParts.push(department);
     }
-    if (product.province_name) {
-      locationParts.push(product.province_name);
+    if (province) {
+      locationParts.push(province);
     }
-    
+
     return locationParts.length > 0 ? locationParts.join(', ') : 'Ubicación no especificada';
   }
 }

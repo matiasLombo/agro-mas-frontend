@@ -1,5 +1,5 @@
 export const logo = {
-    logoAgro: 'assets/images/logo_agro_mas.png',
+    logoAgro: 'assets/images/logo_corralok_1.png',
 };
 
 export const images = {
