@@ -207,8 +207,8 @@
 
         .half-width {
           flex: 1;
-          min-width: 0;
-          max-width: 50%;
+          min-width: 250px;
+          max-width: calc(50% - 12px);
         }
 
         mat-form-field {
@@ -319,22 +319,123 @@
 }
 
 // Responsive design
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .seller-setup-modal {
     .modal-content {
       .form-section {
         .form-row {
           flex-direction: column;
+          gap: 12px;
+
+          .full-width,
+          .half-width {
+            flex: 1;
+            min-width: 0;
+            max-width: none;
+            width: 100%;
+          }
+
+          mat-form-field {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .seller-setup-modal {
+    padding: 16px;
+
+    .step-progress {
+      padding: 16px;
+
+      .step-indicator {
+        .step {
+          width: 36px;
+          height: 36px;
+          font-size: 14px;
+        }
+
+        .progress-line {
+          margin: 0 12px;
+        }
+      }
+
+      .step-labels {
+        span {
+          font-size: 11px;
+        }
+      }
+    }
+
+    .modal-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+
+      .header-icon {
+        margin-bottom: 8px;
+
+        mat-icon {
+          font-size: 36px;
+          width: 36px;
+          height: 36px;
+        }
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    .modal-content {
+      .form-section {
+        padding: 16px;
+        margin-bottom: 24px;
+
+        .section-title {
+          font-size: 18px;
+          margin-bottom: 16px;
+        }
+
+        .form-row {
           gap: 8px;
+          margin-bottom: 16px;
+        }
+      }
+
+      .info-box {
+        padding: 16px;
+        margin-top: 24px;
+
+        .info-content {
+          h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+          }
+
+          ul li {
+            font-size: 13px;
+            margin-bottom: 4px;
+          }
         }
       }
     }
 
     .modal-actions {
       flex-direction: column-reverse;
+      gap: 12px;
+      padding-top: 16px;
+      margin-top: 24px;
 
       button {
         width: 100%;
+        padding: 14px 24px;
+      }
+
+      .submit-button {
+        min-width: auto;
       }
     }
   }
@@ -467,4 +568,59 @@
 
 .spinning {
   animation: spin 2s linear infinite;
+}
+
+@media (max-width: 480px) {
+  .seller-setup-modal {
+    padding: 12px;
+    max-width: calc(100vw - 24px);
+
+    .step-progress {
+      padding: 12px;
+      margin-bottom: 24px;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+
+      h2 {
+        font-size: 18px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+    }
+
+    .modal-content {
+      .form-section {
+        padding: 12px;
+        margin-bottom: 20px;
+
+        .section-title {
+          font-size: 16px;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .section-description {
+          padding: 8px;
+          font-size: 13px;
+          margin-bottom: 16px;
+        }
+      }
+    }
+
+    .modal-actions {
+      padding-top: 12px;
+      margin-top: 20px;
+      gap: 8px;
+
+      button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+  }
 }
