@@ -52,17 +52,6 @@ export class ProductDetailComponent implements OnInit {
           this.images = product.images || [];
           this.videos = product.videos || [];
 
-          // Debug location properties
-          console.log('Product location data:', {
-            province: product.province,
-            province_name: product.province_name,
-            department: product.department,
-            department_name: product.department_name,
-            settlement: product.settlement,
-            settlement_name: product.settlement_name,
-            city: product.city
-          });
-
           this.buildMediaItems();
           this.checkOwnership();
           this.isLoading = false;
@@ -173,7 +162,6 @@ export class ProductDetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Contact request submitted:', result);
         // Aquí enviarías la solicitud de contacto al backend
       }
     });
@@ -217,5 +205,65 @@ export class ProductDetailComponent implements OnInit {
     }
 
     return locationParts.length > 0 ? locationParts.join(', ') : 'Ubicación no especificada';
+  }
+
+  // Category-specific detail methods
+  hasTransportDetails(): boolean {
+    return !!(this.product?.transport_details);
+  }
+
+  hasLivestockDetails(): boolean {
+    return !!(this.product?.livestock_details);
+  }
+
+  hasSuppliesDetails(): boolean {
+    return !!(this.product?.supplies_details);
+  }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return 'No especificado';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch {
+      return 'No especificado';
+    }
+  }
+
+  getVehicleTypeName(type: string): string {
+    const types: { [key: string]: string } = {
+      'camion': 'Camión',
+      'camioneta': 'Camioneta',
+      'trailer': 'Trailer',
+      'semi_trailer': 'Semi Trailer',
+      'furgon': 'Furgón'
+    };
+    return types[type] || type;
+  }
+
+  getAnimalTypeName(type: string): string {
+    const types: { [key: string]: string } = {
+      'bovino': 'Bovino',
+      'ovino': 'Ovino',
+      'porcino': 'Porcino',
+      'equino': 'Equino',
+      'caprino': 'Caprino',
+      'aves': 'Aves'
+    };
+    return types[type] || type;
+  }
+
+  getSupplyTypeName(type: string): string {
+    const types: { [key: string]: string } = {
+      'fertilizante': 'Fertilizante',
+      'pesticida': 'Pesticida',
+      'herbicida': 'Herbicida',
+      'semilla': 'Semilla',
+      'alimento': 'Alimento',
+      'medicamento': 'Medicamento Veterinario',
+      'herramienta': 'Herramienta',
+      'maquinaria': 'Maquinaria'
+    };
+    return types[type] || type;
   }
 }

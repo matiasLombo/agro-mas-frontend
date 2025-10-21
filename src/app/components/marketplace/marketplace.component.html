@@ -55,17 +55,17 @@
       <h2>¡Bienvenido de vuelta{{ currentUser?.first_name ? ', ' + currentUser?.first_name : '' }}!</h2>
       <p>Gestiona tus productos y encuentra nuevas oportunidades de negocio</p>
       <div class="dashboard-actions">
-        <button class="dashboard-button primary" routerLink="/my-products">
-          <mat-icon class="button-icon">inventory</mat-icon>
-          Mis Productos
-        </button>
-        <button class="dashboard-button secondary" routerLink="/product">
+        <button class="dashboard-button primary" routerLink="/product">
           <mat-icon class="button-icon">add_circle</mat-icon>
-          Publicar Producto
+          Publicar producto
+        </button>
+        <button class="dashboard-button secondary" routerLink="/my-products">
+          <mat-icon class="button-icon">inventory</mat-icon>
+          Mis productos
         </button>
         <button class="dashboard-button tertiary" (click)="requireLogin('Ver estadísticas')">
           <mat-icon class="button-icon">analytics</mat-icon>
-          Ver Estadísticas
+          Ver estadísticas
         </button>
       </div>
     </div>

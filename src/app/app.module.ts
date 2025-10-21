@@ -23,6 +23,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // import { AngularFireModule } from '@angular/fire/compat';
 // import { AngularFireStorageModule } from '@angular/fire/compat/storage';
@@ -100,6 +101,7 @@ import { environment } from '@environments/environment';
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    MatCheckboxModule,
 
     // Configuración de Firebase (temporalmente deshabilitado)
     // AngularFireModule.initializeApp(environment.firebaseConfig),
