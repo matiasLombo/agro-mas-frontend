@@ -1,13 +1,16 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { formatDate } from '@angular/common';
+
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { LocationService } from '../../core/services/location.service';
 import { SellerService } from '../../services/seller.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Product, ProductImage, ProductVideo } from '../../core/models/product.model';
+import { Product, ProductImage, ProductVideo, TransportDetails, LivestockDetails, SuppliesDetails } from '../../core/models/product.model';
 import { Province, Department, Settlement } from '../../core/models/location.model';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { SellerSetupModalComponent } from '../seller-setup-modal/seller-setup-modal.component';
 import { Observable, forkJoin } from 'rxjs';
 
@@ -42,7 +45,7 @@ export class ProductFormComponent implements OnInit {
 
   // File compression settings
   readonly MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
-  readonly MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10MB
+  readonly MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 12MB
   readonly IMAGE_QUALITY = 0.8;
   readonly MAX_IMAGE_WIDTH = 1920;
   readonly MAX_IMAGE_HEIGHT = 1080;
@@ -75,6 +78,15 @@ export class ProductFormComponent implements OnInit {
   selectedProvinceId: string = '';
   selectedDepartmentId: string = '';
   selectedSettlementId: string = '';
+
+  // Category-specific properties
+  selectedCategory: string = '';
+  showWeaningField: boolean = false;
+
+  // Chips arrays for dynamic fields
+  healthCertificates: string[] = [];
+  activeIngredients: string[] = [];
+  requiredLicenses: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -118,9 +130,64 @@ export class ProductFormComponent implements OnInit {
       seller_name: [''],
       tags: [[]],
       images: [[]],
+
+      // Transport details
+      vehicle_type: [''],
+      capacity_tons: [''],
+      capacity_cubic_meters: [''],
+      price_per_km: [''],
+      has_refrigeration: [false],
+      has_livestock_equipment: [false],
+      min_distance_km: [''],
+      max_distance_km: [''],
+      license_plate: [''],
+      license_expiry: [''],
+      insurance_expiry: [''],
+      vehicle_year: [''],
+
+      // Livestock details  
+      animal_type: [''],
+      breed: [''],
+      age_months: [''],
+      weight_kg: [''],
+      gender: [''],
+      last_veterinary_check: [''],
+      is_pregnant: [false],
+      is_castrated: [false],
+      is_weaned: [false],
+      genetic_information: [''],
+
+      // Supplies details
+      supply_type: [''],
+      brand: [''],
+      model: [''],
+      concentration: [''],
+      expiry_date: [''],
+      batch_number: [''],
+      registration_number: [''],
+      storage_requirements: [''],
+      handling_instructions: [''],
+      disposal_instructions: ['']
     });
 
     this.loadProvinces();
+
+    // Subscribe to category changes to show/hide specific fields - optimized for instant response
+    this.productForm.get('category')?.valueChanges.subscribe(category => {
+      // Update immediately without any delay
+      setTimeout(() => {
+        this.selectedCategory = category;
+        this.updateCategoryValidations(category);
+      }, 0);
+    });
+
+    // Subscribe to gender changes to handle pregnancy field visibility
+    this.productForm.get('gender')?.valueChanges.subscribe(gender => {
+      // If gender is not 'hembra', clear the is_pregnant field
+      if (gender !== 'hembra') {
+        this.productForm.get('is_pregnant')?.setValue(false);
+      }
+    });
 
     // Check for product ID from route parameter
     const routeProductId = this.route.snapshot.paramMap.get('id');
@@ -189,6 +256,9 @@ export class ProductFormComponent implements OnInit {
             }
           }
 
+          // Load category-specific details
+          this.loadCategorySpecificDetails(product);
+
           // Only enable form if we're in edit mode, otherwise disable for viewing
           if (!this.isEditMode) {
             this.productForm.disable();
@@ -218,7 +288,6 @@ export class ProductFormComponent implements OnInit {
       next: (product: Product) => {
         if (product.videos && product.videos.length > 0) {
           this.uploadedVideos = product.videos;
-          console.log('Loaded videos:', this.uploadedVideos);
         }
       },
       error: (error: any) => {
@@ -228,11 +297,8 @@ export class ProductFormComponent implements OnInit {
   }
 
   async onFileChange(event: any, type: 'image' | 'video'): Promise<void> {
-    console.log('onFileChange called with type:', type, 'event:', event);
     const files: FileList = event.target.files;
-    console.log('Files in onFileChange:', files, files?.length);
     if (files.length === 0) {
-      console.log('No files found, returning early');
       return;
     }
 
@@ -399,7 +465,6 @@ export class ProductFormComponent implements OnInit {
         const displayOrder = this.uploadedImages.length + i + 1;
 
         // Images are now processed during product creation/update, not separately
-        console.log('Image will be processed with product creation/update');
       } catch (error) {
         console.error(`Error uploading ${preview.file.name}:`, error);
         this.showNotification(`Error al subir ${preview.file.name}`, 'error');
@@ -456,29 +521,22 @@ export class ProductFormComponent implements OnInit {
   }
 
   onDrop(event: DragEvent): void {
-    console.log('onDrop triggered!', event);
     event.preventDefault();
     event.stopPropagation();
     this.isDragOver = false;
 
     const files = event.dataTransfer?.files;
-    console.log('Files from drag & drop:', files, files?.length);
     if (files && files.length > 0) {
-      console.log('Calling handleFiles with', files.length, 'files');
       this.handleFiles(files);
-    } else {
-      console.log('No files detected in drag & drop');
     }
   }
 
   private handleFiles(files: FileList): void {
-    console.log('handleFiles called with', files.length, 'files');
     const imageFiles: File[] = [];
     const videoFiles: File[] = [];
 
     // Separar archivos por tipo
     Array.from(files).forEach(file => {
-      console.log('Processing file:', file.name, 'type:', file.type);
       if (file.type.startsWith('image/')) {
         imageFiles.push(file);
       } else if (file.type.startsWith('video/')) {
@@ -486,18 +544,14 @@ export class ProductFormComponent implements OnInit {
       }
     });
 
-    console.log('Image files:', imageFiles.length, 'Video files:', videoFiles.length);
-
     // Procesar imágenes
     if (imageFiles.length > 0) {
-      console.log('Processing', imageFiles.length, 'image files');
       const event = { target: { files: imageFiles } } as any;
       this.onFileChange(event, 'image');
     }
 
     // Procesar videos
     if (videoFiles.length > 0) {
-      console.log('Processing', videoFiles.length, 'video files');
       const event = { target: { files: videoFiles } } as any;
       this.onFileChange(event, 'video');
     }
@@ -538,7 +592,11 @@ export class ProductFormComponent implements OnInit {
         productData.category = categoryMapping[productData.category];
       }
 
-      console.log('Product data being sent:', productData);
+      // Prepare category-specific details first
+      this.prepareCategorySpecificData(productData);
+
+      // Convert date fields after preparing category-specific details (to include dates in nested objects)
+      this.convertDateFieldsToISO(productData);
 
       // Get uploaded image files if any (for new uploads)
       const imageFiles: File[] = [];
@@ -558,7 +616,6 @@ export class ProductFormComponent implements OnInit {
         // Update existing product
         this.productService.updateProductWithMedia(this.productId, productData, newImageFiles, newVideoFiles, this.uploadedImages).subscribe({
           next: (response) => {
-            console.log('Producto actualizado:', response);
             this.toastService.showSuccess('Producto actualizado exitosamente', 'Éxito');
             this.router.navigate(['/my-products']);
           },
@@ -604,7 +661,6 @@ export class ProductFormComponent implements OnInit {
         }
       }
     } else {
-      console.log('Formulario no válido o subida en curso.');
       this.toastService.showWarning('Por favor completa todos los campos requeridos', 'Advertencia');
     }
   }
@@ -665,6 +721,12 @@ export class ProductFormComponent implements OnInit {
       productData.category = categoryMapping[productData.category];
     }
 
+    // Prepare category-specific details first
+    this.prepareCategorySpecificData(productData);
+
+    // Convert date fields to ISO format after preparing category-specific details
+    this.convertDateFieldsToISO(productData);
+
     // Get new image files from filePreviews (if any)
     const newImageFiles: File[] = this.filePreviews
       .filter(preview => preview.type === 'image')
@@ -673,7 +735,6 @@ export class ProductFormComponent implements OnInit {
     // Update product - this will sync the current state of uploadedImages with the backend
     this.productService.updateProductWithImages(this.productId, productData, newImageFiles, this.uploadedImages).subscribe({
       next: (response) => {
-        console.log('Product updated after image removal:', response);
         this.showNotification('Imagen eliminada exitosamente', 'success');
 
         // Clear any new file previews since they've been processed
@@ -818,6 +879,11 @@ export class ProductFormComponent implements OnInit {
     });
   }
 
+  checkAgeForWeaning(): void {
+    const ageMonths = this.productForm.get('age_months')?.value;
+    this.showWeaningField = ageMonths !== null && ageMonths !== undefined && ageMonths <= 15;
+  }
+
   loadDepartments(provinceId: string): void {
     this.locationService.getDepartments({ provincia: provinceId, max: 50 }).subscribe({
       next: (response) => {
@@ -863,5 +929,374 @@ export class ProductFormComponent implements OnInit {
       // Si estamos creando, volver al marketplace
       this.router.navigate(['/marketplace']);
     }
+  }
+
+  // Category-specific methods
+  getCategoryDisplayName(category: string): string {
+    const displayNames: { [key: string]: string } = {
+      'Ganado': 'Ganado',
+      'Insumo': 'Insumos Agrícolas',
+      'Transporte': 'Transporte'
+    };
+    return displayNames[category] || category;
+  }
+
+  updateCategoryValidations(category: string): void {
+    if (!category) return;
+
+    // Reset all validations first
+    this.clearCategoryValidations();
+
+    // Set validators based on category
+    const validatorMap: { [key: string]: { [field: string]: any[] } } = {
+      'Transporte': {
+        'vehicle_type': [Validators.required],
+        'capacity_tons': [Validators.min(0)],
+        'capacity_cubic_meters': [Validators.min(0)],
+        'price_per_km': [Validators.min(0)],
+        'min_distance_km': [Validators.min(0)],
+        'max_distance_km': [Validators.min(0)],
+        'vehicle_year': [Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]
+      },
+      'Ganado': {
+        'animal_type': [Validators.required],
+        'age_months': [Validators.min(0)],
+        'weight_kg': [Validators.min(0)]
+      },
+      'Insumo': {
+        'supply_type': [Validators.required]
+      }
+    };
+
+    const validators = validatorMap[category];
+    if (validators) {
+      Object.keys(validators).forEach(field => {
+        this.productForm.get(field)?.setValidators(validators[field]);
+        this.productForm.get(field)?.updateValueAndValidity();
+      });
+    }
+  }
+
+  private clearCategoryValidations(): void {
+    const categoryFields = [
+      'vehicle_type', 'capacity_tons', 'capacity_cubic_meters', 'price_per_km',
+      'has_refrigeration', 'has_livestock_equipment', 'min_distance_km', 'max_distance_km',
+      'license_plate', 'license_expiry', 'insurance_expiry', 'vehicle_year',
+      'animal_type', 'breed', 'age_months', 'weight_kg', 'gender',
+      'last_veterinary_check', 'is_pregnant', 'is_castrated', 'is_weaned', 'genetic_information',
+      'supply_type', 'brand', 'model', 'concentration', 'expiry_date',
+      'batch_number', 'registration_number', 'storage_requirements',
+      'handling_instructions', 'disposal_instructions'
+    ];
+
+    categoryFields.forEach(field => {
+      this.productForm.get(field)?.clearValidators();
+      this.productForm.get(field)?.updateValueAndValidity();
+    });
+  }
+
+  // Chip management methods for livestock
+  addHealthCertificate(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.healthCertificates.push(value);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeHealthCertificate(certificate: string): void {
+    const index = this.healthCertificates.indexOf(certificate);
+    if (index >= 0) {
+      this.healthCertificates.splice(index, 1);
+    }
+  }
+
+  // Chip management methods for supplies
+  addIngredient(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.activeIngredients.push(value);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeIngredient(ingredient: string): void {
+    const index = this.activeIngredients.indexOf(ingredient);
+    if (index >= 0) {
+      this.activeIngredients.splice(index, 1);
+    }
+  }
+
+  addLicense(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.requiredLicenses.push(value);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeLicense(license: string): void {
+    const index = this.requiredLicenses.indexOf(license);
+    if (index >= 0) {
+      this.requiredLicenses.splice(index, 1);
+    }
+  }
+
+  private prepareCategorySpecificData(productData: any): void {
+    const category = productData.category;
+
+    // Clean up category-specific fields based on selected category
+    const transportFields = ['vehicle_type', 'capacity_tons', 'capacity_cubic_meters', 'price_per_km', 'has_refrigeration', 'has_livestock_equipment', 'min_distance_km', 'max_distance_km', 'license_plate', 'license_expiry', 'insurance_expiry', 'vehicle_year'];
+    const livestockFields = ['animal_type', 'breed', 'age_months', 'weight_kg', 'gender', 'last_veterinary_check', 'is_pregnant', 'is_castrated', 'is_weaned', 'genetic_information'];
+    const suppliesFields = ['supply_type', 'brand', 'model', 'concentration', 'expiry_date', 'batch_number', 'registration_number', 'storage_requirements', 'handling_instructions', 'disposal_instructions'];
+
+    // Remove all category-specific fields first
+    [...transportFields, ...livestockFields, ...suppliesFields].forEach(field => {
+      delete productData[field];
+    });
+
+    // Add category-specific details based on selected category
+    switch (category) {
+      case 'transport':
+        const transportDetails: Partial<TransportDetails> = {};
+        transportFields.forEach(field => {
+          const value = this.productForm.get(field)?.value;
+          if (value !== null && value !== undefined && value !== '') {
+            (transportDetails as any)[field] = value;
+          }
+        });
+
+        // Add service provinces array (for now using current province)
+        if (productData.province) {
+          transportDetails.service_provinces = [productData.province];
+        }
+
+        if (Object.keys(transportDetails).length > 0) {
+          productData.transport_details = transportDetails;
+        }
+        break;
+
+      case 'livestock':
+        const livestockDetails: Partial<LivestockDetails> = {};
+
+        livestockFields.forEach(field => {
+          const value = this.productForm.get(field)?.value;
+          if (value !== null && value !== undefined && value !== '') {
+            (livestockDetails as any)[field] = value;
+          }
+        });
+
+        // Only add health_certificates if there are actual certificates
+        if (this.healthCertificates && this.healthCertificates.length > 0) {
+          livestockDetails.health_certificates = this.healthCertificates;
+        }
+
+        if (Object.keys(livestockDetails).length > 0) {
+          productData.livestock_details = livestockDetails;
+        }
+        break;
+
+      case 'supplies':
+        const suppliesDetails: Partial<SuppliesDetails> = {};
+
+        suppliesFields.forEach(field => {
+          const value = this.productForm.get(field)?.value;
+          if (value !== null && value !== undefined && value !== '') {
+            (suppliesDetails as any)[field] = value;
+          }
+        });
+
+        // Only add arrays if they have content
+        if (this.activeIngredients && this.activeIngredients.length > 0) {
+          suppliesDetails.active_ingredients = this.activeIngredients;
+        }
+        if (this.requiredLicenses && this.requiredLicenses.length > 0) {
+          suppliesDetails.required_licenses = this.requiredLicenses;
+        }
+
+        if (Object.keys(suppliesDetails).length > 0) {
+          productData.supplies_details = suppliesDetails;
+        }
+        break;
+    }
+  }
+
+  private loadCategorySpecificDetails(product: Product): void {
+    // Map backend category to frontend
+    const backendToFrontendCategory: { [key: string]: string } = {
+      'livestock': 'Ganado',
+      'supplies': 'Insumo',
+      'transport': 'Transporte'
+    };
+
+    const frontendCategory = backendToFrontendCategory[product.category] || product.category;
+    this.selectedCategory = frontendCategory;
+
+    // Load category-specific details
+    if (product.transport_details) {
+      this.loadTransportDetails(product.transport_details);
+    }
+
+    if (product.livestock_details) {
+      this.loadLivestockDetails(product.livestock_details);
+    }
+
+    if (product.supplies_details) {
+      this.loadSuppliesDetails(product.supplies_details);
+    }
+  }
+
+  private loadTransportDetails(details: TransportDetails): void {
+    // Convert ISO dates to input format before patching form
+    const detailsCopy = { ...details };
+    this.convertISODatesToInputFormat(detailsCopy);
+
+    this.productForm.patchValue({
+      vehicle_type: detailsCopy.vehicle_type,
+      capacity_tons: detailsCopy.capacity_tons,
+      capacity_cubic_meters: detailsCopy.capacity_cubic_meters,
+      price_per_km: detailsCopy.price_per_km,
+      has_refrigeration: detailsCopy.has_refrigeration,
+      has_livestock_equipment: detailsCopy.has_livestock_equipment,
+      min_distance_km: detailsCopy.min_distance_km,
+      max_distance_km: detailsCopy.max_distance_km,
+      license_plate: detailsCopy.license_plate,
+      license_expiry: detailsCopy.license_expiry,
+      insurance_expiry: detailsCopy.insurance_expiry,
+      vehicle_year: detailsCopy.vehicle_year
+    });
+  }
+
+  private loadLivestockDetails(details: LivestockDetails): void {
+    // Convert ISO dates to input format before patching form
+    const detailsCopy = { ...details };
+    this.convertISODatesToInputFormat(detailsCopy);
+
+    this.productForm.patchValue({
+      animal_type: detailsCopy.animal_type,
+      breed: detailsCopy.breed,
+      age_months: detailsCopy.age_months,
+      weight_kg: detailsCopy.weight_kg,
+      gender: detailsCopy.gender,
+      last_veterinary_check: detailsCopy.last_veterinary_check,
+      is_pregnant: detailsCopy.is_pregnant,
+      is_castrated: detailsCopy.is_castrated,
+      is_weaned: detailsCopy.is_weaned,
+      genetic_information: detailsCopy.genetic_information
+    });
+
+    // Check if weaning field should be shown
+    this.checkAgeForWeaning();
+
+    // Load health certificates
+    if (details.health_certificates) {
+      this.healthCertificates = [...details.health_certificates];
+    }
+  }
+
+  private loadSuppliesDetails(details: SuppliesDetails): void {
+    // Convert ISO dates to input format before patching form
+    const detailsCopy = { ...details };
+    this.convertISODatesToInputFormat(detailsCopy);
+
+    this.productForm.patchValue({
+      supply_type: detailsCopy.supply_type,
+      brand: detailsCopy.brand,
+      model: detailsCopy.model,
+      concentration: detailsCopy.concentration,
+      expiry_date: detailsCopy.expiry_date,
+      batch_number: detailsCopy.batch_number,
+      registration_number: detailsCopy.registration_number,
+      storage_requirements: detailsCopy.storage_requirements,
+      handling_instructions: detailsCopy.handling_instructions,
+      disposal_instructions: detailsCopy.disposal_instructions
+    });
+
+    // Load active ingredients and required licenses
+    if (details.active_ingredients) {
+      this.activeIngredients = [...details.active_ingredients];
+    }
+    if (details.required_licenses) {
+      this.requiredLicenses = [...details.required_licenses];
+    }
+  }
+
+  private convertDateFieldsToISO(productData: any): void {
+    const dateFields = [
+      'license_expiry',
+      'insurance_expiry',
+      'last_veterinary_check',
+      'expiry_date'
+    ];
+
+    // Convert dates in the root level
+    dateFields.forEach(field => {
+      if (productData[field]) {
+        productData[field] = this.formatDateToISO(productData[field]);
+      }
+    });
+
+    // Convert dates in category-specific details
+    const detailsObjects = ['transport_details', 'livestock_details', 'supplies_details'];
+    detailsObjects.forEach(detailsKey => {
+      if (productData[detailsKey]) {
+        dateFields.forEach(field => {
+          if (productData[detailsKey][field]) {
+            productData[detailsKey][field] = this.formatDateToISO(productData[detailsKey][field]);
+          }
+        });
+      }
+    });
+  }
+
+  private formatDateToISO(dateValue: any): string | null {
+    // If field is empty, null, or undefined, return null
+    if (!dateValue || dateValue === '' || dateValue === null || dateValue === undefined) {
+      return null;
+    }
+
+    // Convert date using Angular's formatDate with timezone
+    try {
+      // Parse date string as local date (avoid timezone conversion)
+      let date: Date;
+      if (typeof dateValue === 'string' && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        // For YYYY-MM-DD format, parse as local date
+        const [year, month, day] = dateValue.split('-').map(Number);
+        date = new Date(year, month - 1, day, 0, 0, 0, 0);
+      } else {
+        date = new Date(dateValue);
+      }
+
+      // Format date part and manually append timezone
+      const datePart = formatDate(date, "yyyy-MM-dd'T'00:00:00.00", 'en-US');
+      const formatted = `${datePart}-03:00`;
+      return formatted;
+    } catch (error) {
+      console.error(`Error formatting date ${dateValue}:`, error);
+      return null;
+    }
+  }
+
+  private convertISODatesToInputFormat(data: any): void {
+    const dateFields = [
+      'license_expiry',
+      'insurance_expiry',
+      'last_veterinary_check',
+      'expiry_date'
+    ];
+
+    dateFields.forEach(field => {
+      const dateValue = data[field];
+      if (dateValue) {
+        try {
+          // Extract date part (YYYY-MM-DD) from any date format for input[type="date"]
+          const date = new Date(dateValue);
+          data[field] = formatDate(date, 'yyyy-MM-dd', 'en-US');
+        } catch (error) {
+          console.error(`Error converting date for field ${field}:`, error);
+          delete data[field];
+        }
+      }
+    });
   }
 }

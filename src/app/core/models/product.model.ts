@@ -44,6 +44,10 @@ export interface Product {
     tags: string[];
     images?: ProductImage[];
     videos?: ProductVideo[];
+    // Category-specific details
+    transport_details?: TransportDetails;
+    livestock_details?: LivestockDetails;
+    supplies_details?: SuppliesDetails;
 }
 
 export interface ProductImage {
@@ -99,4 +103,80 @@ export interface ProductSearchResponse {
     page: number;
     page_size: number;
     total_pages: number;
+}
+
+// Interfaces for category-specific details
+export interface TransportDetails {
+    product_id?: string;
+    vehicle_type: string;
+    capacity_tons?: number;
+    capacity_cubic_meters?: number;
+    price_per_km?: number;
+    has_refrigeration: boolean;
+    has_livestock_equipment: boolean;
+    service_provinces: string[];
+    min_distance_km?: number;
+    max_distance_km?: number;
+    license_plate?: string;
+    license_expiry?: string;
+    insurance_expiry?: string;
+    vehicle_year?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface LivestockDetails {
+    product_id?: string;
+    animal_type: string;
+    breed?: string;
+    age_months?: number;
+    weight_kg?: number;
+    gender?: string;
+    health_certificates: string[];
+    vaccinations?: VaccinationRecord[];
+    last_veterinary_check?: string;
+    is_organic: boolean;
+    is_pregnant?: boolean;
+    breeding_history?: BreedingRecord[];
+    genetic_information?: string;
+    created_at?: string;
+    updated_at?: string;
+    is_castrated?: boolean;
+    is_weaned?: boolean;
+}
+
+export interface SuppliesDetails {
+    product_id?: string;
+    supply_type: string;
+    brand?: string;
+    model?: string;
+    active_ingredients: string[];
+    concentration?: string;
+    expiry_date?: string;
+    batch_number?: string;
+    registration_number?: string;
+    required_licenses: string[];
+    safety_data_sheet_url?: string;
+    storage_requirements?: string;
+    handling_instructions?: string;
+    disposal_instructions?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+// Supporting interfaces
+export interface VaccinationRecord {
+    vaccine_name: string;
+    date_administered: string;
+    veterinarian_name?: string;
+    batch_number?: string;
+    next_due_date?: string;
+}
+
+export interface BreedingRecord {
+    breeding_date: string;
+    partner_breed?: string;
+    offspring_count?: number;
+    pregnancy_status?: string;
+    notes?: string;
 }

@@ -1,6 +1,6 @@
 <div class="product-form-container">
   <div class="product-form-card">
-    <h2>{{ isEditMode ? '📄 Detalles del Anuncio' : '📝 Publicar un Producto' }}</h2>
+    <h2>{{ isEditMode ? '📄 Detalles del anuncio' : '📝 Publicar un producto' }}</h2>
     <p class="subtitle">{{ isEditMode ? 'Aquí puedes ver los detalles del producto.' : 'Completa los campos para
       publicar tu anuncio.' }}</p>
 
@@ -114,9 +114,402 @@
         </mat-form-field>
       </div>
 
+      <!-- Category-Specific Details Section -->
+      <div class="category-details-section" *ngIf="selectedCategory">
+        <h3>Características específicas</h3>
+        <p class="section-subtitle">Información adicional requerida para {{ selectedCategory }}</p>
+
+        <!-- Transport Details -->
+        <div *ngIf="selectedCategory == 'Transporte'" class="transport-details">
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Tipo de vehículo</mat-label>
+                <mat-select formControlName="vehicle_type">
+                  <mat-option value="">Selecciona tipo</mat-option>
+                  <mat-option value="camion">Camión</mat-option>
+                  <mat-option value="camioneta">Camioneta</mat-option>
+                  <mat-option value="trailer">Trailer</mat-option>
+                  <mat-option value="semi_trailer">Semi Trailer</mat-option>
+                  <mat-option value="furgon">Furgón</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>local_shipping</mat-icon>
+                <mat-error *ngIf="productForm.get('vehicle_type')?.hasError('required')">
+                  El tipo de vehículo es obligatorio.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Capacidad (Toneladas)</mat-label>
+                <input matInput type="number" formControlName="capacity_tons" placeholder="Ej. 15">
+                <mat-icon matSuffix>fitness_center</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Capacidad (Metros cúbicos)</mat-label>
+                <input matInput type="number" formControlName="capacity_cubic_meters" placeholder="Ej. 50">
+                <mat-icon matSuffix>all_inbox</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Precio por KM ($)</mat-label>
+                <input matInput type="number" formControlName="price_per_km" placeholder="Ej. 25">
+                <span matTextPrefix>$</span>
+                <mat-icon matSuffix>route</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>¿Tiene refrigeración?</mat-label>
+                <mat-select formControlName="has_refrigeration">
+                  <mat-option value="">Selecciona una opción</mat-option>
+                  <mat-option [value]="true">Sí</mat-option>
+                  <mat-option [value]="false">No</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>ac_unit</mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>¿Tiene equipamiento para ganado?</mat-label>
+                <mat-select formControlName="has_livestock_equipment">
+                  <mat-option value="">Selecciona una opción</mat-option>
+                  <mat-option [value]="true">Sí</mat-option>
+                  <mat-option [value]="false">No</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>agriculture</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Distancia mínima (KM)</mat-label>
+                <input matInput type="number" formControlName="min_distance_km" placeholder="Ej. 50">
+                <mat-icon matSuffix>straighten</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Distancia máxima (KM)</mat-label>
+                <input matInput type="number" formControlName="max_distance_km" placeholder="Ej. 1000">
+                <mat-icon matSuffix>straighten</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Patente del vehículo</mat-label>
+                <input matInput formControlName="license_plate" placeholder="Ej. ABC-123">
+                <mat-icon matSuffix>confirmation_number</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Año del vehículo</mat-label>
+                <input matInput type="number" formControlName="vehicle_year" placeholder="Ej. 2020">
+                <mat-icon matSuffix>calendar_today</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Vencimiento de licencia</mat-label>
+                <input matInput type="date" formControlName="license_expiry">
+                <mat-icon matSuffix>event</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Vencimiento del seguro</mat-label>
+                <input matInput type="date" formControlName="insurance_expiry">
+                <mat-icon matSuffix>shield</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Livestock Details -->
+        <div *ngIf="selectedCategory == 'Ganado'" class="livestock-details">
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Tipo de animal</mat-label>
+                <mat-select formControlName="animal_type">
+                  <mat-option value="">Selecciona tipo</mat-option>
+                  <mat-option value="bovino">Bovino</mat-option>
+                  <mat-option value="ovino">Ovino</mat-option>
+                  <mat-option value="porcino">Porcino</mat-option>
+                  <mat-option value="equino">Equino</mat-option>
+                  <mat-option value="caprino">Caprino</mat-option>
+                  <mat-option value="aves">Aves</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>pets</mat-icon>
+                <mat-error *ngIf="productForm.get('animal_type')?.hasError('required')">
+                  El tipo de animal es obligatorio.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Raza</mat-label>
+                <input matInput formControlName="breed" placeholder="Ej. Angus, Hereford">
+                <mat-icon matSuffix>category</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Edad (Meses)</mat-label>
+                <input matInput type="number" formControlName="age_months" placeholder="Ej. 18"
+                  (blur)="checkAgeForWeaning()">
+                <mat-icon matSuffix>schedule</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Peso (KG)</mat-label>
+                <input matInput type="number" formControlName="weight_kg" placeholder="Ej. 450">
+                <mat-icon matSuffix>monitor_weight</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Género</mat-label>
+                <mat-select formControlName="gender">
+                  <mat-option value="">Selecciona género</mat-option>
+                  <mat-option value="macho">Macho</mat-option>
+                  <mat-option value="hembra">Hembra</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>wc</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Último control veterinario</mat-label>
+                <input matInput type="date" formControlName="last_veterinary_check">
+                <mat-icon matSuffix>medical_services</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" *ngIf="productForm.get('gender')?.value === 'hembra'">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>¿Está preñada?</mat-label>
+                <mat-select formControlName="is_pregnant">
+                  <mat-option value="">Selecciona una opción</mat-option>
+                  <mat-option [value]="true">Sí</mat-option>
+                  <mat-option [value]="false">No</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>pregnant_woman</mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>¿Está castrado?</mat-label>
+                <mat-select formControlName="is_castrated">
+                  <mat-option value="">Selecciona una opción</mat-option>
+                  <mat-option [value]="true">Sí</mat-option>
+                  <mat-option [value]="false">No</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>content_cut</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="showWeaningField">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>¿Está destetado?</mat-label>
+                <mat-select formControlName="is_weaned">
+                  <mat-option value="">Selecciona una opción</mat-option>
+                  <mat-option [value]="true">Sí</mat-option>
+                  <mat-option [value]="false">No</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>child_care</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Información genética</mat-label>
+              <textarea matInput formControlName="genetic_information" rows="3"
+                placeholder="Información sobre genética, pedigree, etc."></textarea>
+              <mat-icon matSuffix>science</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Supplies Details -->
+        <div *ngIf="selectedCategory == 'Insumo'" class="supplies-details">
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Tipo de insumo</mat-label>
+                <mat-select formControlName="supply_type">
+                  <mat-option value="">Selecciona tipo</mat-option>
+                  <mat-option value="fertilizante">Fertilizante</mat-option>
+                  <mat-option value="pesticida">Pesticida</mat-option>
+                  <mat-option value="herbicida">Herbicida</mat-option>
+                  <mat-option value="semilla">Semilla</mat-option>
+                  <mat-option value="alimento">Alimento</mat-option>
+                  <mat-option value="medicamento">Medicamento Veterinario</mat-option>
+                  <mat-option value="herramienta">Herramienta</mat-option>
+                  <mat-option value="maquinaria">Maquinaria</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>inventory_2</mat-icon>
+                <mat-error *ngIf="productForm.get('supply_type')?.hasError('required')">
+                  El tipo de insumo es obligatorio.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Marca</mat-label>
+                <input matInput formControlName="brand" placeholder="Ej. Syngenta, Bayer">
+                <mat-icon matSuffix>business</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Modelo</mat-label>
+                <input matInput formControlName="model" placeholder="Ej. Atrazina 50">
+                <mat-icon matSuffix>label</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Concentración</mat-label>
+                <input matInput formControlName="concentration" placeholder="Ej. 50% p/v">
+                <mat-icon matSuffix>science</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Fecha de vencimiento</mat-label>
+                <input matInput type="date" formControlName="expiry_date">
+                <mat-icon matSuffix>event_available</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Número de lote</mat-label>
+                <input matInput formControlName="batch_number" placeholder="Ej. L202401">
+                <mat-icon matSuffix>qr_code</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Número de Registro SENASA</mat-label>
+              <input matInput formControlName="registration_number" placeholder="Ej. 12345-ABC">
+              <mat-icon matSuffix>verified</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Ingredientes activos</mat-label>
+              <mat-chip-grid #ingredientsChipList>
+                <mat-chip-row *ngFor="let ingredient of activeIngredients" (removed)="removeIngredient(ingredient)">
+                  {{ ingredient }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip-row>
+              </mat-chip-grid>
+              <input placeholder="Agregar ingrediente..." [matChipInputFor]="ingredientsChipList"
+                (matChipInputTokenEnd)="addIngredient($event)">
+              <mat-icon matSuffix>medication</mat-icon>
+              <mat-hint>Presiona Enter para agregar cada ingrediente</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Licencias requeridas</mat-label>
+              <mat-chip-grid #licensesChipList>
+                <mat-chip-row *ngFor="let license of requiredLicenses" (removed)="removeLicense(license)">
+                  {{ license }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip-row>
+              </mat-chip-grid>
+              <input placeholder="Agregar licencia..." [matChipInputFor]="licensesChipList"
+                (matChipInputTokenEnd)="addLicense($event)">
+              <mat-icon matSuffix>gavel</mat-icon>
+              <mat-hint>Ej. Aplicador Terrestre, Manipulador de Agroquímicos</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Requerimientos de almacenamiento</mat-label>
+              <textarea matInput formControlName="storage_requirements" rows="2"
+                placeholder="Ej. Lugar fresco y seco, entre 5°C y 25°C"></textarea>
+              <mat-icon matSuffix>warehouse</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Instrucciones de uso</mat-label>
+              <textarea matInput formControlName="handling_instructions" rows="3"
+                placeholder="Instrucciones detalladas de aplicación y uso"></textarea>
+              <mat-icon matSuffix>description</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Instrucciones de desecho</mat-label>
+              <textarea matInput formControlName="disposal_instructions" rows="2"
+                placeholder="Cómo desechar el producto de forma segura"></textarea>
+              <mat-icon matSuffix>delete_outline</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
       <!-- File Upload Section -->
       <div class="file-upload-section">
-        <h3>Archivos Multimedia</h3>
+        <h3>Archivos multimedia</h3>
 
         <!-- Drag & Drop Zone -->
         <div class="drag-drop-zone" [class.drag-over]="isDragOver" (dragover)="onDragOver($event)"
@@ -141,10 +534,19 @@
             <label class="file-upload-button video-upload" for="videoUpload">
               <mat-icon>videocam</mat-icon>
               <span>{{ isEditMode ? 'Agregar Videos' : 'Subir Videos' }}</span>
-              <span class="file-limit">(máx. 3)</span>
+              <span class="file-limit">(máx. 3, 20 MB c/u)</span>
             </label>
             <input type="file" id="videoUpload" (change)="onFileChange($event, 'video')" multiple accept="video/*"
               [disabled]="isVideoUploadDisabled" style="display: none;">
+          </div>
+
+          <!-- Video Upload Info -->
+          <div class="video-info-notice">
+            <mat-icon class="info-icon">info</mat-icon>
+            <div class="info-text">
+              <strong>Tamaño máximo:</strong> 20 MB por video. Si tu video es más grande, te recomendamos comprimirlo
+              antes usando herramientas online gratuitas.
+            </div>
           </div>
         </div>
 
