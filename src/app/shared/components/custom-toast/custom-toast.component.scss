@@ -1,0 +1,194 @@
+@import 'src/styles/variables';
+
+.custom-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-radius: 12px;
+  min-width: 380px;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: white;
+  font-weight: 600;
+}
+
+.toast-message {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.toast-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.toast-close {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: #94a3b8;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+    color: #64748b;
+  }
+}
+
+// Success Toast (AgroMAS Green Theme)
+.toast-success {
+  background: linear-gradient(135deg, #f1f8e9 0%, #d4edda 100%);
+  border-left: 4px solid #52B156;
+
+  .toast-icon {
+    background: linear-gradient(135deg, #52B156 0%, #3E8E41 100%);
+  }
+
+  .toast-title {
+    color: #1e4e27;
+  }
+
+  .toast-text {
+    color: #2d5a27;
+  }
+}
+
+// Error Toast (Professional Red)
+.toast-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-left: 4px solid #EF4444;
+
+  .toast-icon {
+    background: linear-gradient(135deg, #EF4444 0%, #dc2626 100%);
+  }
+
+  .toast-title {
+    color: #7f1d1d;
+  }
+
+  .toast-text {
+    color: #991b1b;
+  }
+}
+
+// Warning Toast (AgroMAS Orange Theme)
+.toast-warning {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-left: 4px solid #E4661A;
+
+  .toast-icon {
+    background: linear-gradient(135deg, #E4661A 0%, #D97706 100%);
+  }
+
+  .toast-title {
+    color: #7c2d12;
+  }
+
+  .toast-text {
+    color: #9a3412;
+  }
+}
+
+// Info Toast (Professional Blue)
+.toast-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-left: 4px solid #3B82F6;
+
+  .toast-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+  }
+
+  .toast-title {
+    color: #1e3a8a;
+  }
+
+  .toast-text {
+    color: #1e40af;
+  }
+}
+
+// Mobile responsive
+@media (max-width: 480px) {
+  .custom-toast {
+    min-width: 300px;
+    max-width: calc(100vw - 32px);
+    padding: 16px 20px;
+  }
+
+  .toast-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .toast-icon mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .toast-title {
+    font-size: 14px;
+  }
+
+  .toast-text {
+    font-size: 13px;
+  }
+}

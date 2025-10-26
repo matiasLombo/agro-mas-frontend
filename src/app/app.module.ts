@@ -34,6 +34,9 @@ import { AppComponent } from './app.component';
 // Auth Components
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { EmailSentComponent } from './auth/email-sent/email-sent.component';
 
 // Marketplace Components
 import { MarketplaceComponent } from './components/marketplace/marketplace.component';
@@ -68,6 +71,9 @@ import { environment } from '@environments/environment';
     AppComponent,
     LoginComponent,
     RegisterComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
+    EmailSentComponent,
     MarketplaceComponent,
     ProductFormComponent,
     SellerSetupModalComponent,
