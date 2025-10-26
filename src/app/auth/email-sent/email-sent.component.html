@@ -1,0 +1,76 @@
+<div class="email-sent-container">
+  <div class="email-sent-card">
+    <div class="success-animation">
+      <div class="success-circle">
+        <mat-icon class="success-icon">check</mat-icon>
+      </div>
+    </div>
+
+    <div class="card-content">
+      <h2>¡Email Enviado!</h2>
+
+      <div class="message-content">
+        <p class="main-message">
+          Hemos enviado un enlace de recuperación a tu email
+        </p>
+
+        <div class="email-display" *ngIf="isValidEmail">
+          <div class="email-box">
+            <mat-icon class="email-icon">email</mat-icon>
+            <span class="email-text">{{ maskedEmail }}</span>
+          </div>
+        </div>
+
+        <div class="instructions">
+          <h3>¿Qué hacer ahora?</h3>
+          <ul>
+            <li>
+              <mat-icon class="instruction-icon">check_circle_outline</mat-icon>
+              <span>Revisa tu bandeja de entrada</span>
+            </li>
+            <li>
+              <mat-icon class="instruction-icon">check_circle_outline</mat-icon>
+              <span>Busca el email de "Agro MAS"</span>
+            </li>
+            <li>
+              <mat-icon class="instruction-icon">check_circle_outline</mat-icon>
+              <span>haz clic en el enlace de recuperación</span>
+            </li>
+            <li>
+              <mat-icon class="instruction-icon">check_circle_outline</mat-icon>
+              <span>Crea tu nueva contraseña</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="important-note">
+          <mat-icon class="note-icon">info</mat-icon>
+          <div class="note-content">
+            <strong>Importante:</strong> El enlace de recuperación expirará en 30 minutos por seguridad.
+          </div>
+        </div>
+
+        <div class="spam-reminder">
+          <mat-icon class="spam-icon">warning</mat-icon>
+          <p>
+            ¿No ves el email? Revisa tu carpeta de spam o correo no deseado.
+          </p>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" class="secondary-btn" (click)="goToLogin()">
+          ← Volver al inicio de sesión
+        </button>
+
+        <button type="button" class="primary-btn" (click)="goToForgotPassword()">
+          <mat-icon class="btn-icon">refresh</mat-icon>
+          Reenviar email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Pattern -->
+  <div class="background-pattern"></div>
+</div>

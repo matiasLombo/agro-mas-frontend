@@ -221,32 +221,30 @@ select:focus {
   margin: 0 !important;
 }
 
-// Custom Toast Container - Sin fondo negro
+// Custom Toast Container - Mejorado para visibilidad
 .custom-toast-container {
-  background-color: transparent !important;
+  // Permitir que el componente personalizado se muestre correctamente
+  // Eliminar los estilos transparentes que ocultan el contenido
 
   .mat-mdc-snack-bar-surface {
-    background-color: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    min-width: auto !important;
-    width: auto !important;
+    // Heredar estilos del componente personalizado
+    background: inherit !important;
+    box-shadow: inherit !important;
   }
 
   .mdc-snackbar {
-    background-color: transparent !important;
+    background: inherit !important;
   }
 
   .mdc-snackbar__surface {
-    background-color: transparent !important;
-    box-shadow: none !important;
+    background: inherit !important;
+    box-shadow: inherit !important;
   }
 
-  // Asegurar que el contenedor del snackbar sea completamente transparente
+  // Permitir que los toast se muestren correctamente
   &.mat-mdc-snack-bar-container {
-    background: none !important;
-    backdrop-filter: none !important;
+    // No anular los estilos del componente personalizado
+    background: unset !important;
+    backdrop-filter: unset !important;
   }
 }
