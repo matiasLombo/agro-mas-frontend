@@ -1,6 +1,6 @@
 <div class="quotation-dialog">
   <div class="dialog-header">
-    <h2 mat-dialog-title>Solicitar Cotización</h2>
+    <h2 mat-dialog-title>Ingresa tu oferta</h2>
     <button mat-icon-button (click)="onCancel()" class="close-button">
       <mat-icon>close</mat-icon>
     </button>
@@ -16,10 +16,68 @@
     </div>
 
     <form [formGroup]="quotationForm" (ngSubmit)="onSubmit()">
+      <!-- Price Offer -->
+      <div class="form-section">
+        <h4>Seleccioná el Precio</h4>
+
+        <!-- Price Control with +/- Buttons -->
+        <div class="price-control-section">
+          <mat-form-field appearance="outline" class="price-input-field">
+            <span matPrefix class="currency-symbol">$</span>
+            <input matInput formControlName="offerPrice" type="number" min="0" step="1000" class="price-input-large">
+            <div matSuffix class="iva-suffix" [class.iva-active]="includesIVA" (click)="toggleIVA()">
+              + IVA
+            </div>
+          </mat-form-field>
+
+          <div class="price-buttons">
+            <button type="button" mat-raised-button (click)="increasePrice(5000)" class="price-btn price-btn-add">
+              <mat-icon>add</mat-icon>
+              <span class="btn-label">$ 5.000</span>
+            </button>
+            <button type="button" mat-raised-button (click)="decreasePrice(5000)" class="price-btn price-btn-subtract">
+              <mat-icon>remove</mat-icon>
+              <span class="btn-label">$ 5.000</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Price Change Indicator -->
+        <div class="price-change" *ngIf="priceChange !== 0">
+          <div class="change-info" [ngClass]="{
+            'increase': priceChange > 0,
+            'decrease': priceChange < 0
+          }">
+            <mat-icon>{{ priceChange > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+            <span>
+              {{ priceChange > 0 ? '+' : '' }}{{ formatPrice(priceChange) }}
+              ({{ priceChangePercentage > 0 ? '+' : '' }}{{ priceChangePercentage | number:'1.1-1' }}%)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="form-section">
+        <h4>Consulta</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mensaje (opcional)</mat-label>
+          <textarea matInput formControlName="message" rows="4"
+            placeholder="Escribe tu consulta o comentarios sobre el producto...">
+          </textarea>
+          <mat-hint align="end">
+            {{ quotationForm.get('message')?.value?.length || 0 }}/500
+          </mat-hint>
+          <mat-error *ngIf="quotationForm.get('message')?.hasError('maxlength')">
+            El mensaje no puede exceder 500 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
       <!-- Personal Information -->
       <div class="form-section">
-        <h4>Información de contacto</h4>
-        
+        <h4>Datos personales</h4>
+
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Nombre</mat-label>
@@ -68,72 +126,6 @@
           </mat-form-field>
         </div>
       </div>
-
-      <!-- Message -->
-      <div class="form-section">
-        <h4>Consulta</h4>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Mensaje (opcional)</mat-label>
-          <textarea 
-            matInput 
-            formControlName="message" 
-            rows="4" 
-            placeholder="Escribe tu consulta o comentarios sobre el producto...">
-          </textarea>
-          <mat-hint align="end">
-            {{ quotationForm.get('message')?.value?.length || 0 }}/500
-          </mat-hint>
-          <mat-error *ngIf="quotationForm.get('message')?.hasError('maxlength')">
-            El mensaje no puede exceder 500 caracteres
-          </mat-error>
-        </mat-form-field>
-      </div>
-
-      <!-- Price Offer -->
-      <div class="form-section">
-        <h4>Oferta económica</h4>
-        <div class="price-section">
-          <mat-form-field appearance="outline" class="price-input">
-            <mat-label>Tu oferta</mat-label>
-            <input 
-              matInput 
-              formControlName="offerPrice" 
-              type="number" 
-              min="0"
-              step="100">
-            <span matSuffix>{{ data.product.currency || 'ARS' }}</span>
-            <mat-error *ngIf="quotationForm.get('offerPrice')?.hasError('required')">
-              Ingresa tu oferta
-            </mat-error>
-            <mat-error *ngIf="quotationForm.get('offerPrice')?.hasError('min')">
-              La oferta debe ser mayor a cero
-            </mat-error>
-          </mat-form-field>
-
-          <button 
-            type="button" 
-            mat-stroked-button 
-            (click)="resetPrice()" 
-            class="reset-button">
-            <mat-icon>refresh</mat-icon>
-            Restaurar precio original
-          </button>
-        </div>
-
-        <!-- Price Change Indicator -->
-        <div class="price-change" *ngIf="priceChange !== 0">
-          <div class="change-info" [ngClass]="{
-            'increase': priceChange > 0,
-            'decrease': priceChange < 0
-          }">
-            <mat-icon>{{ priceChange > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-            <span>
-              {{ priceChange > 0 ? '+' : '' }}{{ formatPrice(priceChange) }}
-              ({{ priceChangePercentage > 0 ? '+' : '' }}{{ priceChangePercentage | number:'1.1-1' }}%)
-            </span>
-          </div>
-        </div>
-      </div>
     </form>
   </mat-dialog-content>
 
@@ -141,14 +133,10 @@
     <button mat-button (click)="onCancel()" type="button">
       Cancelar
     </button>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      (click)="onSubmit()"
-      [disabled]="quotationForm.invalid"
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="quotationForm.invalid"
       class="submit-button">
       <mat-icon>send</mat-icon>
-      Enviar Cotización
+      Enviar oferta
     </button>
   </mat-dialog-actions>
 </div>
