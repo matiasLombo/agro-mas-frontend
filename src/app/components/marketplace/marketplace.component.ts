@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, finalize } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Product, ProductSearchResponse } from '@core/models/product.model';
 import { images } from '@core/constants/images.constants';
+import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.component';
 
 @Component({
   selector: 'app-marketplace',
@@ -31,7 +33,8 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -246,6 +249,37 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
    */
   viewProduct(productId: string): void {
     this.router.navigate(['/product-detail', productId]);
+  }
+
+  /**
+   * Open quotation dialog for a product
+   */
+  openQuotationDialog(product: Product): void {
+    // Check if user is authenticated
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) {
+      this.toastService.showWarning('Debes iniciar sesión para contactar al vendedor', 'Autenticación requerida');
+      setTimeout(() => {
+        this.router.navigate(['/auth']);
+      }, 1500);
+      return;
+    }
+
+    // Open the quotation dialog
+    const dialogRef = this.dialog.open(QuotationDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: { product: product }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Handle the quotation result
+        console.log('Quotation submitted:', result);
+        this.toastService.showSuccess('Funcionalidad en desarrollo', 'Cotización enviada');
+        // Aquí podrías enviar la cotización al backend
+      }
+    });
   }
 
   /**

@@ -9,343 +9,420 @@
       <div class="product-category-badge">{{ getCategoryName(product.category) }}</div>
     </div>
 
-    <!-- Main Content -->
-    <div class="product-main">
-      <!-- Multimedia Section (Left) -->
-      <div class="multimedia-section">
-        <div class="image-container">
-          <ng-container *ngIf="getCurrentMediaItem()">
-            <img *ngIf="getCurrentMediaItem()?.type === 'image'" [src]="getCurrentMediaItem()!.url"
-              [alt]="product.title" class="main-image">
-            <video *ngIf="getCurrentMediaItem()?.type === 'video'" [src]="getCurrentMediaItem()!.url" controls
-              class="main-video">
-            </video>
-          </ng-container>
+    <!-- Main Content - Two Columns -->
+    <div class="product-layout">
+      <!-- Left Column: Media + Details -->
+      <div class="left-column">
+        <!-- Multimedia Section -->
+        <div class="multimedia-section">
+          <div class="image-container">
+            <ng-container *ngIf="getCurrentMediaItem()">
+              <img *ngIf="getCurrentMediaItem()?.type === 'image'" [src]="getCurrentMediaItem()!.url"
+                [alt]="product.title" class="main-image">
+              <video *ngIf="getCurrentMediaItem()?.type === 'video'" [src]="getCurrentMediaItem()!.url" controls
+                class="main-video">
+              </video>
+            </ng-container>
 
-          <!-- Navigation arrows for multiple media items -->
-          <div class="image-navigation" *ngIf="mediaItems.length > 1">
-            <button mat-icon-button (click)="prevImage()" class="nav-button prev">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-            <button mat-icon-button (click)="nextImage()" class="nav-button next">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
+            <!-- Navigation arrows for multiple media items -->
+            <div class="image-navigation" *ngIf="mediaItems.length > 1">
+              <button mat-icon-button (click)="prevImage()" class="nav-button prev">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button mat-icon-button (click)="nextImage()" class="nav-button next">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+
+            <!-- Media indicators -->
+            <div class="image-indicators" *ngIf="mediaItems.length > 1 && getCurrentMediaItem()?.type === 'image'">
+              <div *ngFor="let media of mediaItems; let i = index" class="indicator"
+                [class.active]="i === currentMediaIndex" (click)="currentMediaIndex = i">
+              </div>
+            </div>
           </div>
 
-          <!-- Media indicators -->
-          <div class="image-indicators" *ngIf="mediaItems.length > 1 && getCurrentMediaItem()?.type === 'image'">
-            <div *ngFor="let media of mediaItems; let i = index" class="indicator"
+          <!-- Thumbnail strip -->
+          <div class="thumbnail-strip" *ngIf="mediaItems.length > 1">
+            <div *ngFor="let media of mediaItems; let i = index" class="thumbnail"
               [class.active]="i === currentMediaIndex" (click)="currentMediaIndex = i">
+              <img *ngIf="media.type === 'image'" [src]="media.url" [alt]="'Vista ' + (i + 1)">
+              <div *ngIf="media.type === 'video'" class="video-thumbnail">
+                <video [src]="media.url" muted></video>
+                <mat-icon class="play-icon">play_circle</mat-icon>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Thumbnail strip -->
-        <div class="thumbnail-strip" *ngIf="mediaItems.length > 1">
-          <div *ngFor="let media of mediaItems; let i = index" class="thumbnail"
-            [class.active]="i === currentMediaIndex" (click)="currentMediaIndex = i">
-            <img *ngIf="media.type === 'image'" [src]="media.url" [alt]="'Vista ' + (i + 1)">
-            <div *ngIf="media.type === 'video'" class="video-thumbnail">
-              <video [src]="media.url" muted></video>
-              <mat-icon class="play-icon">play_circle</mat-icon>
+        <!-- Product Information Section -->
+        <div class="product-info-section">
+          <!-- Description -->
+          <div class="info-group" *ngIf="product.description">
+            <label>Descripción</label>
+            <p class="info-text">{{ product.description }}</p>
+          </div>
+
+          <!-- Location -->
+          <div class="info-group">
+            <label>Ubicación</label>
+            <div class="location-info">
+              <mat-icon class="location-icon">place</mat-icon>
+              <span class="info-text">
+                {{ getFormattedLocation(product) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Seller Info -->
+          <div class="seller-section">
+            <label>Vendedor</label>
+            <div class="seller-info">
+              <mat-icon class="seller-icon">person</mat-icon>
+              <span class="seller-name">{{ product.seller_name }}</span>
+            </div>
+          </div>
+
+          <!-- Category-Specific Details Section -->
+          <div class="category-details-section">
+            <h3>Características específicas</h3>
+
+            <!-- Transport Details -->
+            <div *ngIf="hasTransportDetails()" class="details-content">
+              <div class="detail-row">
+                <mat-icon>local_shipping</mat-icon>
+                <span class="detail-label">Tipo de vehículo:</span>
+                <span class="detail-value">{{ getVehicleTypeName(product.transport_details!.vehicle_type) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.capacity_tons">
+                <mat-icon>fitness_center</mat-icon>
+                <span class="detail-label">Capacidad:</span>
+                <span class="detail-value">{{ product.transport_details!.capacity_tons }} toneladas</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.capacity_cubic_meters">
+                <mat-icon>all_inbox</mat-icon>
+                <span class="detail-label">Capacidad volumétrica:</span>
+                <span class="detail-value">{{ product.transport_details!.capacity_cubic_meters }} m³</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.price_per_km">
+                <mat-icon>route</mat-icon>
+                <span class="detail-label">Precio por KM:</span>
+                <span class="detail-value">{{ product.transport_details!.price_per_km |
+                  currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.has_refrigeration !== undefined">
+                <mat-icon>ac_unit</mat-icon>
+                <span class="detail-label">Refrigeración:</span>
+                <span class="detail-value">{{ product.transport_details!.has_refrigeration ? 'Sí' : 'No' }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.has_livestock_equipment !== undefined">
+                <mat-icon>agriculture</mat-icon>
+                <span class="detail-label">Equipamiento para ganado:</span>
+                <span class="detail-value">{{ product.transport_details!.has_livestock_equipment ? 'Sí' : 'No'
+                  }}</span>
+              </div>
+
+              <div class="detail-row"
+                *ngIf="product.transport_details!.min_distance_km || product.transport_details!.max_distance_km">
+                <mat-icon>straighten</mat-icon>
+                <span class="detail-label">Distancia:</span>
+                <span class="detail-value">
+                  <ng-container *ngIf="product.transport_details!.min_distance_km">{{
+                    product.transport_details!.min_distance_km }} km</ng-container>
+                  <ng-container
+                    *ngIf="product.transport_details!.min_distance_km && product.transport_details!.max_distance_km"> -
+                  </ng-container>
+                  <ng-container *ngIf="product.transport_details!.max_distance_km">{{
+                    product.transport_details!.max_distance_km }} km</ng-container>
+                </span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.vehicle_year">
+                <mat-icon>calendar_today</mat-icon>
+                <span class="detail-label">Año del vehículo:</span>
+                <span class="detail-value">{{ product.transport_details!.vehicle_year }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.license_plate">
+                <mat-icon>confirmation_number</mat-icon>
+                <span class="detail-label">Patente:</span>
+                <span class="detail-value">{{ product.transport_details!.license_plate }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.license_expiry">
+                <mat-icon>event</mat-icon>
+                <span class="detail-label">Vencimiento de licencia:</span>
+                <span class="detail-value">{{ formatDate(product.transport_details!.license_expiry) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.transport_details!.insurance_expiry">
+                <mat-icon>shield</mat-icon>
+                <span class="detail-label">Vencimiento del seguro:</span>
+                <span class="detail-value">{{ formatDate(product.transport_details!.insurance_expiry) }}</span>
+              </div>
+            </div>
+
+            <!-- Livestock Details -->
+            <div *ngIf="hasLivestockDetails()" class="details-content">
+              <div class="detail-row">
+                <mat-icon>pets</mat-icon>
+                <span class="detail-label">Tipo de animal:</span>
+                <span class="detail-value">{{ getAnimalTypeName(product.livestock_details!.animal_type) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.breed">
+                <mat-icon>category</mat-icon>
+                <span class="detail-label">Raza:</span>
+                <span class="detail-value">{{ product.livestock_details!.breed }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.age_months">
+                <mat-icon>schedule</mat-icon>
+                <span class="detail-label">Edad:</span>
+                <span class="detail-value">{{ product.livestock_details!.age_months }} meses</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.weight_kg">
+                <mat-icon>monitor_weight</mat-icon>
+                <span class="detail-label">Peso:</span>
+                <span class="detail-value">{{ product.livestock_details!.weight_kg }} kg</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.gender">
+                <mat-icon>wc</mat-icon>
+                <span class="detail-label">Género:</span>
+                <span class="detail-value">{{ product.livestock_details!.gender === 'macho' ? 'Macho' : 'Hembra'
+                  }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.is_castrated !== undefined">
+                <mat-icon>content_cut</mat-icon>
+                <span class="detail-label">Castrado:</span>
+                <span class="detail-value">{{ product.livestock_details!.is_castrated ? 'Sí' : 'No' }}</span>
+              </div>
+
+              <div class="detail-row"
+                *ngIf="product.livestock_details!.is_pregnant !== undefined && product.livestock_details!.gender === 'hembra'">
+                <mat-icon>pregnant_woman</mat-icon>
+                <span class="detail-label">Preñada:</span>
+                <span class="detail-value">{{ product.livestock_details!.is_pregnant ? 'Sí' : 'No' }}</span>
+              </div>
+
+              <div class="detail-row"
+                *ngIf="product.livestock_details!.is_weaned !== undefined && product.livestock_details!.age_months && product.livestock_details!.age_months < 10">
+                <mat-icon>child_care</mat-icon>
+                <span class="detail-label">Destetado:</span>
+                <span class="detail-value">{{ product.livestock_details!.is_weaned ? 'Sí' : 'No' }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.last_veterinary_check">
+                <mat-icon>medical_services</mat-icon>
+                <span class="detail-label">Último control veterinario:</span>
+                <span class="detail-value">{{ formatDate(product.livestock_details!.last_veterinary_check) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.livestock_details!.genetic_information">
+                <mat-icon>science</mat-icon>
+                <span class="detail-label">Información genética:</span>
+                <span class="detail-value">{{ product.livestock_details!.genetic_information }}</span>
+              </div>
+
+              <div class="detail-row"
+                *ngIf="product.livestock_details!.health_certificates && product.livestock_details!.health_certificates.length > 0">
+                <mat-icon>verified</mat-icon>
+                <span class="detail-label">Certificados sanitarios:</span>
+                <span class="detail-value">
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let cert of product.livestock_details!.health_certificates">{{ cert }}</mat-chip>
+                  </mat-chip-set>
+                </span>
+              </div>
+            </div>
+
+            <!-- Supplies Details -->
+            <div *ngIf="hasSuppliesDetails()" class="details-content">
+              <div class="detail-row">
+                <mat-icon>inventory_2</mat-icon>
+                <span class="detail-label">Tipo de insumo:</span>
+                <span class="detail-value">{{ getSupplyTypeName(product.supplies_details!.supply_type) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.supplies_details!.brand">
+                <mat-icon>business</mat-icon>
+                <span class="detail-label">Marca:</span>
+                <span class="detail-value">{{ product.supplies_details!.brand }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.supplies_details!.model">
+                <mat-icon>label</mat-icon>
+                <span class="detail-label">Modelo:</span>
+                <span class="detail-value">{{ product.supplies_details!.model }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.supplies_details!.concentration">
+                <mat-icon>science</mat-icon>
+                <span class="detail-label">Concentración:</span>
+                <span class="detail-value">{{ product.supplies_details!.concentration }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.supplies_details!.expiry_date">
+                <mat-icon>event_available</mat-icon>
+                <span class="detail-label">Fecha de vencimiento:</span>
+                <span class="detail-value">{{ formatDate(product.supplies_details!.expiry_date) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.supplies_details!.batch_number">
+                <mat-icon>qr_code</mat-icon>
+                <span class="detail-label">Número de lote:</span>
+                <span class="detail-value">{{ product.supplies_details!.batch_number }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="product.supplies_details!.registration_number">
+                <mat-icon>verified</mat-icon>
+                <span class="detail-label">Registro SENASA:</span>
+                <span class="detail-value">{{ product.supplies_details!.registration_number }}</span>
+              </div>
+
+              <div class="detail-row"
+                *ngIf="product.supplies_details!.active_ingredients && product.supplies_details!.active_ingredients.length > 0">
+                <mat-icon>medication</mat-icon>
+                <span class="detail-label">Ingredientes activos:</span>
+                <span class="detail-value">
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let ingredient of product.supplies_details!.active_ingredients">{{ ingredient
+                      }}</mat-chip>
+                  </mat-chip-set>
+                </span>
+              </div>
+
+              <div class="detail-row"
+                *ngIf="product.supplies_details!.required_licenses && product.supplies_details!.required_licenses.length > 0">
+                <mat-icon>gavel</mat-icon>
+                <span class="detail-label">Licencias requeridas:</span>
+                <span class="detail-value">
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let license of product.supplies_details!.required_licenses">{{ license
+                      }}</mat-chip>
+                  </mat-chip-set>
+                </span>
+              </div>
+
+              <div class="detail-row full-width" *ngIf="product.supplies_details!.storage_requirements">
+                <mat-icon>warehouse</mat-icon>
+                <span class="detail-label">Requerimientos de almacenamiento:</span>
+                <span class="detail-value">{{ product.supplies_details!.storage_requirements }}</span>
+              </div>
+
+              <div class="detail-row full-width" *ngIf="product.supplies_details!.handling_instructions">
+                <mat-icon>description</mat-icon>
+                <span class="detail-label">Instrucciones de uso:</span>
+                <span class="detail-value">{{ product.supplies_details!.handling_instructions }}</span>
+              </div>
+
+              <div class="detail-row full-width" *ngIf="product.supplies_details!.disposal_instructions">
+                <mat-icon>delete_outline</mat-icon>
+                <span class="detail-label">Instrucciones de desecho:</span>
+                <span class="detail-value">{{ product.supplies_details!.disposal_instructions }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Product Information Section (Right) -->
-      <div class="info-section">
-        <!-- Price -->
-        <div class="price-section">
-          <div class="price-label">Precio</div>
-          <div class="price-value">{{ formatPrice(product) }}</div>
-        </div>
+      <!-- Right Column: Quotation Panel -->
+      <div class="right-column">
+        <div class="quotation-panel" *ngIf="!isOwner">
+          <h3>Ingresá tu oferta</h3>
 
-        <!-- Description -->
-        <div class="info-group" *ngIf="product.description">
-          <label>Descripción</label>
-          <p class="info-text">{{ product.description }}</p>
-        </div>
-
-        <!-- Location -->
-        <div class="info-group">
-          <label>Ubicación</label>
-          <div class="location-info">
-            <mat-icon class="location-icon">place</mat-icon>
-            <span class="info-text">
-              {{ getFormattedLocation(product) }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Seller Info -->
-        <div class="seller-section">
-          <label>Vendedor</label>
-          <div class="seller-info">
-            <mat-icon class="seller-icon">person</mat-icon>
-            <span class="seller-name">{{ product.seller_name }}</span>
-          </div>
-        </div>
-
-        <!-- Category-Specific Details Section -->
-        <div class="category-details-section">
-          <h3>Características específicas</h3>
-
-          <!-- Transport Details -->
-          <div *ngIf="hasTransportDetails()" class="details-content">
-            <div class="detail-row">
-              <mat-icon>local_shipping</mat-icon>
-              <span class="detail-label">Tipo de vehículo:</span>
-              <span class="detail-value">{{ getVehicleTypeName(product.transport_details!.vehicle_type) }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.capacity_tons">
-              <mat-icon>fitness_center</mat-icon>
-              <span class="detail-label">Capacidad:</span>
-              <span class="detail-value">{{ product.transport_details!.capacity_tons }} toneladas</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.capacity_cubic_meters">
-              <mat-icon>all_inbox</mat-icon>
-              <span class="detail-label">Capacidad volumétrica:</span>
-              <span class="detail-value">{{ product.transport_details!.capacity_cubic_meters }} m³</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.price_per_km">
-              <mat-icon>route</mat-icon>
-              <span class="detail-label">Precio por KM:</span>
-              <span class="detail-value">{{ product.transport_details!.price_per_km |
-                currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.has_refrigeration !== undefined">
-              <mat-icon>ac_unit</mat-icon>
-              <span class="detail-label">Refrigeración:</span>
-              <span class="detail-value">{{ product.transport_details!.has_refrigeration ? 'Sí' : 'No' }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.has_livestock_equipment !== undefined">
-              <mat-icon>agriculture</mat-icon>
-              <span class="detail-label">Equipamiento para ganado:</span>
-              <span class="detail-value">{{ product.transport_details!.has_livestock_equipment ? 'Sí' : 'No' }}</span>
-            </div>
-
-            <div class="detail-row"
-              *ngIf="product.transport_details!.min_distance_km || product.transport_details!.max_distance_km">
-              <mat-icon>straighten</mat-icon>
-              <span class="detail-label">Distancia:</span>
-              <span class="detail-value">
-                <ng-container *ngIf="product.transport_details!.min_distance_km">{{
-                  product.transport_details!.min_distance_km }} km</ng-container>
-                <ng-container
-                  *ngIf="product.transport_details!.min_distance_km && product.transport_details!.max_distance_km"> -
-                </ng-container>
-                <ng-container *ngIf="product.transport_details!.max_distance_km">{{
-                  product.transport_details!.max_distance_km }} km</ng-container>
-              </span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.vehicle_year">
-              <mat-icon>calendar_today</mat-icon>
-              <span class="detail-label">Año del vehículo:</span>
-              <span class="detail-value">{{ product.transport_details!.vehicle_year }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.license_plate">
-              <mat-icon>confirmation_number</mat-icon>
-              <span class="detail-label">Patente:</span>
-              <span class="detail-value">{{ product.transport_details!.license_plate }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.license_expiry">
-              <mat-icon>event</mat-icon>
-              <span class="detail-label">Vencimiento de licencia:</span>
-              <span class="detail-value">{{ formatDate(product.transport_details!.license_expiry) }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.transport_details!.insurance_expiry">
-              <mat-icon>shield</mat-icon>
-              <span class="detail-label">Vencimiento del seguro:</span>
-              <span class="detail-value">{{ formatDate(product.transport_details!.insurance_expiry) }}</span>
-            </div>
+          <!-- Price Display -->
+          <div class="published-price">
+            <span class="price-label">Precio publicado</span>
+            <span class="price-value">{{ formatPrice(product) }}</span>
           </div>
 
-          <!-- Livestock Details -->
-          <div *ngIf="hasLivestockDetails()" class="details-content">
-            <div class="detail-row">
-              <mat-icon>pets</mat-icon>
-              <span class="detail-label">Tipo de animal:</span>
-              <span class="detail-value">{{ getAnimalTypeName(product.livestock_details!.animal_type) }}</span>
+          <form [formGroup]="quotationForm" (ngSubmit)="onSubmitQuotation()">
+            <!-- Price Offer -->
+            <div class="form-section">
+              <h4>Seleccioná el precio</h4>
+
+              <!-- Price Control with +/- Buttons -->
+              <div class="price-control-section">
+                <mat-form-field appearance="outline" class="price-input-field">
+                  <span matPrefix class="currency-symbol">$</span>
+                  <input matInput formControlName="offerPrice" type="number" min="0" step="1000"
+                    class="price-input-large">
+                  <div matSuffix class="iva-suffix" [class.iva-active]="includesIVA" (click)="toggleIVA()">
+                    + IVA
+                  </div>
+                </mat-form-field>
+
+                <div class="price-buttons">
+                  <button type="button" mat-raised-button (click)="increasePrice(5000)" class="price-btn price-btn-add">
+                    <mat-icon>add</mat-icon>
+                    <span class="btn-label">$ 5.000</span>
+                  </button>
+                  <button type="button" mat-raised-button (click)="decreasePrice(5000)"
+                    class="price-btn price-btn-subtract">
+                    <mat-icon>remove</mat-icon>
+                    <span class="btn-label">$ 5.000</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Price Change Indicator -->
+              <div class="price-change" *ngIf="priceChange !== 0">
+                <div class="change-info" [ngClass]="{
+                  'increase': priceChange > 0,
+                  'decrease': priceChange < 0
+                }">
+                  <mat-icon>{{ priceChange > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+                  <span>
+                    {{ priceChange > 0 ? '+' : '' }}{{ formatPriceValue(priceChange) }}
+                    ({{ priceChangePercentage > 0 ? '+' : '' }}{{ priceChangePercentage | number:'1.1-1' }}%)
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div class="detail-row" *ngIf="product.livestock_details!.breed">
-              <mat-icon>category</mat-icon>
-              <span class="detail-label">Raza:</span>
-              <span class="detail-value">{{ product.livestock_details!.breed }}</span>
+            <!-- Message -->
+            <div class="form-section">
+              <h4>Consulta</h4>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Mensaje (opcional)</mat-label>
+                <textarea matInput formControlName="message" rows="3" placeholder="Escribe tu consulta..."></textarea>
+                <mat-hint align="end">
+                  {{ quotationForm.get('message')?.value?.length || 0 }}/500
+                </mat-hint>
+                <mat-error *ngIf="quotationForm.get('message')?.hasError('maxlength')">
+                  El mensaje no puede exceder 500 caracteres
+                </mat-error>
+              </mat-form-field>
             </div>
 
-            <div class="detail-row" *ngIf="product.livestock_details!.age_months">
-              <mat-icon>schedule</mat-icon>
-              <span class="detail-label">Edad:</span>
-              <span class="detail-value">{{ product.livestock_details!.age_months }} meses</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.livestock_details!.weight_kg">
-              <mat-icon>monitor_weight</mat-icon>
-              <span class="detail-label">Peso:</span>
-              <span class="detail-value">{{ product.livestock_details!.weight_kg }} kg</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.livestock_details!.gender">
-              <mat-icon>wc</mat-icon>
-              <span class="detail-label">Género:</span>
-              <span class="detail-value">{{ product.livestock_details!.gender === 'macho' ? 'Macho' : 'Hembra' }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.livestock_details!.is_castrated !== undefined">
-              <mat-icon>content_cut</mat-icon>
-              <span class="detail-label">Castrado:</span>
-              <span class="detail-value">{{ product.livestock_details!.is_castrated ? 'Sí' : 'No' }}</span>
-            </div>
-
-            <div class="detail-row"
-              *ngIf="product.livestock_details!.is_pregnant !== undefined && product.livestock_details!.gender === 'hembra'">
-              <mat-icon>pregnant_woman</mat-icon>
-              <span class="detail-label">Preñada:</span>
-              <span class="detail-value">{{ product.livestock_details!.is_pregnant ? 'Sí' : 'No' }}</span>
-            </div>
-
-            <div class="detail-row"
-              *ngIf="product.livestock_details!.is_weaned !== undefined && product.livestock_details!.age_months && product.livestock_details!.age_months < 10">
-              <mat-icon>child_care</mat-icon>
-              <span class="detail-label">Destetado:</span>
-              <span class="detail-value">{{ product.livestock_details!.is_weaned ? 'Sí' : 'No' }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.livestock_details!.last_veterinary_check">
-              <mat-icon>medical_services</mat-icon>
-              <span class="detail-label">Último control veterinario:</span>
-              <span class="detail-value">{{ formatDate(product.livestock_details!.last_veterinary_check) }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.livestock_details!.genetic_information">
-              <mat-icon>science</mat-icon>
-              <span class="detail-label">Información genética:</span>
-              <span class="detail-value">{{ product.livestock_details!.genetic_information }}</span>
-            </div>
-
-            <div class="detail-row"
-              *ngIf="product.livestock_details!.health_certificates && product.livestock_details!.health_certificates.length > 0">
-              <mat-icon>verified</mat-icon>
-              <span class="detail-label">Certificados sanitarios:</span>
-              <span class="detail-value">
-                <mat-chip-set>
-                  <mat-chip *ngFor="let cert of product.livestock_details!.health_certificates">{{ cert }}</mat-chip>
-                </mat-chip-set>
-              </span>
-            </div>
-          </div>
-
-          <!-- Supplies Details -->
-          <div *ngIf="hasSuppliesDetails()" class="details-content">
-            <div class="detail-row">
-              <mat-icon>inventory_2</mat-icon>
-              <span class="detail-label">Tipo de insumo:</span>
-              <span class="detail-value">{{ getSupplyTypeName(product.supplies_details!.supply_type) }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.supplies_details!.brand">
-              <mat-icon>business</mat-icon>
-              <span class="detail-label">Marca:</span>
-              <span class="detail-value">{{ product.supplies_details!.brand }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.supplies_details!.model">
-              <mat-icon>label</mat-icon>
-              <span class="detail-label">Modelo:</span>
-              <span class="detail-value">{{ product.supplies_details!.model }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.supplies_details!.concentration">
-              <mat-icon>science</mat-icon>
-              <span class="detail-label">Concentración:</span>
-              <span class="detail-value">{{ product.supplies_details!.concentration }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.supplies_details!.expiry_date">
-              <mat-icon>event_available</mat-icon>
-              <span class="detail-label">Fecha de vencimiento:</span>
-              <span class="detail-value">{{ formatDate(product.supplies_details!.expiry_date) }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.supplies_details!.batch_number">
-              <mat-icon>qr_code</mat-icon>
-              <span class="detail-label">Número de lote:</span>
-              <span class="detail-value">{{ product.supplies_details!.batch_number }}</span>
-            </div>
-
-            <div class="detail-row" *ngIf="product.supplies_details!.registration_number">
-              <mat-icon>verified</mat-icon>
-              <span class="detail-label">Registro SENASA:</span>
-              <span class="detail-value">{{ product.supplies_details!.registration_number }}</span>
-            </div>
-
-            <div class="detail-row"
-              *ngIf="product.supplies_details!.active_ingredients && product.supplies_details!.active_ingredients.length > 0">
-              <mat-icon>medication</mat-icon>
-              <span class="detail-label">Ingredientes activos:</span>
-              <span class="detail-value">
-                <mat-chip-set>
-                  <mat-chip *ngFor="let ingredient of product.supplies_details!.active_ingredients">{{ ingredient
-                    }}</mat-chip>
-                </mat-chip-set>
-              </span>
-            </div>
-
-            <div class="detail-row"
-              *ngIf="product.supplies_details!.required_licenses && product.supplies_details!.required_licenses.length > 0">
-              <mat-icon>gavel</mat-icon>
-              <span class="detail-label">Licencias requeridas:</span>
-              <span class="detail-value">
-                <mat-chip-set>
-                  <mat-chip *ngFor="let license of product.supplies_details!.required_licenses">{{ license }}</mat-chip>
-                </mat-chip-set>
-              </span>
-            </div>
-
-            <div class="detail-row full-width" *ngIf="product.supplies_details!.storage_requirements">
-              <mat-icon>warehouse</mat-icon>
-              <span class="detail-label">Requerimientos de almacenamiento:</span>
-              <span class="detail-value">{{ product.supplies_details!.storage_requirements }}</span>
-            </div>
-
-            <div class="detail-row full-width" *ngIf="product.supplies_details!.handling_instructions">
-              <mat-icon>description</mat-icon>
-              <span class="detail-label">Instrucciones de uso:</span>
-              <span class="detail-value">{{ product.supplies_details!.handling_instructions }}</span>
-            </div>
-
-            <div class="detail-row full-width" *ngIf="product.supplies_details!.disposal_instructions">
-              <mat-icon>delete_outline</mat-icon>
-              <span class="detail-label">Instrucciones de desecho:</span>
-              <span class="detail-value">{{ product.supplies_details!.disposal_instructions }}</span>
-            </div>
-          </div>
+            <!-- Submit Button -->
+            <button mat-raised-button color="primary" type="submit" [disabled]="quotationForm.invalid"
+              class="submit-button">
+              <mat-icon>send</mat-icon>
+              Enviar oferta
+            </button>
+          </form>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <!-- Show edit button only for owners -->
-          <button *ngIf="isOwner" mat-raised-button color="primary" (click)="editProduct()" class="action-button">
-            <mat-icon>edit</mat-icon>
-            Editar Publicación
-          </button>
-
-          <!-- Show contact button only for non-owners -->
-          <button *ngIf="!isOwner" mat-raised-button color="primary" class="action-button primary-action">
-            <mat-icon>contact_mail</mat-icon>
-            Contactar Vendedor
-          </button>
+        <!-- Owner Edit Panel -->
+        <div class="owner-panel" *ngIf="isOwner">
+          <h3>Tu publicación</h3>
+          <div class="owner-info">
+            <p>Esta es tu publicación. Puedes editarla en cualquier momento.</p>
+            <button mat-raised-button color="primary" (click)="editProduct()" class="edit-button">
+              <mat-icon>edit</mat-icon>
+              Editar publicación
+            </button>
+          </div>
         </div>
       </div>
     </div>

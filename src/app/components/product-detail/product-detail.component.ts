@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { Product, ProductImage, ProductVideo } from '../../core/models/product.model';
 import { AuthService } from '../../core/services/auth.service';
-import { MatDialog } from '@angular/material/dialog';
-import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.component';
+import { ToastService } from '../../core/services/toast.service';
 
 interface MediaItem {
   url: string;
@@ -28,13 +28,25 @@ export class ProductDetailComponent implements OnInit {
   isLoading = true;
   isOwner = false;
 
+  // Quotation form
+  quotationForm: FormGroup;
+  originalPrice: number = 0;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private authService: AuthService,
-    private dialog: MatDialog
-  ) { }
+    private fb: FormBuilder,
+    private toastService: ToastService
+  ) {
+    // Initialize quotation form - simplified without personal data
+    this.quotationForm = this.fb.group({
+      message: ['', Validators.maxLength(500)],
+      offerPrice: [0, [Validators.required, Validators.min(0)]],
+      includesIVA: [false]
+    });
+  }
 
   ngOnInit(): void {
     const productId = this.route.snapshot.paramMap.get('id');
@@ -51,6 +63,12 @@ export class ProductDetailComponent implements OnInit {
           this.product = product;
           this.images = product.images || [];
           this.videos = product.videos || [];
+
+          // Set original price and update form
+          this.originalPrice = product.price;
+          this.quotationForm.patchValue({
+            offerPrice: this.originalPrice
+          });
 
           this.buildMediaItems();
           this.checkOwnership();
@@ -143,28 +161,90 @@ export class ProductDetailComponent implements OnInit {
     return priceText;
   }
 
-  contactSeller(): void {
+  // Quotation form methods
+  onSubmitQuotation(): void {
     if (!this.product) return;
 
     // Check if user is authenticated
     const currentUser = this.authService.currentUser;
     if (!currentUser) {
-      // Redirect to login if not authenticated
-      this.router.navigate(['/login']);
+      this.toastService.showWarning('Debes iniciar sesión para enviar una cotización', 'Autenticación requerida');
+      setTimeout(() => {
+        this.router.navigate(['/auth']);
+      }, 1500);
       return;
     }
 
-    // If authenticated, open contact dialog
-    const dialogRef = this.dialog.open(QuotationDialogComponent, {
-      width: '500px',
-      data: { product: this.product }
-    });
+    if (this.quotationForm.valid) {
+      const quotationData = {
+        userId: currentUser.id,
+        firstName: currentUser.first_name,
+        lastName: currentUser.last_name,
+        email: currentUser.email,
+        phone: currentUser.phone,
+        ...this.quotationForm.value,
+        productId: this.product.id
+      };
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Aquí enviarías la solicitud de contacto al backend
-      }
-    });
+      // Aquí enviarías la cotización al backend
+      console.log('Quotation submitted:', quotationData);
+      this.toastService.showSuccess('Funcionalidad en desarrollo', 'Cotización enviada');
+
+      // Optionally reset the form or navigate away
+      // this.quotationForm.reset();
+    } else {
+      this.toastService.showWarning('Por favor ingresa una oferta válida', 'Formulario incompleto');
+    }
+  } get priceChange(): number {
+    const currentPrice = this.quotationForm.get('offerPrice')?.value || 0;
+    return currentPrice - this.originalPrice;
+  }
+
+  get priceChangePercentage(): number {
+    const change = this.priceChange;
+    return this.originalPrice > 0 ? (change / this.originalPrice) * 100 : 0;
+  }
+
+  resetPrice(): void {
+    this.quotationForm.patchValue({ offerPrice: this.originalPrice });
+  }
+
+  increasePrice(amount: number = 5000): void {
+    const currentPrice = this.quotationForm.get('offerPrice')?.value || 0;
+    this.quotationForm.patchValue({ offerPrice: currentPrice + amount });
+  }
+
+  decreasePrice(amount: number = 5000): void {
+    const currentPrice = this.quotationForm.get('offerPrice')?.value || 0;
+    const newPrice = Math.max(0, currentPrice - amount); // No permitir precios negativos
+    this.quotationForm.patchValue({ offerPrice: newPrice });
+  }
+
+  toggleIVA(): void {
+    const currentValue = this.quotationForm.get('includesIVA')?.value;
+    this.quotationForm.patchValue({ includesIVA: !currentValue });
+  }
+
+  get includesIVA(): boolean {
+    return this.quotationForm.get('includesIVA')?.value || false;
+  }
+
+  formatPriceValue(price: number): string {
+    if (!this.product) return '';
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: this.product.currency || 'ARS',
+      minimumFractionDigits: 0
+    }).format(price);
+  }
+
+  contactSeller(): void {
+    // This method is now replaced by the inline quotation form
+    // Scroll to the quotation form
+    const quotationSection = document.querySelector('.quotation-panel');
+    if (quotationSection) {
+      quotationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   editProduct(): void {
