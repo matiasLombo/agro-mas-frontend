@@ -304,8 +304,8 @@
                 <mat-label>Género</mat-label>
                 <mat-select formControlName="gender">
                   <mat-option value="">Selecciona género</mat-option>
-                  <mat-option value="macho">Macho</mat-option>
-                  <mat-option value="hembra">Hembra</mat-option>
+                  <mat-option value="male">Macho</mat-option>
+                  <mat-option value="female">Hembra</mat-option>
                 </mat-select>
                 <mat-icon matSuffix>wc</mat-icon>
               </mat-form-field>
@@ -321,7 +321,7 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group" *ngIf="productForm.get('gender')?.value === 'hembra'">
+            <div class="form-group" *ngIf="productForm.get('gender')?.value === 'female'">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>¿Está preñada?</mat-label>
                 <mat-select formControlName="is_pregnant">
@@ -534,7 +534,7 @@
             <label class="file-upload-button video-upload" for="videoUpload">
               <mat-icon>videocam</mat-icon>
               <span>{{ isEditMode ? 'Agregar Videos' : 'Subir Videos' }}</span>
-              <span class="file-limit">(máx. 3, 20 MB c/u)</span>
+              <span class="file-limit">(máx. 3, 100 MB c/u)</span>
             </label>
             <input type="file" id="videoUpload" (change)="onFileChange($event, 'video')" multiple accept="video/*"
               [disabled]="isVideoUploadDisabled" style="display: none;">
@@ -544,7 +544,7 @@
           <div class="video-info-notice">
             <mat-icon class="info-icon">info</mat-icon>
             <div class="info-text">
-              <strong>Tamaño máximo:</strong> 20 MB por video. Si tu video es más grande, te recomendamos comprimirlo
+              <strong>Tamaño máximo:</strong> 100 MB por video. Si tu video es más grande, te recomendamos comprimirlo
               antes usando herramientas online gratuitas.
             </div>
           </div>

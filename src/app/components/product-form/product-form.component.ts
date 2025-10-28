@@ -45,7 +45,7 @@ export class ProductFormComponent implements OnInit {
 
   // File compression settings
   readonly MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
-  readonly MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 12MB
+  readonly MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 12MB
   readonly IMAGE_QUALITY = 0.8;
   readonly MAX_IMAGE_WIDTH = 1920;
   readonly MAX_IMAGE_HEIGHT = 1080;
@@ -379,7 +379,7 @@ export class ProductFormComponent implements OnInit {
 
       // Validate video size
       if (type === 'video' && file.size > this.MAX_VIDEO_SIZE) {
-        this.showNotification(`El video ${file.name} es demasiado grande (máximo 10MB)`, 'error');
+        this.showNotification(`El video ${file.name} es demasiado grande (máximo 100MB)`, 'error');
         return null;
       }
 
