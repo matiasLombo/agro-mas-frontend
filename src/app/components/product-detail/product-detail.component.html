@@ -362,8 +362,13 @@
                   <span matPrefix class="currency-symbol">$</span>
                   <input matInput formControlName="offerPrice" type="number" min="0" step="1000"
                     class="price-input-large">
-                  <div matSuffix class="iva-suffix" [class.iva-active]="includesIVA" (click)="toggleIVA()">
-                    + IVA
+                  <div matSuffix class="price-suffixes">
+                    <div class="iva-suffix" [class.iva-active]="includesIVA" (click)="toggleIVA()">
+                      + IVA
+                    </div>
+                    <div class="iva-suffix final-suffix" [class.iva-active]="isFinalPrice" (click)="toggleFinalPrice()">
+                      FINAL
+                    </div>
                   </div>
                 </mat-form-field>
 
