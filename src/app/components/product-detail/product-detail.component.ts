@@ -5,6 +5,8 @@ import { ProductService } from '../../core/services/product.service';
 import { Product, ProductImage, ProductVideo } from '../../core/models/product.model';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { WhatsAppService } from '../../core/services/whatsapp.service';
+import { environment } from '../../../environments/environment';
 
 interface MediaItem {
   url: string;
@@ -28,6 +30,11 @@ export class ProductDetailComponent implements OnInit {
   isLoading = true;
   isOwner = false;
 
+  // Enable quotation form in development mode even for own products
+  get canQuote(): boolean {
+    return !this.isOwner || !environment.production;
+  }
+
   // Quotation form
   quotationForm: FormGroup;
   originalPrice: number = 0;
@@ -38,7 +45,8 @@ export class ProductDetailComponent implements OnInit {
     private productService: ProductService,
     private authService: AuthService,
     private fb: FormBuilder,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private whatsAppService: WhatsAppService
   ) {
     // Initialize quotation form - simplified without personal data
     this.quotationForm = this.fb.group({
@@ -176,22 +184,36 @@ export class ProductDetailComponent implements OnInit {
     }
 
     if (this.quotationForm.valid) {
-      const quotationData = {
-        userId: currentUser.id,
-        firstName: currentUser.first_name,
-        lastName: currentUser.last_name,
-        email: currentUser.email,
-        phone: currentUser.phone,
-        ...this.quotationForm.value,
-        productId: this.product.id
+      const formValues = this.quotationForm.value;
+      const buyerName = `${currentUser.first_name} ${currentUser.last_name}`.trim();
+
+      // Generate product URL
+      const productUrl = `${window.location.origin}/product-detail/${this.product.id}`;
+
+      // Prepare message data for WhatsApp
+      const messageData = {
+        product_title: this.product.title,
+        product_price: this.originalPrice,
+        buyer_name: buyerName,
+        offer_price: formValues.offerPrice,
+        message: formValues.message || undefined,
+        includes_iva: formValues.includesIVA,
+        product_url: productUrl
       };
 
-      // Aquí enviarías la cotización al backend
-      console.log('Quotation submitted:', quotationData);
-      this.toastService.showSuccess('Funcionalidad en desarrollo', 'Cotización enviada');
-
-      // Optionally reset the form or navigate away
-      // this.quotationForm.reset();
+      // Generate WhatsApp link and open
+      this.whatsAppService.contactSeller(messageData).subscribe({
+        next: (response) => {
+          console.log('WhatsApp link generated:', response);
+          // Open WhatsApp in a new tab
+          this.whatsAppService.openWhatsApp(response.whatsapp_url);
+          this.toastService.showSuccess('Abriendo WhatsApp...', 'Contacto iniciado');
+        },
+        error: (error) => {
+          console.error('Error generating WhatsApp link:', error);
+          this.toastService.showError('Error al generar el enlace de WhatsApp', 'Error');
+        }
+      });
     } else {
       this.toastService.showWarning('Por favor ingresa una oferta válida', 'Formulario incompleto');
     }
