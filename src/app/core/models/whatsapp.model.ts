@@ -6,6 +6,7 @@ export interface WhatsAppMessageRequest {
         offer_price?: number;
         message?: string;
         includes_iva?: boolean;
+        is_final_price?: boolean;
         product_url?: string;
     };
 }

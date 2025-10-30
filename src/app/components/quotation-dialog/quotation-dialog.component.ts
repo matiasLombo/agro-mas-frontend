@@ -16,6 +16,7 @@ export interface QuotationResult {
   message: string;
   offerPrice: number;
   includesIVA: boolean;
+  isFinalPrice: boolean;
   productId: string;
 }
 
@@ -46,7 +47,8 @@ export class QuotationDialogComponent implements OnInit {
       email: [currentUser?.email || '', [Validators.required, Validators.email]],
       message: ['', Validators.maxLength(500)],
       offerPrice: [this.originalPrice, [Validators.required, Validators.min(0)]],
-      includesIVA: [false]
+      includesIVA: [false],
+      isFinalPrice: [false]
     });
   } ngOnInit(): void { }
 
@@ -104,5 +106,14 @@ export class QuotationDialogComponent implements OnInit {
 
   get includesIVA(): boolean {
     return this.quotationForm.get('includesIVA')?.value || false;
+  }
+
+  toggleFinalPrice(): void {
+    const currentValue = this.quotationForm.get('isFinalPrice')?.value;
+    this.quotationForm.patchValue({ isFinalPrice: !currentValue });
+  }
+
+  get isFinalPrice(): boolean {
+    return this.quotationForm.get('isFinalPrice')?.value || false;
   }
 }

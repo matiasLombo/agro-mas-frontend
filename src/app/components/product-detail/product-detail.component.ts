@@ -52,7 +52,8 @@ export class ProductDetailComponent implements OnInit {
     this.quotationForm = this.fb.group({
       message: ['', Validators.maxLength(500)],
       offerPrice: [0, [Validators.required, Validators.min(0)]],
-      includesIVA: [false]
+      includesIVA: [false],
+      isFinalPrice: [false]
     });
   }
 
@@ -198,6 +199,7 @@ export class ProductDetailComponent implements OnInit {
         offer_price: formValues.offerPrice,
         message: formValues.message || undefined,
         includes_iva: formValues.includesIVA,
+        is_final_price: formValues.isFinalPrice,
         product_url: productUrl
       };
 
@@ -249,6 +251,15 @@ export class ProductDetailComponent implements OnInit {
 
   get includesIVA(): boolean {
     return this.quotationForm.get('includesIVA')?.value || false;
+  }
+
+  toggleFinalPrice(): void {
+    const currentValue = this.quotationForm.get('isFinalPrice')?.value;
+    this.quotationForm.patchValue({ isFinalPrice: !currentValue });
+  }
+
+  get isFinalPrice(): boolean {
+    return this.quotationForm.get('isFinalPrice')?.value || false;
   }
 
   formatPriceValue(price: number): string {

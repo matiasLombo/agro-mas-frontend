@@ -292,6 +292,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
           offer_price: result.offerPrice,
           message: result.message || undefined,
           includes_iva: result.includesIVA,
+          is_final_price: result.isFinalPrice,
           product_url: productUrl
         };
 

@@ -135,6 +135,11 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid #e0e0e0;
+  overflow: hidden; // Prevent content overflow
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 
   /* Development mode notice */
   .dev-notice {
@@ -163,6 +168,11 @@
     font-size: 1.25rem;
     font-weight: 600;
     color: #1a1a1a;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
   }
 
   .published-price {
@@ -186,6 +196,29 @@
       font-weight: 700;
       color: #4CAF50;
     }
+
+    @media (max-width: 768px) {
+      padding: 12px;
+      margin-bottom: 16px;
+
+      .price-label {
+        font-size: 0.8rem;
+      }
+
+      .price-value {
+        font-size: 1.25rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+
+      .price-value {
+        font-size: 1.4rem;
+      }
+    }
   }
 
   .form-section {
@@ -202,6 +235,15 @@
 
     .full-width {
       width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+
+      h4 {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+      }
     }
   }
 
@@ -243,6 +285,11 @@
         display: inline-flex;
         align-items: center;
         line-height: 1;
+
+        @media (max-width: 768px) {
+          font-size: 1.5rem;
+          margin-right: 8px;
+        }
       }
 
       .price-input-large {
@@ -252,6 +299,8 @@
         font-family: 'Roboto', sans-serif;
         text-align: left;
         line-height: 1;
+        flex: 1;
+        min-width: 0; // Allow input to shrink
 
         &::-webkit-outer-spin-button,
         &::-webkit-inner-spin-button {
@@ -263,23 +312,47 @@
           -moz-appearance: textfield;
           appearance: textfield;
         }
+
+        @media (max-width: 768px) {
+          font-size: 1.5rem;
+        }
+      }
+
+      .price-suffixes {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        margin-left: 12px;
+
+        @media (max-width: 768px) {
+          gap: 6px;
+          margin-left: 8px;
+        }
+
+        @media (max-width: 480px) {
+          gap: 4px;
+          margin-left: 6px;
+        }
       }
 
       .iva-suffix {
-        padding: 10px 24px;
-        border-radius: 24px;
+        padding: 8px 16px;
+        border-radius: 20px;
         background-color: #f5f5f5;
         color: #666;
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 0.875rem;
         cursor: pointer;
         user-select: none;
         transition: all 0.2s ease;
-        margin-left: 16px;
-        display: inline-flex;
+        display: flex;
         align-items: center;
+        justify-content: center;
         white-space: nowrap;
         line-height: 1;
+        flex-shrink: 0;
+        text-align: center;
 
         &:hover {
           background-color: #e8f5e9;
@@ -294,6 +367,32 @@
             background-color: #45a049;
           }
         }
+
+        &.final-suffix {
+          &:hover {
+            background-color: #e3f2fd;
+            color: #1565c0;
+          }
+
+          &.iva-active {
+            background-color: #2196F3;
+            color: white;
+
+            &:hover {
+              background-color: #1976D2;
+            }
+          }
+        }
+
+        @media (max-width: 768px) {
+          padding: 6px 14px;
+          font-size: 0.8rem;
+        }
+
+        @media (max-width: 480px) {
+          padding: 5px 12px;
+          font-size: 0.7rem;
+        }
       }
     }
 
@@ -301,6 +400,14 @@
       display: flex;
       gap: 20px;
       justify-content: center;
+
+      @media (max-width: 768px) {
+        gap: 12px;
+      }
+
+      @media (max-width: 480px) {
+        gap: 8px;
+      }
 
       .price-btn {
         position: relative;
@@ -315,6 +422,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         transition: all 0.2s ease;
         gap: 4px;
+        flex: 1; // Allow buttons to grow equally
 
         &:hover {
           transform: translateY(-2px);
@@ -333,6 +441,38 @@
           font-weight: 600;
           white-space: nowrap;
           line-height: 1;
+        }
+
+        @media (max-width: 768px) {
+          min-width: 80px;
+          height: 56px;
+          padding: 6px 12px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          .btn-label {
+            font-size: 0.7rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          min-width: 70px;
+          height: 52px;
+          padding: 6px 10px;
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+
+          .btn-label {
+            font-size: 0.65rem;
+          }
         }
       }
 
@@ -425,6 +565,12 @@
 
     mat-icon {
       margin-right: 8px;
+    }
+
+    @media (max-width: 768px) {
+      height: 44px;
+      font-size: 0.95rem;
+      margin-top: 12px;
     }
   }
 }
