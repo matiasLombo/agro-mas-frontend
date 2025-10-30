@@ -140,7 +140,7 @@
 
     <!-- Products Grid -->
     <div *ngIf="!isLoading" class="products-grid">
-      <div *ngFor="let product of products" class="product-card">
+      <div *ngFor="let product of products" class="product-card" (click)="viewProduct(product.id)">
         <div class="product-image">
           <img [src]="getPrimaryImage(product)" [alt]="product.title" class="product-img"
             (error)="onImageError($event)">
@@ -156,14 +156,6 @@
             <mat-icon class="seller-icon">person</mat-icon>
             <span>Vendedor: {{ product.seller_name }}</span>
           </div>
-          <button (click)="viewProduct(product.id)" class="product-button secondary">
-            <mat-icon>visibility</mat-icon>
-            Ver
-          </button>
-          <button (click)="openQuotationDialog(product)" class="product-button primary">
-            <mat-icon>contact_mail</mat-icon>
-            Contactar Vendedor
-          </button>
         </div>
       </div>
 
