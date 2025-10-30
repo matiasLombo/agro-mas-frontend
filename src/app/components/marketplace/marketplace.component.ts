@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { WhatsAppService } from '../../core/services/whatsapp.service';
 import { Product, ProductSearchResponse } from '@core/models/product.model';
 import { images } from '@core/constants/images.constants';
 import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.component';
@@ -34,7 +35,8 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private whatsAppService: WhatsAppService
   ) { }
 
   ngOnInit() {
@@ -276,8 +278,36 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       if (result) {
         // Handle the quotation result
         console.log('Quotation submitted:', result);
-        this.toastService.showSuccess('Funcionalidad en desarrollo', 'Cotización enviada');
-        // Aquí podrías enviar la cotización al backend
+
+        const buyerName = `${result.firstName} ${result.lastName}`.trim();
+
+        // Generate product URL
+        const productUrl = `${window.location.origin}/product-detail/${product.id}`;
+
+        // Prepare message data for WhatsApp
+        const messageData = {
+          product_title: product.title,
+          product_price: product.price,
+          buyer_name: buyerName,
+          offer_price: result.offerPrice,
+          message: result.message || undefined,
+          includes_iva: result.includesIVA,
+          product_url: productUrl
+        };
+
+        // Generate WhatsApp link and open
+        this.whatsAppService.contactSeller(messageData).subscribe({
+          next: (response) => {
+            console.log('WhatsApp link generated:', response);
+            // Open WhatsApp in a new tab
+            this.whatsAppService.openWhatsApp(response.whatsapp_url);
+            this.toastService.showSuccess('Abriendo WhatsApp...', 'Contacto iniciado');
+          },
+          error: (error) => {
+            console.error('Error generating WhatsApp link:', error);
+            this.toastService.showError('Error al generar el enlace de WhatsApp', 'Error');
+          }
+        });
       }
     });
   }

@@ -143,7 +143,7 @@ export class ProductService {
    */
   updateProductWithImages(productId: string, product: Partial<Product>, images: File[], existingImages?: ProductImage[]): Observable<Product> {
     const formData = new FormData();
-    
+
     // Clean product data - remove undefined/null values
     const cleanProduct = Object.entries(product).reduce((acc, [key, value]) => {
       if (value !== undefined && value !== null) {
@@ -160,31 +160,31 @@ export class ProductService {
         display_order: img.display_order
       }));
     }
-    
+
     console.log('Product data being sent:', cleanProduct);
-    
+
     // Add product data as JSON string
     const jsonString = JSON.stringify(cleanProduct);
     console.log('JSON string being sent:', jsonString);
     console.log('JSON string length:', jsonString.length);
-    
+
     // Check for problematic characters
     for (let i = 0; i < jsonString.length; i++) {
       const char = jsonString[i];
       if (char === '-' && i > 0) {
-        const before = jsonString.substring(Math.max(0, i-10), i);
-        const after = jsonString.substring(i, Math.min(jsonString.length, i+10));
+        const before = jsonString.substring(Math.max(0, i - 10), i);
+        const after = jsonString.substring(i, Math.min(jsonString.length, i + 10));
         console.log(`Found - at position ${i}: "${before}${after}"`);
       }
     }
-    
+
     formData.append('product', jsonString);
-    
+
     // Add each image file
     images.forEach((image, index) => {
       formData.append('image', image, image.name);
     });
-    
+
     return this.http.put<Product>(`${this.apiUrl}/${productId}`, formData);
   }
 
@@ -240,19 +240,19 @@ export class ProductService {
     return this.http.delete<void>(`${this.apiUrl}/videos/${videoId}`);
   }
 
-    /**
-     * Upload an image for a product
-     */
-    // Individual image upload removed - use createProductWithImages() or updateProductWithImages()
+  /**
+   * Upload an image for a product
+   */
+  // Individual image upload removed - use createProductWithImages() or updateProductWithImages()
 
-    // Note: Individual image management should be done through product updates
-    // All image operations should go through createProductWithImages() or updateProductWithImages()
+  // Note: Individual image management should be done through product updates
+  // All image operations should go through createProductWithImages() or updateProductWithImages()
 
-    /**
-     * Get all images for a product
-     */
-    getProductImages(productId: string): Observable<ProductImage[]> {
-        return this.http.get<ProductImage[]>(`${this.apiUrl}/${productId}/images`);
-    }
+  /**
+   * Get all images for a product
+   */
+  getProductImages(productId: string): Observable<ProductImage[]> {
+    return this.http.get<ProductImage[]>(`${this.apiUrl}/${productId}/images`);
+  }
 
 }
