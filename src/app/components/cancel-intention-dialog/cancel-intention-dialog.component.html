@@ -1,0 +1,56 @@
+<div class="cancel-dialog">
+    <h2 mat-dialog-title class="dialog-title">
+        <mat-icon class="title-icon">cancel</mat-icon>
+        Cancelar consulta
+    </h2>
+
+    <mat-dialog-content class="dialog-content">
+        <p class="confirmation-text">
+            ¿Estás seguro que deseas cancelar tu consulta por <strong>"{{ data.productTitle }}"</strong>?
+        </p>
+
+        <form [formGroup]="cancelForm" class="cancel-form">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Motivo de cancelación</mat-label>
+                <mat-select formControlName="reason" required>
+                    <mat-option *ngFor="let reason of cancellationReasons" [value]="reason">
+                        {{ reason }}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="cancelForm.get('reason')?.hasError('required')">
+                    Por favor selecciona un motivo
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width" *ngIf="showCustomReason">
+                <mat-label>Especifica el motivo</mat-label>
+                <textarea matInput formControlName="customReason" rows="3"
+                    placeholder="Por favor, cuéntanos más detalles..."></textarea>
+                <mat-hint align="end">
+                    {{ cancelForm.get('customReason')?.value?.length || 0 }} caracteres (mínimo 10)
+                </mat-hint>
+                <mat-error *ngIf="cancelForm.get('customReason')?.hasError('required')">
+                    Por favor especifica el motivo
+                </mat-error>
+                <mat-error *ngIf="cancelForm.get('customReason')?.hasError('minlength')">
+                    Debe tener al menos 10 caracteres
+                </mat-error>
+            </mat-form-field>
+        </form>
+
+        <div class="warning-message">
+            <mat-icon class="warning-icon">info</mat-icon>
+            <p>Esta acción no se puede deshacer. La consulta quedará marcada como cancelada.</p>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions">
+        <button mat-button (click)="onCancel()" class="cancel-btn">
+            Volver
+        </button>
+        <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="!cancelForm.valid" class="confirm-btn">
+            <mat-icon>cancel</mat-icon>
+            Confirmar cancelación
+        </button>
+    </mat-dialog-actions>
+</div>

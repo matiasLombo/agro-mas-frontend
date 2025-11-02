@@ -1,0 +1,169 @@
+<div class="my-purchases-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <mat-icon class="title-icon">question_answer</mat-icon>
+                Mis Consultas
+            </h1>
+            <p class="page-subtitle">
+                Productos en los que has mostrado interés
+            </p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <mat-form-field appearance="outline" class="status-filter">
+            <mat-label>Filtrar por estado</mat-label>
+            <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusFilterChange()">
+                <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <div class="results-info">
+            <span class="results-count">{{ totalIntentions }} {{ totalIntentions === 1 ? 'resultado' : 'resultados'
+                }}</span>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner></mat-spinner>
+        <p>Cargando tus consultas...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && intentions.length === 0">
+        <mat-icon class="empty-icon">question_answer</mat-icon>
+        <h2>No tienes consultas registradas</h2>
+        <p>Cuando contactes a un vendedor, tus consultas aparecerán aquí.</p>
+        <button mat-raised-button color="primary" routerLink="/marketplace" class="browse-button">
+            <mat-icon>store</mat-icon>
+            Explorar productos
+        </button>
+    </div>
+
+    <!-- Purchases List -->
+    <div class="purchases-grid" *ngIf="!isLoading && intentions.length > 0">
+        <div class="purchase-card" *ngFor="let intention of intentions">
+            <!-- Card Header -->
+            <div class="card-header">
+                <div class="product-info">
+                    <mat-icon class="category-icon">{{ getCategoryIcon(intention.product_category) }}</mat-icon>
+                    <div class="product-details">
+                        <h3 class="product-title">{{ intention.product_title || 'Producto' }}</h3>
+                        <span class="product-category">{{ intention.product_category || 'Sin categoría' }}</span>
+                    </div>
+                </div>
+                <div class="status-badge" [ngClass]="getStatusClass(intention.status)">
+                    {{ getStatusLabel(intention.status) }}
+                </div>
+            </div>
+
+            <!-- Status Selector (only for non-completed/cancelled) -->
+            <div class="status-selector-section" *ngIf="canUpdateStatus(intention.status)">
+                <mat-form-field appearance="outline" class="status-selector">
+                    <mat-label>Actualizar estado</mat-label>
+                    <mat-select [value]="intention.status" (selectionChange)="onStatusChange(intention, $event.value)">
+                        <mat-option *ngFor="let statusOpt of getAvailableStatuses(intention.status)"
+                            [value]="statusOpt.value">
+                            {{ statusOpt.label }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>Actualiza el estado de tu consulta</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+                <!-- Price Information -->
+                <div class="price-section">
+                    <div class="price-item">
+                        <span class="price-label">Precio publicado:</span>
+                        <span class="price-value">{{ formatPrice(intention.product_price) }}</span>
+                    </div>
+                    <div class="price-item highlighted">
+                        <span class="price-label">Tu oferta:</span>
+                        <span class="price-value offer-price">
+                            {{ formatPrice(intention.offered_price) }}
+                            <span class="price-indicators">
+                                <mat-chip class="iva-chip" *ngIf="intention.includes_iva">+ IVA</mat-chip>
+                                <mat-chip class="final-chip" *ngIf="intention.is_final_price">FINAL</mat-chip>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Inquiry Information -->
+                <div class="inquiry-section">
+                    <div class="inquiry-item">
+                        <mat-icon class="inquiry-icon">help_outline</mat-icon>
+                        <span class="inquiry-label">Tipo de consulta:</span>
+                        <span class="inquiry-value">{{ getInquiryTypeLabel(intention.inquiry_type) }}</span>
+                    </div>
+
+                    <div class="inquiry-item" *ngIf="intention.custom_message">
+                        <mat-icon class="inquiry-icon">message</mat-icon>
+                        <div class="message-content">
+                            <span class="inquiry-label">Tu mensaje:</span>
+                            <p class="custom-message">{{ intention.custom_message }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seller Information -->
+                <div class="seller-section" *ngIf="intention.seller_name">
+                    <mat-icon class="seller-icon">person</mat-icon>
+                    <span class="seller-label">Vendedor:</span>
+                    <span class="seller-name">{{ intention.seller_name }}</span>
+                </div>
+
+                <!-- Dates -->
+                <div class="dates-section">
+                    <div class="date-item">
+                        <mat-icon class="date-icon">schedule</mat-icon>
+                        <span class="date-label">Contactado:</span>
+                        <span class="date-value">{{ formatDate(intention.created_at) }}</span>
+                    </div>
+                    <div class="date-item" *ngIf="intention.whatsapp_link_clicked_at">
+                        <mat-icon class="date-icon">check_circle</mat-icon>
+                        <span class="date-label">WhatsApp abierto:</span>
+                        <span class="date-value">{{ formatDate(intention.whatsapp_link_clicked_at) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="card-footer">
+                <button mat-stroked-button color="primary" (click)="viewProductDetail(intention.product_id)"
+                    class="action-button">
+                    <mat-icon>visibility</mat-icon>
+                    Ver producto
+                </button>
+
+                <button mat-stroked-button *ngIf="intention.status === 'pending' || intention.status === 'verified'"
+                    (click)="cancelIntention(intention)" class="action-button cancel-button">
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-section" *ngIf="!isLoading && totalPages > 1">
+        <button mat-icon-button [disabled]="page === 1" (click)="previousPage()" class="pagination-button">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="pagination-info">
+            <span class="page-number">Página {{ page }} de {{ totalPages }}</span>
+        </div>
+
+        <button mat-icon-button [disabled]="page === totalPages" (click)="nextPage()" class="pagination-button">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+</div>
