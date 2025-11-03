@@ -145,7 +145,7 @@
   margin-top: 32px;
   border-top: 2px solid #f0f0f0;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
 
   .mat-mdc-stroked-button {
@@ -188,19 +188,228 @@
 }
 
 // Responsive design - idénticos al seller-setup-modal
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
   .form-row,
   .form-row-three {
     flex-direction: column;
+    gap: 12px;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .dialog-header {
+    margin-bottom: 24px;
+    padding: 16px 16px 16px 16px;
+
+    .header-icon {
+      margin-bottom: 8px;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    .header-text h2 {
+      font-size: 20px;
+    }
+  }
+
+  .dialog-content {
+    padding: 0 16px;
+
+    .form-section {
+      padding: 16px;
+      margin-bottom: 24px;
+
+      mat-card-header {
+        mat-card-title {
+          font-size: 18px;
+        }
+      }
+
+      .form-row,
+      .form-row-three {
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+    }
+  }
+
+  .dialog-actions {
+    padding: 16px 16px 16px 16px;
+    margin-top: 24px;
+    flex-direction: column-reverse;
+    gap: 12px;
+
+    button {
+      width: 100%;
+      padding: 14px 24px;
+    }
+
+    button[mat-raised-button] {
+      min-width: auto;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-header {
+    margin-bottom: 20px;
+    padding: 12px 12px 12px 12px;
+
+    .header-text {
+      h2 {
+        font-size: 18px;
+      }
+
+      p {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .dialog-content {
+    padding: 0 12px;
+
+    .form-section {
+      padding: 12px;
+      margin-bottom: 20px;
+
+      mat-card-header {
+        mat-card-title {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    padding: 12px 12px 12px 12px;
+    margin-top: 20px;
     gap: 8px;
+
+    button {
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+
+  .form-row,
+  .form-row-three {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dialog-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+
+    .header-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+      margin-bottom: 8px;
+    }
+
+    .header-text h2 {
+      font-size: 20px;
+    }
+  }
+
+  .form-section {
+    padding: 16px;
+    margin-bottom: 24px;
+
+    mat-card-header {
+      margin-bottom: 16px;
+
+      mat-card-title {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .form-row,
+  .form-row-three {
+    gap: 8px;
+    margin-bottom: 16px;
   }
 
   .dialog-actions {
     flex-direction: column-reverse;
+    gap: 12px;
+    padding-top: 16px;
+    margin-top: 24px;
 
     button {
       width: 100%;
+      padding: 14px 24px;
+    }
+
+    button[mat-raised-button] {
+      min-width: auto;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+
+    .header-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    .header-text {
+      h2 {
+        font-size: 18px;
+      }
+
+      p {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .form-section {
+    padding: 12px;
+    margin-bottom: 20px;
+
+    mat-card-header {
+      margin-bottom: 12px;
+
+      mat-card-title {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .form-row,
+  .form-row-three {
+    gap: 8px;
+  }
+
+  .dialog-actions {
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: 20px;
+
+    button {
+      padding: 12px 20px;
+      font-size: 14px;
     }
   }
 }

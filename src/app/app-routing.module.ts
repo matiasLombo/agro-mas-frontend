@@ -11,6 +11,7 @@ import { SellerGuard } from './core/guards/role.guard';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { MyProductsComponent } from './components/my-products/my-products.component';
+import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
 
 
 const routes: Routes = [
@@ -34,6 +35,7 @@ const routes: Routes = [
   { path: 'product/:id', component: ProductFormComponent, canActivate: [AuthGuard] }, // Editar producto propio
   { path: 'product-detail/:id', component: ProductDetailComponent }, // Ver producto (público)
   { path: 'my-products', component: MyProductsComponent, canActivate: [AuthGuard] }, // Mis publicaciones
+  { path: 'my-purchases', component: MyPurchasesComponent, canActivate: [AuthGuard] }, // Mis compras
   {
     path: 'products',
     component: MarketplaceComponent,

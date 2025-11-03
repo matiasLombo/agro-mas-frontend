@@ -46,9 +46,11 @@ import { ProductFormComponent } from './components/product-form/product-form.com
 import { SellerSetupModalComponent } from './components/seller-setup-modal/seller-setup-modal.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { MyProductsComponent } from './components/my-products/my-products.component';
+import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
 // Dialog Components
 import { DeleteProductDialogComponent } from './components/delete-product-dialog/delete-product-dialog.component';
 import { QuotationDialogComponent } from './components/quotation-dialog/quotation-dialog.component';
+import { CancelIntentionDialogComponent } from './components/cancel-intention-dialog/cancel-intention-dialog.component';
 
 // Services
 import { AuthService } from './core/services/auth.service';
@@ -79,8 +81,10 @@ import { environment } from '@environments/environment';
     SellerSetupModalComponent,
     ProductDetailComponent,
     MyProductsComponent,
+    MyPurchasesComponent,
     DeleteProductDialogComponent,
-    QuotationDialogComponent
+    QuotationDialogComponent,
+    CancelIntentionDialogComponent
   ],
   imports: [
     BrowserModule,

@@ -525,7 +525,7 @@
           <div class="upload-buttons">
             <label class="file-upload-button" for="imageUpload">
               <mat-icon>photo_camera</mat-icon>
-              <span>{{ isEditMode ? 'Agregar Imágenes' : 'Subir Imágenes' }}</span>
+              <span>{{ isEditMode ? 'Agregar imágenes' : 'Subir imágenes' }}</span>
               <span class="file-limit">(máx. 10)</span>
             </label>
             <input type="file" id="imageUpload" (change)="onFileChange($event, 'image')" multiple accept="image/*"
@@ -533,7 +533,7 @@
 
             <label class="file-upload-button video-upload" for="videoUpload">
               <mat-icon>videocam</mat-icon>
-              <span>{{ isEditMode ? 'Agregar Videos' : 'Subir Videos' }}</span>
+              <span>{{ isEditMode ? 'Agregar videos' : 'Subir videos' }}</span>
               <span class="file-limit">(máx. 3, 100 MB c/u)</span>
             </label>
             <input type="file" id="videoUpload" (change)="onFileChange($event, 'video')" multiple accept="video/*"
@@ -665,7 +665,7 @@
 
         <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isUploading">
           <mat-icon>{{ isEditMode ? 'save' : 'publish' }}</mat-icon>
-          {{ isEditMode ? 'Actualizar Producto' : 'Publicar' }}
+          {{ isEditMode ? 'Actualizar producto' : 'Publicar' }}
         </button>
       </div>
 

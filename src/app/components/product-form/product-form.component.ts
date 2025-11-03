@@ -318,7 +318,7 @@ export class ProductFormComponent implements OnInit {
       // Process files with compression
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const progress = ((i + 1) / files.length) * 50; // First 50% for processing
+        const progress = ((i + 1) / files.length) * 100; // 100% for processing
         this.uploadProgress = progress;
 
         const preview = await this.processFile(file, type);
@@ -330,10 +330,18 @@ export class ProductFormComponent implements OnInit {
       // Force change detection to update template
       this.cdr.detectChanges();
 
-      // Upload files if in edit mode
-      if (this.isEditMode && this.productId) {
-        await this.uploadProcessedFiles();
+      // Show success notification
+      const imageCount = this.filePreviews.filter(f => f.type === 'image').length;
+      const videoCount = this.filePreviews.filter(f => f.type === 'video').length;
+
+      let message = '';
+      if (type === 'image') {
+        message = `${files.length} imagen(es) lista(s) para subir`;
+      } else {
+        message = `${files.length} video(s) listo(s) para subir`;
       }
+
+      this.showNotification(message, 'success');
 
     } catch (error) {
       console.error('Error processing files:', error);
@@ -449,31 +457,9 @@ export class ProductFormComponent implements OnInit {
   }
 
   private async uploadProcessedFiles(): Promise<void> {
-    if (!this.productId) return;
-
-    const filesToUpload = this.filePreviews.filter(preview =>
-      preview.type === 'image' // Only upload images for now
-    );
-
-    for (let i = 0; i < filesToUpload.length; i++) {
-      const preview = filesToUpload[i];
-      const progress = 50 + ((i + 1) / filesToUpload.length) * 50; // Second 50% for uploading
-      this.uploadProgress = progress;
-
-      try {
-        const isPrimary = this.uploadedImages.length === 0 && i === 0;
-        const displayOrder = this.uploadedImages.length + i + 1;
-
-        // Images are now processed during product creation/update, not separately
-      } catch (error) {
-        console.error(`Error uploading ${preview.file.name}:`, error);
-        this.showNotification(`Error al subir ${preview.file.name}`, 'error');
-      }
-    }
-
-    // Update form
-    this.productForm.get('images')?.setValue(this.uploadedImages);
-    this.showNotification(`${filesToUpload.length} archivo(s) subido(s) exitosamente`, 'success');
+    // Este método ya no se usa - los archivos se procesan y suben junto con el formulario
+    // Se mantiene por compatibilidad pero no hace nada
+    return;
   }
 
   removeFile(index: number): void {

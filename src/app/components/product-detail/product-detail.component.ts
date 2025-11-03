@@ -191,25 +191,41 @@ export class ProductDetailComponent implements OnInit {
       // Generate product URL
       const productUrl = `${window.location.origin}/product-detail/${this.product.id}`;
 
-      // Prepare message data for WhatsApp
+      // Prepare message data for WhatsApp with purchase intention fields
       const messageData = {
         product_title: this.product.title,
         product_price: this.originalPrice,
+        product_category: this.product.category,
         buyer_name: buyerName,
         offer_price: formValues.offerPrice,
         message: formValues.message || undefined,
         includes_iva: formValues.includesIVA,
         is_final_price: formValues.isFinalPrice,
-        product_url: productUrl
+        product_url: productUrl,
+        // Campos adicionales para crear purchase_intention
+        product_id: this.product.id,
+        seller_id: this.product.user_id,
+        inquiry_type: 'price' // Tipo de consulta: price, availability, technical, logistics, general
       };
 
       // Generate WhatsApp link and open
       this.whatsAppService.contactSeller(messageData).subscribe({
         next: (response) => {
           console.log('WhatsApp link generated:', response);
+
+          // Log purchase intention creation
+          if (response.intention_created && response.intention_id) {
+            console.log('✅ Purchase intention created:', response.intention_id);
+            this.toastService.showSuccess(
+              'Tu consulta ha sido registrada y se abrirá WhatsApp',
+              'Intención de compra creada'
+            );
+          } else {
+            this.toastService.showSuccess('Abriendo WhatsApp...', 'Contacto iniciado');
+          }
+
           // Open WhatsApp in a new tab
           this.whatsAppService.openWhatsApp(response.whatsapp_url);
-          this.toastService.showSuccess('Abriendo WhatsApp...', 'Contacto iniciado');
         },
         error: (error) => {
           console.error('Error generating WhatsApp link:', error);
