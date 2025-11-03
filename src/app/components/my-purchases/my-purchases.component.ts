@@ -127,6 +127,15 @@ export class MyPurchasesComponent implements OnInit {
         return types[type] || type;
     }
 
+    getCategoryLabel(category: string): string {
+        const categories: { [key: string]: string } = {
+            'transport': 'Transporte',
+            'livestock': 'Ganadería',
+            'supplies': 'Insumos'
+        };
+        return categories[category] || category;
+    }
+
     formatPrice(price?: number): string {
         if (!price) return 'N/A';
         return new Intl.NumberFormat('es-AR', {
@@ -175,8 +184,14 @@ export class MyPurchasesComponent implements OnInit {
         dialogRef.afterClosed().subscribe(result => {
             if (result && result.confirmed) {
                 this.purchaseIntentionsService.cancelIntention(intention.id, result.reason).subscribe({
-                    next: () => {
+                    next: (response) => {
                         this.toastService.showSuccess('Consulta cancelada exitosamente', 'Cancelado');
+
+                        // Open WhatsApp with cancellation notification
+                        if (response.whatsapp_url) {
+                            window.open(response.whatsapp_url, '_blank');
+                        }
+
                         this.loadPurchases();
                     },
                     error: (error: any) => {

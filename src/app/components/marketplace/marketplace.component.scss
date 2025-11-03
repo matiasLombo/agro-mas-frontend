@@ -7,6 +7,7 @@
   background: linear-gradient(135deg, $gray-25 0%, $primary-green-pale 100%);
   position: relative;
   overflow-x: hidden;
+  width: 100%;
 }
 
 .marketplace-container::before {
@@ -97,6 +98,7 @@
 .hero-text {
   flex: 1;
   max-width: 600px;
+  text-align: center;
 
   @media (max-width: 768px) {
     max-width: 100%;
@@ -147,6 +149,8 @@
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
   max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-image {

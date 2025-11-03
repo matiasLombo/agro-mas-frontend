@@ -54,7 +54,8 @@
                     <mat-icon class="category-icon">{{ getCategoryIcon(intention.product_category) }}</mat-icon>
                     <div class="product-details">
                         <h3 class="product-title">{{ intention.product_title || 'Producto' }}</h3>
-                        <span class="product-category">{{ intention.product_category || 'Sin categoría' }}</span>
+                        <span class="product-category">{{ intention.product_category ?
+                            getCategoryLabel(intention.product_category) : 'Sin categoría' }}</span>
                     </div>
                 </div>
                 <div class="status-badge" [ngClass]="getStatusClass(intention.status)">
@@ -143,8 +144,8 @@
                     Ver producto
                 </button>
 
-                <button mat-stroked-button *ngIf="intention.status === 'pending' || intention.status === 'verified'"
-                    (click)="cancelIntention(intention)" class="action-button cancel-button">
+                <button mat-stroked-button *ngIf="intention.status !== 'cancelled'" (click)="cancelIntention(intention)"
+                    class="action-button cancel-button">
                     <mat-icon>cancel</mat-icon>
                     Cancelar
                 </button>

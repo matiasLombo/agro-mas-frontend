@@ -3,7 +3,7 @@
   <div class="header-content">
     <mat-icon class="header-icon">person</mat-icon>
     <div class="header-text">
-      <h2>Editar Perfil</h2>
+      <h2>Editar perfil</h2>
       <p>Actualiza tu información personal</p>
     </div>
   </div>
@@ -23,7 +23,7 @@
     <mat-card class="form-section" appearance="outlined">
       <mat-card-header>
         <mat-icon mat-card-avatar>person</mat-icon>
-        <mat-card-title>Información Personal</mat-card-title>
+        <mat-card-title>Información personal</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
@@ -125,6 +125,6 @@
     <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
     <mat-icon *ngIf="!isLoading && !isInitialLoading">save</mat-icon>
     <mat-icon *ngIf="isInitialLoading">refresh</mat-icon>
-    {{ isLoading ? 'Guardando...' : (isInitialLoading ? 'Cargando...' : 'Guardar Cambios') }}
+    {{ isLoading ? 'Guardando...' : (isInitialLoading ? 'Cargando...' : 'Guardar cambios') }}
   </button>
 </div>

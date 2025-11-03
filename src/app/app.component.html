@@ -76,13 +76,13 @@
           <nav class="menu-nav">
             <a mat-button class="menu-item" routerLink="/my-purchases" (click)="sidenav.close()"
               routerLinkActive="active">
-              <mat-icon class="menu-icon">shopping_cart</mat-icon>
-              <span class="menu-text">Mis compras</span>
+              <mat-icon class="menu-icon">question_answer</mat-icon>
+              <span class="menu-text">Mis consultas</span>
             </a>
-            <a mat-button class="menu-item" routerLink="/my-publications" (click)="sidenav.close()"
+            <a mat-button class="menu-item" routerLink="/my-products" (click)="sidenav.close()"
               routerLinkActive="active">
-              <mat-icon class="menu-icon">sell</mat-icon>
-              <span class="menu-text">Mis publicaciones</span>
+              <mat-icon class="menu-icon">inventory</mat-icon>
+              <span class="menu-text">Mis publicacioness</span>
             </a>
             <a mat-button class="menu-item" routerLink="/favorites" (click)="sidenav.close()" routerLinkActive="active">
               <mat-icon class="menu-icon">favorite</mat-icon>
@@ -130,8 +130,7 @@
             <div class="nav-right">
               <ng-container *ngIf="!(isAuthenticated$ | async)">
                 <button mat-flat-button routerLink="/login" routerLinkActive="active"
-                  class="nav-button-secondary">Iniciar
-                  Sesión</button>
+                  class="nav-button-secondary">Iniciar sesión</button>
                 <button mat-flat-button routerLink="/register" routerLinkActive="active"
                   class="nav-button">Registrarse</button>
               </ng-container>
@@ -169,26 +168,26 @@
                       <div class="menu-items">
                         <button class="menu-item" (click)="openEditProfile(); closeUserMenu()">
                           <mat-icon>edit</mat-icon>
-                          <span>Editar Perfil</span>
+                          <span>Editar perfil</span>
                         </button>
 
                         <button class="menu-item" (click)="openSellerSettings(); closeUserMenu()">
                           <mat-icon>{{ (currentUser$ | async)?.role === 'seller' ? 'store' : 'store_mall_directory'
                             }}</mat-icon>
-                          <span>{{ (currentUser$ | async)?.role === 'seller' ? 'Perfil de Vendedor' : 'Configurar
-                            Vendedor' }}</span>
+                          <span>{{ (currentUser$ | async)?.role === 'seller' ? 'Perfil de vendedor' : 'Configurar
+                            vendedor' }}</span>
                         </button>
 
                         <button class="menu-item" (click)="viewMyActivity(); closeUserMenu()">
                           <mat-icon>history</mat-icon>
-                          <span>Mi Actividad</span>
+                          <span>Mi actividad</span>
                         </button>
 
                         <div class="menu-divider"></div>
 
                         <button class="menu-item logout-item" (click)="logout(); closeUserMenu()">
                           <mat-icon>logout</mat-icon>
-                          <span>Cerrar Sesión</span>
+                          <span>Cerrar sesión</span>
                         </button>
                       </div>
                     </div>

@@ -102,8 +102,8 @@ export class PurchaseIntentionsService {
     /**
      * Cancel a purchase intention
      */
-    cancelIntention(id: string, reason: string): Observable<{ message: string }> {
-        return this.http.post<{ message: string }>(`${this.apiUrl}/${id}/cancel`, {
+    cancelIntention(id: string, reason: string): Observable<{ message: string; whatsapp_url: string }> {
+        return this.http.post<{ message: string; whatsapp_url: string }>(`${this.apiUrl}/${id}/cancel`, {
             cancellation_reason: reason
         });
     }
