@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
@@ -21,6 +21,8 @@ interface MediaItem {
   styleUrls: ['./product-detail.component.scss']
 })
 export class ProductDetailComponent implements OnInit {
+  @ViewChild('mainVideo') mainVideo?: ElementRef<HTMLVideoElement>;
+
   product: Product | null = null;
   images: ProductImage[] = [];
   videos: ProductVideo[] = [];
@@ -46,7 +48,8 @@ export class ProductDetailComponent implements OnInit {
     private authService: AuthService,
     private fb: FormBuilder,
     private toastService: ToastService,
-    private whatsAppService: WhatsAppService
+    private whatsAppService: WhatsAppService,
+    private cdr: ChangeDetectorRef
   ) {
     // Initialize quotation form - simplified without personal data
     this.quotationForm = this.fb.group({
@@ -126,13 +129,32 @@ export class ProductDetailComponent implements OnInit {
   nextImage(): void {
     if (this.mediaItems.length > 1) {
       this.currentMediaIndex = (this.currentMediaIndex + 1) % this.mediaItems.length;
+      this.reloadVideoIfNeeded();
     }
   }
 
   prevImage(): void {
     if (this.mediaItems.length > 1) {
       this.currentMediaIndex = this.currentMediaIndex === 0 ? this.mediaItems.length - 1 : this.currentMediaIndex - 1;
+      this.reloadVideoIfNeeded();
     }
+  }
+
+  private reloadVideoIfNeeded(): void {
+    // Force change detection and video reload when changing to a video
+    if (this.getCurrentMediaItem()?.type === 'video') {
+      setTimeout(() => {
+        const videoElement = document.querySelector('.main-video') as HTMLVideoElement;
+        if (videoElement) {
+          videoElement.load();
+        }
+      }, 0);
+    }
+  }
+
+  selectMedia(index: number): void {
+    this.currentMediaIndex = index;
+    this.reloadVideoIfNeeded();
   }
 
   getCurrentImage(): string {

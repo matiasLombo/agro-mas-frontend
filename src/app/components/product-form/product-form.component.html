@@ -10,7 +10,6 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Título de la publicación</mat-label>
           <input matInput formControlName="title" placeholder="Ej. Toros Angus de alta calidad">
-          <mat-icon matSuffix>title</mat-icon>
           <mat-error *ngIf="productForm.get('title')?.hasError('required')">
             El título es obligatorio.
           </mat-error>
@@ -23,7 +22,6 @@
             <mat-label>Precio ($)</mat-label>
             <input matInput type="number" formControlName="price" placeholder="Ej. 15000">
             <span matTextPrefix>$</span>
-            <mat-icon matSuffix>attach_money</mat-icon>
             <mat-error *ngIf="productForm.get('price')?.hasError('required')">
               El precio es obligatorio.
             </mat-error>
@@ -42,7 +40,6 @@
                 {{ cat }}
               </mat-option>
             </mat-select>
-            <mat-icon matSuffix>category</mat-icon>
             <mat-error *ngIf="productForm.get('category')?.hasError('required')">
               La categoría es obligatoria.
             </mat-error>
@@ -440,7 +437,7 @@
 
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Número de Registro SENASA</mat-label>
+              <mat-label>N° de registro SENASA</mat-label>
               <input matInput formControlName="registration_number" placeholder="Ej. 12345-ABC">
               <mat-icon matSuffix>verified</mat-icon>
             </mat-form-field>
@@ -473,17 +470,15 @@
               </mat-chip-grid>
               <input placeholder="Agregar licencia..." [matChipInputFor]="licensesChipList"
                 (matChipInputTokenEnd)="addLicense($event)">
-              <mat-icon matSuffix>gavel</mat-icon>
               <mat-hint>Ej. Aplicador Terrestre, Manipulador de Agroquímicos</mat-hint>
             </mat-form-field>
           </div>
 
           <div class="form-group">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Requerimientos de almacenamiento</mat-label>
+              <mat-label>Req. de almacenamiento</mat-label>
               <textarea matInput formControlName="storage_requirements" rows="2"
                 placeholder="Ej. Lugar fresco y seco, entre 5°C y 25°C"></textarea>
-              <mat-icon matSuffix>warehouse</mat-icon>
             </mat-form-field>
           </div>
 
@@ -492,7 +487,6 @@
               <mat-label>Instrucciones de uso</mat-label>
               <textarea matInput formControlName="handling_instructions" rows="3"
                 placeholder="Instrucciones detalladas de aplicación y uso"></textarea>
-              <mat-icon matSuffix>description</mat-icon>
             </mat-form-field>
           </div>
 
@@ -501,7 +495,6 @@
               <mat-label>Instrucciones de desecho</mat-label>
               <textarea matInput formControlName="disposal_instructions" rows="2"
                 placeholder="Cómo desechar el producto de forma segura"></textarea>
-              <mat-icon matSuffix>delete_outline</mat-icon>
             </mat-form-field>
           </div>
         </div>
@@ -536,8 +529,8 @@
               <span>{{ isEditMode ? 'Agregar videos' : 'Subir videos' }}</span>
               <span class="file-limit">(máx. 3, 100 MB c/u)</span>
             </label>
-            <input type="file" id="videoUpload" (change)="onFileChange($event, 'video')" multiple accept="video/*"
-              [disabled]="isVideoUploadDisabled" style="display: none;">
+            <input type="file" id="videoUpload" (change)="onFileChange($event, 'video')" multiple
+              accept="video/*,.mov,.mp4,.webm" [disabled]="isVideoUploadDisabled" style="display: none;">
           </div>
 
           <!-- Video Upload Info -->
@@ -563,8 +556,11 @@
 
               <!-- Video Preview -->
               <div class="preview-thumbnail" *ngIf="preview.type === 'video'">
-                <video [src]="preview.url" muted></video>
-                <div class="file-type-badge video">VID</div>
+                <video [src]="preview.url" muted preload="metadata" playsinline>
+                  <source [src]="preview.url" [type]="preview.file.type || 'video/quicktime'">
+                  Tu navegador no soporta la reproducción de este video.
+                </video>
+                <div class="file-type-badge video">{{ getVideoFormat(preview.file.name) }}</div>
               </div>
 
               <!-- File Info -->
