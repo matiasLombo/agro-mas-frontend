@@ -361,9 +361,18 @@ export class ProductFormComponent implements OnInit {
         this.showNotification(`${file.name} no es una imagen válida`, 'error');
         return null;
       }
-      if (type === 'video' && !file.type.startsWith('video/')) {
-        this.showNotification(`${file.name} no es un video válido`, 'error');
-        return null;
+
+      // For videos, check both MIME type and file extension for .mov files
+      if (type === 'video') {
+        const isValidVideoType = file.type.startsWith('video/');
+        const isMovFile = file.name.toLowerCase().endsWith('.mov');
+        const isMp4File = file.name.toLowerCase().endsWith('.mp4');
+        const isWebmFile = file.name.toLowerCase().endsWith('.webm');
+
+        if (!isValidVideoType && !isMovFile && !isMp4File && !isWebmFile) {
+          this.showNotification(`${file.name} no es un video válido`, 'error');
+          return null;
+        }
       }
 
       // Create preview URL
@@ -475,6 +484,11 @@ export class ProductFormComponent implements OnInit {
     if (bytes < 1024) return bytes + ' B';
     else if (bytes < 1048576) return Math.round(bytes / 1024) + ' KB';
     else return Math.round(bytes / 1048576) + ' MB';
+  }
+
+  getVideoFormat(filename: string): string {
+    const extension = filename.split('.').pop()?.toUpperCase();
+    return extension || 'VIDEO';
   }
 
   private showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {

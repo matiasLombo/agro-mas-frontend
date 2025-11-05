@@ -778,6 +778,9 @@
         border: 1px solid rgba(0, 0, 0, 0.08);
         pointer-events: auto;
         transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         &:hover {
           background: white;
@@ -789,6 +792,7 @@
           font-size: 22px;
           width: 22px;
           height: 22px;
+          line-height: 22px;
         }
       }
     }
@@ -1195,11 +1199,15 @@
       .nav-button {
         width: 36px;
         height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         mat-icon {
           font-size: 20px;
           width: 20px;
           height: 20px;
+          line-height: 20px;
         }
       }
     }

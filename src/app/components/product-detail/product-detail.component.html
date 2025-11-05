@@ -19,9 +19,14 @@
             <ng-container *ngIf="getCurrentMediaItem()">
               <img *ngIf="getCurrentMediaItem()?.type === 'image'" [src]="getCurrentMediaItem()!.url"
                 [alt]="product.title" class="main-image">
-              <video *ngIf="getCurrentMediaItem()?.type === 'video'" [src]="getCurrentMediaItem()!.url" controls
-                class="main-video">
-              </video>
+              <ng-container *ngIf="getCurrentMediaItem()?.type === 'video'">
+                <video [attr.data-index]="currentMediaIndex" controls class="main-video" preload="metadata" playsinline>
+                  <source [src]="getCurrentMediaItem()!.url" type="video/mp4">
+                  <source [src]="getCurrentMediaItem()!.url" type="video/quicktime">
+                  <source [src]="getCurrentMediaItem()!.url" type="video/webm">
+                  Tu navegador no soporta la reproducción de este video.
+                </video>
+              </ng-container>
             </ng-container>
 
             <!-- Navigation arrows for multiple media items -->
@@ -37,7 +42,7 @@
             <!-- Media indicators -->
             <div class="image-indicators" *ngIf="mediaItems.length > 1 && getCurrentMediaItem()?.type === 'image'">
               <div *ngFor="let media of mediaItems; let i = index" class="indicator"
-                [class.active]="i === currentMediaIndex" (click)="currentMediaIndex = i">
+                [class.active]="i === currentMediaIndex" (click)="selectMedia(i)">
               </div>
             </div>
           </div>
@@ -45,10 +50,14 @@
           <!-- Thumbnail strip -->
           <div class="thumbnail-strip" *ngIf="mediaItems.length > 1">
             <div *ngFor="let media of mediaItems; let i = index" class="thumbnail"
-              [class.active]="i === currentMediaIndex" (click)="currentMediaIndex = i">
+              [class.active]="i === currentMediaIndex" (click)="selectMedia(i)">
               <img *ngIf="media.type === 'image'" [src]="media.url" [alt]="'Vista ' + (i + 1)">
               <div *ngIf="media.type === 'video'" class="video-thumbnail">
-                <video [src]="media.url" muted></video>
+                <video muted preload="metadata" playsinline>
+                  <source [src]="media.url" type="video/mp4">
+                  <source [src]="media.url" type="video/quicktime">
+                  <source [src]="media.url" type="video/webm">
+                </video>
                 <mat-icon class="play-icon">play_circle</mat-icon>
               </div>
             </div>
