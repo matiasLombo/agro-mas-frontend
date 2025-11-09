@@ -4,13 +4,24 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+/**
+ * Custom error interface that preserves backend error information
+ */
+export interface CustomHttpError extends Error {
+  status: number;
+  statusText: string;
+  code: string;
+  originalError: any;
+  url: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class HttpService {
   private readonly baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // GET request
   get<T>(endpoint: string): Observable<T> {
@@ -66,37 +77,69 @@ export class HttpService {
 
   private handleError = (error: HttpErrorResponse): Observable<never> => {
     let errorMessage = 'Ha ocurrido un error inesperado';
+    let errorCode = 'UNKNOWN_ERROR';
 
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
+      errorCode = 'CLIENT_ERROR';
     } else {
-      // Server-side error
-      switch (error.status) {
-        case 400:
-          errorMessage = error.error?.message || 'Solicitud inválida';
-          break;
-        case 401:
-          errorMessage = 'No autorizado. Por favor, inicia sesión nuevamente';
-          // Clear token and redirect to login
-          localStorage.removeItem('authToken');
-          break;
-        case 403:
-          errorMessage = 'No tienes permisos para realizar esta acción';
-          break;
-        case 404:
-          errorMessage = 'Recurso no encontrado';
-          break;
-        case 500:
-          errorMessage = 'Error interno del servidor. Intenta nuevamente más tarde';
-          break;
-        default:
-          errorMessage = `Error ${error.status}: ${error.message}`;
+      // Server-side error - preserve backend error structure
+      // First try to get the error message from backend response
+      if (error.error?.error && typeof error.error.error === 'string') {
+        errorMessage = error.error.error;
+      } else if (error.error?.message && typeof error.error.message === 'string') {
+        errorMessage = error.error.message;
+      } else {
+        // Fallback to status-based messages
+        switch (error.status) {
+          case 400:
+            errorMessage = 'Solicitud inválida. Verifica los datos ingresados';
+            break;
+          case 401:
+            errorMessage = 'No autorizado. Por favor, inicia sesión nuevamente';
+            errorCode = 'UNAUTHORIZED';
+            // Clear token and redirect to login
+            localStorage.removeItem('authToken');
+            break;
+          case 403:
+            errorMessage = 'No tienes permisos para realizar esta acción';
+            errorCode = 'FORBIDDEN';
+            break;
+          case 404:
+            errorMessage = 'Recurso no encontrado';
+            errorCode = 'NOT_FOUND';
+            break;
+          case 409:
+            errorMessage = 'Conflicto: Los datos ingresados ya existen en el sistema';
+            errorCode = 'CONFLICT';
+            break;
+          case 500:
+            errorMessage = 'Error interno del servidor. Intenta nuevamente más tarde';
+            errorCode = 'SERVER_ERROR';
+            break;
+          default:
+            errorMessage = error.message || `Error del servidor: ${error.status}`;
+        }
+      }
+
+      // Get error code from backend if available
+      if (error.error?.code) {
+        errorCode = error.error.code;
       }
     }
 
     console.error('HTTP Error:', error);
-    return throwError(() => new Error(errorMessage));
+
+    // Create a custom error object that preserves all information
+    const customError: any = new Error(errorMessage);
+    customError.status = error.status;
+    customError.statusText = error.statusText;
+    customError.code = errorCode;
+    customError.originalError = error.error; // Preserve original backend response
+    customError.url = error.url;
+
+    return throwError(() => customError);
   }
 
   // Health check method
