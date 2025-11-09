@@ -266,12 +266,46 @@ export class SellerSetupModalComponent implements OnInit {
         },
         error: (error) => {
           this.isSubmitting = false;
+          console.error('Error al configurar perfil de vendedor:', error);
+
           let errorMessage = 'Error al configurar el perfil de vendedor';
 
-          if (error.error?.code === 'CUIT_EXISTS') {
+          // El http.service ahora preserva la información original del backend
+          // Primero revisar el código de error específico
+          if (error.code === 'CUIT_EXISTS') {
             errorMessage = 'Este CUIT ya está registrado por otro usuario';
-          } else if (error.error?.message) {
-            errorMessage = error.error.message;
+          }
+          else if (error.code === 'CBU_EXISTS') {
+            errorMessage = 'Este CBU ya está registrado por otro usuario';
+          }
+          else if (error.code === 'RENSPA_EXISTS') {
+            errorMessage = 'Este RENSPA ya está registrado por otro usuario';
+          }
+          // Si no hay código específico, analizar el mensaje
+          else if (error.message && typeof error.message === 'string') {
+            const message = error.message.toLowerCase();
+
+            if (message.includes('cuit') && (message.includes('registrado') || message.includes('existe') || message.includes('exist') || message.includes('duplicate'))) {
+              errorMessage = 'Este CUIT ya está registrado por otro usuario';
+            }
+            else if (message.includes('cbu') && (message.includes('registrado') || message.includes('existe') || message.includes('exist') || message.includes('duplicate'))) {
+              errorMessage = 'Este CBU ya está registrado por otro usuario';
+            }
+            else if (message.includes('renspa') && (message.includes('registrado') || message.includes('existe') || message.includes('exist') || message.includes('duplicate'))) {
+              errorMessage = 'Este RENSPA ya está registrado por otro usuario';
+            }
+            // Si es un conflicto pero no sabemos el campo específico
+            else if (error.status === 409 || error.code === 'CONFLICT') {
+              errorMessage = 'Ya existe un vendedor con estos datos. Verifica el CUIT, CBU o RENSPA';
+            }
+            // Usar el mensaje del backend si no es genérico
+            else if (!message.includes('ha ocurrido un error')) {
+              errorMessage = error.message;
+            }
+          }
+          // Fallback para errores 409 sin mensaje específico
+          else if (error.status === 409) {
+            errorMessage = 'Ya existe un vendedor registrado con estos datos';
           }
 
           this.toastService.showError(errorMessage, 'Error');

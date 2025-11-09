@@ -267,6 +267,15 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading product:', error);
+
+        let errorMessage = 'Error al cargar el producto';
+        if (error.message && !error.message.includes('Ha ocurrido un error')) {
+          errorMessage = error.message;
+        } else if (error.code) {
+          errorMessage = `Error: ${error.code}`;
+        }
+
+        this.toastService.showError(errorMessage, 'Error');
       }
     });
   }
@@ -279,6 +288,15 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading product images:', error);
+
+        let errorMessage = 'Error al cargar las imágenes';
+        if (error.message && !error.message.includes('Ha ocurrido un error')) {
+          errorMessage = error.message;
+        } else if (error.code) {
+          errorMessage = `Error: ${error.code}`;
+        }
+
+        this.toastService.showError(errorMessage, 'Error');
       }
     });
   }
@@ -292,6 +310,15 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading product videos:', error);
+
+        let errorMessage = 'Error al cargar los videos';
+        if (error.message && !error.message.includes('Ha ocurrido un error')) {
+          errorMessage = error.message;
+        } else if (error.code) {
+          errorMessage = `Error: ${error.code}`;
+        }
+
+        this.toastService.showError(errorMessage, 'Error');
       }
     });
   }
@@ -364,13 +391,21 @@ export class ProductFormComponent implements OnInit {
 
       // For videos, check both MIME type and file extension for .mov files
       if (type === 'video') {
-        const isValidVideoType = file.type.startsWith('video/');
-        const isMovFile = file.name.toLowerCase().endsWith('.mov');
-        const isMp4File = file.name.toLowerCase().endsWith('.mp4');
-        const isWebmFile = file.name.toLowerCase().endsWith('.webm');
+        const fileName = file.name.toLowerCase();
+        const validExtensions = ['.mov', '.mp4', '.webm', '.avi', '.mkv', '.mpeg', '.mpg'];
+        const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
 
-        if (!isValidVideoType && !isMovFile && !isMp4File && !isWebmFile) {
-          this.showNotification(`${file.name} no es un video válido`, 'error');
+        // Accept if it has a valid MIME type OR valid extension (Safari sends .mov without proper MIME type)
+        const isValidVideoType = file.type.startsWith('video/') || file.type === '';
+
+        if (!hasValidExtension && !isValidVideoType) {
+          this.showNotification(`${file.name} no es un video válido. Formatos permitidos: ${validExtensions.join(', ')}`, 'error');
+          return null;
+        }
+
+        // Additional validation: must have valid extension
+        if (!hasValidExtension) {
+          this.showNotification(`${file.name} debe tener una extensión de video válida`, 'error');
           return null;
         }
       }
@@ -621,7 +656,17 @@ export class ProductFormComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error al actualizar producto:', error);
-            this.toastService.showError('Error al actualizar producto', 'Error');
+
+            let errorMessage = 'Error al actualizar producto';
+
+            // Usar el mensaje del backend si está disponible
+            if (error.message && !error.message.includes('Ha ocurrido un error')) {
+              errorMessage = error.message;
+            } else if (error.code) {
+              errorMessage = `Error: ${error.code}`;
+            }
+
+            this.toastService.showError(errorMessage, 'Error');
           }
         });
       } else {
@@ -643,7 +688,17 @@ export class ProductFormComponent implements OnInit {
             },
             error: (error) => {
               console.error('Error creating product:', error);
-              this.toastService.showError('Error al crear el producto', 'Error');
+
+              let errorMessage = 'Error al crear el producto';
+
+              // Usar el mensaje del backend si está disponible
+              if (error.message && !error.message.includes('Ha ocurrido un error')) {
+                errorMessage = error.message;
+              } else if (error.code) {
+                errorMessage = `Error: ${error.code}`;
+              }
+
+              this.toastService.showError(errorMessage, 'Error');
             }
           });
         } else {
@@ -655,7 +710,17 @@ export class ProductFormComponent implements OnInit {
             },
             error: (error) => {
               console.error('Error creating product:', error);
-              this.toastService.showError('Error al crear el producto', 'Error');
+
+              let errorMessage = 'Error al crear el producto';
+
+              // Usar el mensaje del backend si está disponible
+              if (error.message && !error.message.includes('Ha ocurrido un error')) {
+                errorMessage = error.message;
+              } else if (error.code) {
+                errorMessage = `Error: ${error.code}`;
+              }
+
+              this.toastService.showError(errorMessage, 'Error');
             }
           });
         }
@@ -688,7 +753,15 @@ export class ProductFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error deleting video:', error);
-          this.toastService.showError('Error al eliminar video', 'Error');
+
+          let errorMessage = 'Error al eliminar video';
+          if (error.message && !error.message.includes('Ha ocurrido un error')) {
+            errorMessage = error.message;
+          } else if (error.code) {
+            errorMessage = `Error: ${error.code}`;
+          }
+
+          this.toastService.showError(errorMessage, 'Error');
           // Reload videos on error
           this.loadProductVideos(this.productId!);
         }
@@ -745,7 +818,15 @@ export class ProductFormComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error updating product after image removal:', error);
-        this.showNotification('Error al eliminar la imagen. Intenta de nuevo.', 'error');
+
+        let errorMessage = 'Error al eliminar la imagen';
+        if (error.message && !error.message.includes('Ha ocurrido un error')) {
+          errorMessage = error.message;
+        } else if (error.code) {
+          errorMessage = `Error: ${error.code}`;
+        }
+
+        this.showNotification(errorMessage, 'error');
 
         // Reload images to restore correct state
         if (this.productId) {
