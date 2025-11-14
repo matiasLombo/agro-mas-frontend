@@ -42,6 +42,8 @@ export class ProductFormComponent implements OnInit {
   isUploading: boolean = false;
   uploadProgress: number = 0;
   isDragOver: boolean = false;
+  isLoading = false;
+  isUploadingVideo = false;
 
   // File compression settings
   readonly MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
@@ -278,9 +280,7 @@ export class ProductFormComponent implements OnInit {
         this.toastService.showError(errorMessage, 'Error');
       }
     });
-  }
-
-  loadProductImages(productId: string): void {
+  } loadProductImages(productId: string): void {
     this.productService.getProductImages(productId).subscribe({
       next: (images: ProductImage[]) => {
         this.uploadedImages = images;
@@ -341,6 +341,11 @@ export class ProductFormComponent implements OnInit {
     this.isUploading = true;
     this.uploadProgress = 0;
 
+    // Mostrar spinner específico para videos
+    if (type === 'video') {
+      this.isUploadingVideo = true;
+    }
+
     try {
       // Process files with compression
       for (let i = 0; i < files.length; i++) {
@@ -375,6 +380,7 @@ export class ProductFormComponent implements OnInit {
       this.showNotification('Error al procesar archivos', 'error');
     } finally {
       this.isUploading = false;
+      this.isUploadingVideo = false;
       this.uploadProgress = 0;
       // Clear file input
       event.target.value = '';
@@ -383,6 +389,11 @@ export class ProductFormComponent implements OnInit {
 
   private async processFile(file: File, type: 'image' | 'video'): Promise<FilePreview | null> {
     try {
+      // Add minimum delay for video processing to show spinner
+      if (type === 'video') {
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
       // Validate file type
       if (type === 'image' && !file.type.startsWith('image/')) {
         this.showNotification(`${file.name} no es una imagen válida`, 'error');
@@ -605,7 +616,9 @@ export class ProductFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.productForm.valid && !this.isUploading) {
+    if (this.productForm.valid && !this.isUploading && !this.isLoading) {
+      this.isLoading = true;
+
       const productData = {
         ...this.productForm.value
       };
@@ -648,25 +661,52 @@ export class ProductFormComponent implements OnInit {
           .filter(preview => preview.type === 'video')
           .map(preview => preview.file);
 
+        // Add minimum delay to show loading overlay
+        const startTime = Date.now();
+
         // Update existing product
         this.productService.updateProductWithMedia(this.productId, productData, newImageFiles, newVideoFiles, this.uploadedImages).subscribe({
           next: (response) => {
-            this.toastService.showSuccess('Producto actualizado exitosamente', 'Éxito');
-            this.router.navigate(['/my-products']);
+            const elapsed = Date.now() - startTime;
+            const minDelay = 1000; // 1 segundo mínimo
+
+            const completeUpdate = () => {
+              this.isLoading = false;
+              this.toastService.showSuccess('Producto actualizado exitosamente', 'Éxito');
+              this.router.navigate(['/my-products']);
+            };
+
+            if (elapsed < minDelay) {
+              setTimeout(completeUpdate, minDelay - elapsed);
+            } else {
+              completeUpdate();
+            }
           },
           error: (error) => {
-            console.error('Error al actualizar producto:', error);
+            const elapsed = Date.now() - startTime;
+            const minDelay = 1000;
 
-            let errorMessage = 'Error al actualizar producto';
+            const handleError = () => {
+              this.isLoading = false;
+              console.error('Error al actualizar producto:', error);
 
-            // Usar el mensaje del backend si está disponible
-            if (error.message && !error.message.includes('Ha ocurrido un error')) {
-              errorMessage = error.message;
-            } else if (error.code) {
-              errorMessage = `Error: ${error.code}`;
+              let errorMessage = 'Error al actualizar producto';
+
+              // Usar el mensaje del backend si está disponible
+              if (error.message && !error.message.includes('Ha ocurrido un error')) {
+                errorMessage = error.message;
+              } else if (error.code) {
+                errorMessage = `Error: ${error.code}`;
+              }
+
+              this.toastService.showError(errorMessage, 'Error');
+            };
+
+            if (elapsed < minDelay) {
+              setTimeout(handleError, minDelay - elapsed);
+            } else {
+              handleError();
             }
-
-            this.toastService.showError(errorMessage, 'Error');
           }
         });
       } else {
@@ -680,47 +720,101 @@ export class ProductFormComponent implements OnInit {
           .map(preview => preview.file);
 
         if (imageFiles.length > 0 || videoFiles.length > 0) {
+          // Add minimum delay to show loading overlay
+          const startTime = Date.now();
+
           // Use FormData method for products with media
           this.productService.createProductWithMedia(productData, imageFiles, videoFiles).subscribe({
             next: (response) => {
-              this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
-              this.router.navigate(['/my-products']);
+              const elapsed = Date.now() - startTime;
+              const minDelay = 1000;
+
+              const completeCreation = () => {
+                this.isLoading = false;
+                this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
+                this.router.navigate(['/my-products']);
+              };
+
+              if (elapsed < minDelay) {
+                setTimeout(completeCreation, minDelay - elapsed);
+              } else {
+                completeCreation();
+              }
             },
             error: (error) => {
-              console.error('Error creating product:', error);
+              const elapsed = Date.now() - startTime;
+              const minDelay = 1000;
 
-              let errorMessage = 'Error al crear el producto';
+              const handleError = () => {
+                this.isLoading = false;
+                console.error('Error creating product:', error);
 
-              // Usar el mensaje del backend si está disponible
-              if (error.message && !error.message.includes('Ha ocurrido un error')) {
-                errorMessage = error.message;
-              } else if (error.code) {
-                errorMessage = `Error: ${error.code}`;
+                let errorMessage = 'Error al crear el producto';
+
+                // Usar el mensaje del backend si está disponible
+                if (error.message && !error.message.includes('Ha ocurrido un error')) {
+                  errorMessage = error.message;
+                } else if (error.code) {
+                  errorMessage = `Error: ${error.code}`;
+                }
+
+                this.toastService.showError(errorMessage, 'Error');
+              };
+
+              if (elapsed < minDelay) {
+                setTimeout(handleError, minDelay - elapsed);
+              } else {
+                handleError();
               }
-
-              this.toastService.showError(errorMessage, 'Error');
             }
           });
         } else {
+          // Add minimum delay to show loading overlay
+          const startTime = Date.now();
+
           // Use regular JSON method for products without media
           this.productService.createProduct(productData).subscribe({
             next: (response) => {
-              this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
-              this.router.navigate(['/my-products']);
+              const elapsed = Date.now() - startTime;
+              const minDelay = 1000;
+
+              const completeCreation = () => {
+                this.isLoading = false;
+                this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
+                this.router.navigate(['/my-products']);
+              };
+
+              if (elapsed < minDelay) {
+                setTimeout(completeCreation, minDelay - elapsed);
+              } else {
+                completeCreation();
+              }
             },
             error: (error) => {
-              console.error('Error creating product:', error);
+              const elapsed = Date.now() - startTime;
+              const minDelay = 1000;
 
-              let errorMessage = 'Error al crear el producto';
+              const handleError = () => {
+                this.isLoading = false;
+                console.error('Error creating product:', error);
 
-              // Usar el mensaje del backend si está disponible
-              if (error.message && !error.message.includes('Ha ocurrido un error')) {
-                errorMessage = error.message;
-              } else if (error.code) {
-                errorMessage = `Error: ${error.code}`;
+                let errorMessage = 'Error al crear el producto';
+
+                // Usar el mensaje del backend si está disponible
+                if (error.message && !error.message.includes('Ha ocurrido un error')) {
+                  errorMessage = error.message;
+                } else if (error.code) {
+                  errorMessage = `Error: ${error.code}`;
+                }
+
+                this.toastService.showError(errorMessage, 'Error');
+              };
+
+              if (elapsed < minDelay) {
+                setTimeout(handleError, minDelay - elapsed);
+              } else {
+                handleError();
               }
-
-              this.toastService.showError(errorMessage, 'Error');
             }
           });
         }

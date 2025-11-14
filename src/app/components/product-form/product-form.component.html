@@ -1,3 +1,11 @@
+<!-- Fullscreen Loading Overlay -->
+<div class="fullscreen-loading-overlay" *ngIf="isLoading">
+  <div class="spinner-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p class="loading-message">{{ isEditMode ? 'Actualizando producto...' : 'Publicando producto...' }}</p>
+  </div>
+</div>
+
 <div class="product-form-container">
   <div class="product-form-card">
     <h2>{{ isEditMode ? '📄 Detalles del anuncio' : '📝 Publicar un producto' }}</h2>
@@ -533,6 +541,12 @@
               accept="video/*,.mov,.mp4,.webm" [disabled]="isVideoUploadDisabled" style="display: none;">
           </div>
 
+          <!-- Video Upload Spinner -->
+          <div class="video-upload-spinner" *ngIf="isUploadingVideo">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Procesando video...</p>
+          </div>
+
           <!-- Video Upload Info -->
           <div class="video-info-notice">
             <mat-icon class="info-icon">info</mat-icon>
@@ -659,9 +673,11 @@
           {{ isEditMode ? 'Volver' : 'Cancelar' }}
         </button>
 
-        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isUploading">
-          <mat-icon>{{ isEditMode ? 'save' : 'publish' }}</mat-icon>
-          {{ isEditMode ? 'Actualizar producto' : 'Publicar' }}
+        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isUploading || isLoading">
+          <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+          <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'publish' }}</mat-icon>
+          {{ isLoading ? (isEditMode ? 'Guardando...' : 'Publicando...') : (isEditMode ? 'Actualizar producto' :
+          'Publicar') }}
         </button>
       </div>
 
