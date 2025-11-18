@@ -272,6 +272,23 @@
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  .video-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: rgba(255, 255, 255, 0.9);
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    }
+  }
+
   .status-badge {
     position: absolute;
     top: $spacing-3;
@@ -284,6 +301,7 @@
     letter-spacing: 0.5px;
     box-shadow: $shadow-sm;
     backdrop-filter: blur(10px);
+    z-index: 3;
 
     &.active {
       background: linear-gradient(135deg, $success 0%, #059669 100%);

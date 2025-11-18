@@ -142,8 +142,23 @@
     <div *ngIf="!isLoading" class="products-grid">
       <div *ngFor="let product of products" class="product-card" (click)="viewProduct(product.id)">
         <div class="product-image">
-          <img [src]="getPrimaryImage(product)" [alt]="product.title" class="product-img"
+          <!-- Show image if product has images -->
+          <img *ngIf="hasImage(product)" [src]="getPrimaryImage(product)" [alt]="product.title" class="product-img"
             (error)="onImageError($event)">
+
+          <!-- Show video if product has videos but no images -->
+          <video *ngIf="hasVideo(product) && !hasImage(product)" [src]="getPrimaryImage(product)" class="product-img"
+            muted></video>
+
+          <!-- Video play indicator -->
+          <div class="video-indicator" *ngIf="hasVideo(product) && !hasImage(product)">
+            <mat-icon class="material-symbols-outlined">play_circle_filled</mat-icon>
+          </div>
+
+          <!-- Show placeholder if no images and no videos -->
+          <img *ngIf="!hasImage(product) && !hasVideo(product)" [src]="getPrimaryImage(product)" [alt]="product.title"
+            class="product-img" (error)="onImageError($event)">
+
           <div class="product-category-badge">{{ getCategoryName(product.category) }}</div>
         </div>
         <div class="product-content">

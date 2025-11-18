@@ -207,6 +207,18 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       return firstImage.image_url;
     }
 
+    // If no images, try to get primary video thumbnail
+    const primaryVideo = product.videos?.find(vid => vid.is_primary && vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed');
+    if (primaryVideo) {
+      return primaryVideo.video_url;
+    }
+
+    // If no primary video, get first available video
+    const firstVideo = product.videos?.find(vid => vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed');
+    if (firstVideo) {
+      return firstVideo.video_url;
+    }
+
     // Return placeholder image based on category
     return this.getPlaceholderImage(product.category);
   }
@@ -346,5 +358,14 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
 
   get images() {
     return images.banner
+  }
+
+  hasImage(product: Product): boolean {
+    return !!(product.images && product.images.length > 0 && product.images.some(img => img.image_url));
+  }
+
+  hasVideo(product: Product): boolean {
+    return !!(product.videos && product.videos.length > 0 &&
+      product.videos.some(vid => vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed'));
   }
 }

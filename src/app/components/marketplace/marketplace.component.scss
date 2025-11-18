@@ -624,6 +624,22 @@
     box-shadow: $shadow-sm;
     backdrop-filter: blur(10px);
   }
+
+  .video-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: white;
+      filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.3));
+    }
+  }
 }
 
 .product-card:hover .product-img {
