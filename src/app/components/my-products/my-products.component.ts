@@ -129,14 +129,28 @@ export class MyProductsComponent implements OnInit, OnDestroy {
   }
 
   getPrimaryImage(product: Product): string {
+    // First, try to get primary image
     const primaryImage = product.images?.find(img => img.is_primary);
     if (primaryImage) {
       return primaryImage.image_url;
     }
 
+    // Then, try to get first image
     const firstImage = product.images?.find(img => img.image_url);
     if (firstImage) {
       return firstImage.image_url;
+    }
+
+    // If no images, try to get primary video thumbnail
+    const primaryVideo = product.videos?.find(vid => vid.is_primary && vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed');
+    if (primaryVideo) {
+      return primaryVideo.video_url;
+    }
+
+    // If no primary video, get first available video
+    const firstVideo = product.videos?.find(vid => vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed');
+    if (firstVideo) {
+      return firstVideo.video_url;
     }
 
     return this.getPlaceholderImage(product.category);
@@ -174,6 +188,15 @@ export class MyProductsComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric'
     });
+  }
+
+  hasImage(product: Product): boolean {
+    return !!(product.images && product.images.length > 0 && product.images.some(img => img.image_url));
+  }
+
+  hasVideo(product: Product): boolean {
+    return !!(product.videos && product.videos.length > 0 &&
+      product.videos.some(vid => vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed'));
   }
 
   // Getters for template calculations
