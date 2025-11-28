@@ -241,6 +241,10 @@ export class ProductService {
   }
 
   /**
+   * Update/replace a product video with compressed version
+   */
+
+  /**
    * Upload an image for a product
    */
   // Individual image upload removed - use createProductWithImages() or updateProductWithImages()
