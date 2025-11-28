@@ -8,6 +8,7 @@ import { ProductService } from '../../core/services/product.service';
 import { LocationService } from '../../core/services/location.service';
 import { SellerService } from '../../services/seller.service';
 import { ToastService } from '../../core/services/toast.service';
+import { VideoCompressionService } from '../../core/services/video-compression.service';
 import { Product, ProductImage, ProductVideo, TransportDetails, LivestockDetails, SuppliesDetails } from '../../core/models/product.model';
 import { Province, Department, Settlement } from '../../core/models/location.model';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -99,7 +100,8 @@ export class ProductFormComponent implements OnInit {
     private toastService: ToastService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private videoCompressionService: VideoCompressionService
   ) { }
 
   ngOnInit(): void {
@@ -389,11 +391,6 @@ export class ProductFormComponent implements OnInit {
 
   private async processFile(file: File, type: 'image' | 'video'): Promise<FilePreview | null> {
     try {
-      // Add minimum delay for video processing to show spinner
-      if (type === 'video') {
-        await new Promise(resolve => setTimeout(resolve, 800));
-      }
-
       // Validate file type
       if (type === 'image' && !file.type.startsWith('image/')) {
         this.showNotification(`${file.name} no es una imagen válida`, 'error');
@@ -421,10 +418,7 @@ export class ProductFormComponent implements OnInit {
         }
       }
 
-      // Create preview URL
-      const url = URL.createObjectURL(file);
       const originalSize = file.size;
-
       let processedFile = file;
       let compressedSize = originalSize;
       let compressed = false;
@@ -440,11 +434,74 @@ export class ProductFormComponent implements OnInit {
         }
       }
 
-      // Validate video size
-      if (type === 'video' && file.size > this.MAX_VIDEO_SIZE) {
-        this.showNotification(`El video ${file.name} es demasiado grande (máximo 100MB)`, 'error');
-        return null;
+      // Compress videos BEFORE uploading to avoid 413 error
+      if (type === 'video') {
+        const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        console.log(`[PRODUCT_FORM] Video selected: ${file.name} (${originalSizeMB}MB)`);
+
+        // Check if video needs compression (larger than 20MB or not MP4)
+        const needsCompression = file.size > 20 * 1024 * 1024 || !file.name.toLowerCase().endsWith('.mp4');
+
+        if (needsCompression) {
+          try {
+            this.showNotification(`Comprimiendo ${file.name}... Esto puede tardar 1-2 minutos.`, 'warning');
+
+            // Compress video using VideoCompressionService
+            const result = await new Promise<{ file: File; originalSize: number; compressedSize: number }>((resolve, reject) => {
+              this.videoCompressionService.compressVideoAsync(file, {
+                maxWidth: 720,
+                crf: 28,
+                format: 'mp4'
+              }).subscribe({
+                next: (event: any) => {
+                  if (event.progress) {
+                    console.log(`[PRODUCT_FORM] Compression progress: ${event.progress.status} - ${event.progress.progress}%`);
+                    this.uploadProgress = event.progress.progress;
+                  }
+                  if (event.result) {
+                    resolve({
+                      file: event.result.file,
+                      originalSize: file.size,
+                      compressedSize: event.result.compressedSize
+                    });
+                  }
+                },
+                error: (error: any) => {
+                  console.error('[PRODUCT_FORM] Compression failed:', error);
+                  reject(error);
+                }
+              });
+            });
+
+            processedFile = result.file;
+            compressedSize = result.compressedSize;
+            compressed = true;
+
+            const compressedSizeMB = (compressedSize / (1024 * 1024)).toFixed(2);
+            const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(0);
+
+            console.log(`[PRODUCT_FORM] Video compressed: ${originalSizeMB}MB → ${compressedSizeMB}MB (${reduction}% reduction)`);
+            this.showNotification(`Video comprimido: ${originalSizeMB}MB → ${compressedSizeMB}MB`, 'success');
+
+          } catch (error) {
+            console.error('[PRODUCT_FORM] Video compression failed:', error);
+            this.showNotification('Error al comprimir video. Por favor intenta con un archivo más pequeño.', 'error');
+            return null;
+          }
+        } else {
+          console.log(`[PRODUCT_FORM] Video size OK (${originalSizeMB}MB), skipping compression`);
+        }
+
+        // Final size validation (after compression)
+        if (processedFile.size > this.MAX_VIDEO_SIZE) {
+          const sizeMB = (processedFile.size / (1024 * 1024)).toFixed(2);
+          this.showNotification(`El video ${file.name} sigue siendo demasiado grande después de comprimir (${sizeMB}MB, máximo 100MB)`, 'error');
+          return null;
+        }
       }
+
+      // Create preview URL with processed file
+      const url = URL.createObjectURL(processedFile);
 
       return {
         file: processedFile,
@@ -731,6 +788,8 @@ export class ProductFormComponent implements OnInit {
 
               const completeCreation = () => {
                 this.isLoading = false;
+
+                // Videos were already compressed before upload, so no background processing needed
                 this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
                 this.router.navigate(['/my-products']);
               };
