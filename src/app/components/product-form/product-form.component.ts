@@ -48,7 +48,7 @@ export class ProductFormComponent implements OnInit {
 
   // File compression settings
   readonly MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
-  readonly MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 12MB
+  readonly MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB límite antes de comprimir
   readonly IMAGE_QUALITY = 0.8;
   readonly MAX_IMAGE_WIDTH = 1920;
   readonly MAX_IMAGE_HEIGHT = 1080;
@@ -439,6 +439,13 @@ export class ProductFormComponent implements OnInit {
         const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
         console.log(`[PRODUCT_FORM] Video selected: ${file.name} (${originalSizeMB}MB)`);
 
+        // Validate size BEFORE attempting compression
+        if (file.size > this.MAX_VIDEO_SIZE) {
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          this.showNotification(`El video ${file.name} es demasiado grande (${sizeMB}MB, máximo 50MB)`, 'error');
+          return null;
+        }
+
         // Check if video needs compression (larger than 20MB or not MP4)
         const needsCompression = file.size > 20 * 1024 * 1024 || !file.name.toLowerCase().endsWith('.mp4');
 
@@ -490,13 +497,6 @@ export class ProductFormComponent implements OnInit {
           }
         } else {
           console.log(`[PRODUCT_FORM] Video size OK (${originalSizeMB}MB), skipping compression`);
-        }
-
-        // Final size validation (after compression)
-        if (processedFile.size > this.MAX_VIDEO_SIZE) {
-          const sizeMB = (processedFile.size / (1024 * 1024)).toFixed(2);
-          this.showNotification(`El video ${file.name} sigue siendo demasiado grande después de comprimir (${sizeMB}MB, máximo 100MB)`, 'error');
-          return null;
         }
       }
 
