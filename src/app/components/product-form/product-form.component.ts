@@ -47,9 +47,9 @@ export class ProductFormComponent implements OnInit {
   isUploadingVideo = false;
 
   // File compression settings
-  readonly MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
+  readonly MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB - solo comprimir imágenes muy grandes
   readonly MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB límite antes de comprimir
-  readonly IMAGE_QUALITY = 0.8;
+  readonly IMAGE_QUALITY = 0.92; // Alta calidad para preservar detalles
   readonly MAX_IMAGE_WIDTH = 1920;
   readonly MAX_IMAGE_HEIGHT = 1080;
 
@@ -71,6 +71,28 @@ export class ProductFormComponent implements OnInit {
 
   get isVideoUploadDisabled(): boolean {
     return this.videoCount >= 3;
+  }
+
+  get isCompressing(): boolean {
+    return this.uploadProgress > 0 && this.uploadProgress < 100;
+  }
+
+  // Determina qué tipo de campo de edad mostrar
+  get ageFieldType(): 'teeth' | 'years' | 'months' {
+    const animalType = this.productForm.get('animal_type')?.value;
+    const gender = this.productForm.get('gender')?.value;
+
+    // Si es bovino (vaca o toro)
+    if (animalType === 'bovino') {
+      if (gender === 'female') {
+        return 'teeth';  // Vaca: por dientes
+      } else if (gender === 'male') {
+        return 'years';  // Toro: por años
+      }
+    }
+
+    // Otros animales o bovino mixto: por meses
+    return 'months';
   }
 
   // Location data
@@ -140,6 +162,7 @@ export class ProductFormComponent implements OnInit {
       capacity_tons: [''],
       capacity_cubic_meters: [''],
       price_per_km: [''],
+      startup_cost: [''],  // Arranque + gastos
       has_refrigeration: [false],
       has_livestock_equipment: [false],
       min_distance_km: [''],
@@ -153,10 +176,13 @@ export class ProductFormComponent implements OnInit {
       animal_type: [''],
       breed: [''],
       age_months: [''],
+      age_teeth: [''],  // Para vacas (bovino hembra)
+      age_years: [''],  // Para toros (bovino macho)
       weight_kg: [''],
       gender: [''],
       last_veterinary_check: [''],
       is_pregnant: [false],
+      pregnancy_months: [''],  // Meses de preñez (tacto o ecografía)
       is_castrated: [false],
       is_weaned: [false],
       genetic_information: [''],
@@ -187,10 +213,26 @@ export class ProductFormComponent implements OnInit {
 
     // Subscribe to gender changes to handle pregnancy field visibility
     this.productForm.get('gender')?.valueChanges.subscribe(gender => {
-      // If gender is not 'hembra', clear the is_pregnant field
-      if (gender !== 'hembra') {
+      // If gender is not 'female' or 'mixed', clear the is_pregnant field
+      if (gender !== 'female' && gender !== 'mixed') {
         this.productForm.get('is_pregnant')?.setValue(false);
+        this.productForm.get('pregnancy_months')?.setValue('');
       }
+
+      // Clear age fields when gender changes (will use appropriate field based on new gender)
+      this.clearAgeFields();
+    });
+
+    // Subscribe to is_pregnant changes to clear pregnancy_months when not pregnant
+    this.productForm.get('is_pregnant')?.valueChanges.subscribe(isPregnant => {
+      if (!isPregnant) {
+        this.productForm.get('pregnancy_months')?.setValue('');
+      }
+    });
+
+    // Subscribe to animal_type changes to clear age fields
+    this.productForm.get('animal_type')?.valueChanges.subscribe(() => {
+      this.clearAgeFields();
     });
 
     // Check for product ID from route parameter
@@ -464,6 +506,7 @@ export class ProductFormComponent implements OnInit {
                   if (event.progress) {
                     console.log(`[PRODUCT_FORM] Compression progress: ${event.progress.status} - ${event.progress.progress}%`);
                     this.uploadProgress = event.progress.progress;
+                    this.cdr.detectChanges(); // Force change detection on mobile
                   }
                   if (event.result) {
                     resolve({
@@ -475,7 +518,16 @@ export class ProductFormComponent implements OnInit {
                 },
                 error: (error: any) => {
                   console.error('[PRODUCT_FORM] Compression failed:', error);
+                  this.uploadProgress = 0; // Reset on error
+                  this.cdr.detectChanges(); // Force change detection
                   reject(error);
+                },
+                complete: () => {
+                  // Reset progress when observable completes
+                  setTimeout(() => {
+                    this.uploadProgress = 0;
+                    this.cdr.detectChanges(); // Force change detection
+                  }, 500); // Small delay to show completion
                 }
               });
             });
@@ -1118,6 +1170,13 @@ export class ProductFormComponent implements OnInit {
     this.showWeaningField = ageMonths !== null && ageMonths !== undefined && ageMonths <= 15;
   }
 
+  // Limpia todos los campos de edad cuando cambia el tipo de animal o género
+  clearAgeFields(): void {
+    this.productForm.get('age_months')?.setValue('');
+    this.productForm.get('age_teeth')?.setValue('');
+    this.productForm.get('age_years')?.setValue('');
+  }
+
   loadDepartments(provinceId: string): void {
     this.locationService.getDepartments({ provincia: provinceId, max: 50 }).subscribe({
       next: (response) => {
@@ -1188,12 +1247,14 @@ export class ProductFormComponent implements OnInit {
         'capacity_tons': [Validators.min(0)],
         'capacity_cubic_meters': [Validators.min(0)],
         'price_per_km': [Validators.min(0)],
+        'startup_cost': [Validators.min(0)],
         'min_distance_km': [Validators.min(0)],
         'max_distance_km': [Validators.min(0)],
         'vehicle_year': [Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]
       },
       'Ganado': {
         'animal_type': [Validators.required],
+        'gender': [Validators.required],
         'age_months': [Validators.min(0)],
         'weight_kg': [Validators.min(0)]
       },
@@ -1213,11 +1274,11 @@ export class ProductFormComponent implements OnInit {
 
   private clearCategoryValidations(): void {
     const categoryFields = [
-      'vehicle_type', 'capacity_tons', 'capacity_cubic_meters', 'price_per_km',
+      'vehicle_type', 'capacity_tons', 'capacity_cubic_meters', 'price_per_km', 'startup_cost',
       'has_refrigeration', 'has_livestock_equipment', 'min_distance_km', 'max_distance_km',
       'license_plate', 'license_expiry', 'insurance_expiry', 'vehicle_year',
-      'animal_type', 'breed', 'age_months', 'weight_kg', 'gender',
-      'last_veterinary_check', 'is_pregnant', 'is_castrated', 'is_weaned', 'genetic_information',
+      'animal_type', 'breed', 'age_months', 'age_teeth', 'age_years', 'weight_kg', 'gender',
+      'last_veterinary_check', 'is_pregnant', 'pregnancy_months', 'is_castrated', 'is_weaned', 'genetic_information',
       'supply_type', 'brand', 'model', 'concentration', 'expiry_date',
       'batch_number', 'registration_number', 'storage_requirements',
       'handling_instructions', 'disposal_instructions'
@@ -1280,8 +1341,8 @@ export class ProductFormComponent implements OnInit {
     const category = productData.category;
 
     // Clean up category-specific fields based on selected category
-    const transportFields = ['vehicle_type', 'capacity_tons', 'capacity_cubic_meters', 'price_per_km', 'has_refrigeration', 'has_livestock_equipment', 'min_distance_km', 'max_distance_km', 'license_plate', 'license_expiry', 'insurance_expiry', 'vehicle_year'];
-    const livestockFields = ['animal_type', 'breed', 'age_months', 'weight_kg', 'gender', 'last_veterinary_check', 'is_pregnant', 'is_castrated', 'is_weaned', 'genetic_information'];
+    const transportFields = ['vehicle_type', 'capacity_tons', 'capacity_cubic_meters', 'price_per_km', 'startup_cost', 'has_refrigeration', 'has_livestock_equipment', 'min_distance_km', 'max_distance_km', 'license_plate', 'license_expiry', 'insurance_expiry', 'vehicle_year'];
+    const livestockFields = ['animal_type', 'breed', 'age_months', 'age_teeth', 'age_years', 'weight_kg', 'gender', 'last_veterinary_check', 'is_pregnant', 'pregnancy_months', 'is_castrated', 'is_weaned', 'genetic_information'];
     const suppliesFields = ['supply_type', 'brand', 'model', 'concentration', 'expiry_date', 'batch_number', 'registration_number', 'storage_requirements', 'handling_instructions', 'disposal_instructions'];
 
     // Remove all category-specific fields first
@@ -1390,6 +1451,7 @@ export class ProductFormComponent implements OnInit {
       capacity_tons: detailsCopy.capacity_tons,
       capacity_cubic_meters: detailsCopy.capacity_cubic_meters,
       price_per_km: detailsCopy.price_per_km,
+      startup_cost: detailsCopy.startup_cost,
       has_refrigeration: detailsCopy.has_refrigeration,
       has_livestock_equipment: detailsCopy.has_livestock_equipment,
       min_distance_km: detailsCopy.min_distance_km,
@@ -1410,10 +1472,13 @@ export class ProductFormComponent implements OnInit {
       animal_type: detailsCopy.animal_type,
       breed: detailsCopy.breed,
       age_months: detailsCopy.age_months,
+      age_teeth: detailsCopy.age_teeth,
+      age_years: detailsCopy.age_years,
       weight_kg: detailsCopy.weight_kg,
       gender: detailsCopy.gender,
       last_veterinary_check: detailsCopy.last_veterinary_check,
       is_pregnant: detailsCopy.is_pregnant,
+      pregnancy_months: detailsCopy.pregnancy_months,
       is_castrated: detailsCopy.is_castrated,
       is_weaned: detailsCopy.is_weaned,
       genetic_information: detailsCopy.genetic_information
