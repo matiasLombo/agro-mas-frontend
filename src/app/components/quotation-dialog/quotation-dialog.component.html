@@ -46,20 +46,6 @@
             </button>
           </div>
         </div>
-
-        <!-- Price Change Indicator -->
-        <div class="price-change" *ngIf="priceChange !== 0">
-          <div class="change-info" [ngClass]="{
-            'increase': priceChange > 0,
-            'decrease': priceChange < 0
-          }">
-            <mat-icon>{{ priceChange > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-            <span>
-              {{ priceChange > 0 ? '+' : '' }}{{ formatPrice(priceChange) }}
-              ({{ priceChangePercentage > 0 ? '+' : '' }}{{ priceChangePercentage | number:'1.1-1' }}%)
-            </span>
-          </div>
-        </div>
       </div>
 
       <!-- Message -->

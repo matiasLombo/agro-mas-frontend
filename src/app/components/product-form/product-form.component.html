@@ -24,8 +24,24 @@
         </mat-form-field>
       </div>
 
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Categoría</mat-label>
+          <mat-select formControlName="category">
+            <mat-option value="">Selecciona una categoría</mat-option>
+            <mat-option *ngFor="let cat of categories" [value]="cat">
+              {{ cat }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="productForm.get('category')?.hasError('required')">
+            La categoría es obligatoria.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
       <div class="form-row">
-        <div class="form-group">
+        <!-- Campo Precio general - OCULTO para Transporte -->
+        <div class="form-group" *ngIf="selectedCategory !== 'Transporte'">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Precio ($)</mat-label>
             <input matInput type="number" formControlName="price" placeholder="Ej. 15000">
@@ -39,18 +55,23 @@
           </mat-form-field>
         </div>
 
-        <div class="form-group">
+        <!-- Precio por KM - SOLO para Transporte -->
+        <div class="form-group" *ngIf="selectedCategory === 'Transporte'">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Categoría</mat-label>
-            <mat-select formControlName="category">
-              <mat-option value="">Selecciona una categoría</mat-option>
-              <mat-option *ngFor="let cat of categories" [value]="cat">
-                {{ cat }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="productForm.get('category')?.hasError('required')">
-              La categoría es obligatoria.
-            </mat-error>
+            <mat-label>Precio por KM ($)</mat-label>
+            <input matInput type="number" formControlName="price_per_km" placeholder="Ej. 25" min="0">
+            <span matTextPrefix>$</span>
+            <mat-icon matSuffix>route</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Arranque + Gastos - SOLO para Transporte -->
+        <div class="form-group" *ngIf="selectedCategory === 'Transporte'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Arranque + Gastos ($)</mat-label>
+            <input matInput type="number" formControlName="startup_cost" placeholder="Ej. 5000" min="0">
+            <span matTextPrefix>$</span>
+            <mat-icon matSuffix>local_gas_station</mat-icon>
           </mat-form-field>
         </div>
       </div>
@@ -165,17 +186,6 @@
 
             <div class="form-group">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Precio por KM ($)</mat-label>
-                <input matInput type="number" formControlName="price_per_km" placeholder="Ej. 25">
-                <span matTextPrefix>$</span>
-                <mat-icon matSuffix>route</mat-icon>
-              </mat-form-field>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <mat-form-field appearance="outline" class="full-width">
                 <mat-label>¿Tiene refrigeración?</mat-label>
                 <mat-select formControlName="has_refrigeration">
                   <mat-option value="">Selecciona una opción</mat-option>
@@ -185,6 +195,9 @@
                 <mat-icon matSuffix>ac_unit</mat-icon>
               </mat-form-field>
             </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>¿Tiene equipamiento para ganado?</mat-label>
@@ -277,9 +290,16 @@
 
             <div class="form-group">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Raza</mat-label>
-                <input matInput formControlName="breed" placeholder="Ej. Angus, Hereford">
-                <mat-icon matSuffix>category</mat-icon>
+                <mat-label>Género</mat-label>
+                <mat-select formControlName="gender">
+                  <mat-option value="">Selecciona género</mat-option>
+                  <mat-option value="male">Macho</mat-option>
+                  <mat-option value="female">Hembra</mat-option>
+                  <mat-option value="mixed">Macho y hembra</mat-option>
+                </mat-select>
+                <mat-error *ngIf="productForm.get('gender')?.hasError('required')">
+                  El género es obligatorio.
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
@@ -287,10 +307,9 @@
           <div class="form-row">
             <div class="form-group">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Edad (Meses)</mat-label>
-                <input matInput type="number" formControlName="age_months" placeholder="Ej. 18"
-                  (blur)="checkAgeForWeaning()">
-                <mat-icon matSuffix>schedule</mat-icon>
+                <mat-label>Raza</mat-label>
+                <input matInput formControlName="breed" placeholder="Ej. Angus, Hereford">
+                <mat-icon matSuffix>category</mat-icon>
               </mat-form-field>
             </div>
 
@@ -304,15 +323,32 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group">
+            <!-- Campo de edad por DIENTES (para vacas) -->
+            <div class="form-group" *ngIf="ageFieldType === 'teeth'">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Género</mat-label>
-                <mat-select formControlName="gender">
-                  <mat-option value="">Selecciona género</mat-option>
-                  <mat-option value="male">Macho</mat-option>
-                  <mat-option value="female">Hembra</mat-option>
-                </mat-select>
-                <mat-icon matSuffix>wc</mat-icon>
+                <mat-label>Edad (Dientes)</mat-label>
+                <input matInput type="text" formControlName="age_teeth"
+                  placeholder="Ej. 2 dientes, 4 dientes, boca llena">
+                <mat-icon matSuffix>veterinary</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- Campo de edad por AÑOS (para toros) -->
+            <div class="form-group" *ngIf="ageFieldType === 'years'">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Edad (Años)</mat-label>
+                <input matInput type="number" formControlName="age_years" placeholder="Ej. 3" min="0">
+                <mat-icon matSuffix>schedule</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- Campo de edad por MESES (para otros animales) -->
+            <div class="form-group" *ngIf="ageFieldType === 'months'">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Edad (Meses)</mat-label>
+                <input matInput type="number" formControlName="age_months" placeholder="Ej. 18"
+                  (blur)="checkAgeForWeaning()" min="0">
+                <mat-icon matSuffix>schedule</mat-icon>
               </mat-form-field>
             </div>
 
@@ -326,7 +362,8 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group" *ngIf="productForm.get('gender')?.value === 'female'">
+            <div class="form-group"
+              *ngIf="productForm.get('gender')?.value === 'female' || productForm.get('gender')?.value === 'mixed'">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>¿Está preñada?</mat-label>
                 <mat-select formControlName="is_pregnant">
@@ -334,10 +371,19 @@
                   <mat-option [value]="true">Sí</mat-option>
                   <mat-option [value]="false">No</mat-option>
                 </mat-select>
-                <mat-icon matSuffix>pregnant_woman</mat-icon>
               </mat-form-field>
             </div>
-            <div class="form-group">
+
+            <!-- Campo de meses de preñez, visible solo si is_pregnant es true -->
+            <div class="form-group" *ngIf="productForm.get('is_pregnant')?.value === true">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Meses de preñez (tacto o ecografía)</mat-label>
+                <input matInput type="number" formControlName="pregnancy_months" placeholder="Ej. 3" min="0" max="12">
+                <mat-icon matSuffix>calendar_month</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group" *ngIf="productForm.get('is_pregnant')?.value !== true">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>¿Está castrado?</mat-label>
                 <mat-select formControlName="is_castrated">
@@ -345,7 +391,6 @@
                   <mat-option [value]="true">Sí</mat-option>
                   <mat-option [value]="false">No</mat-option>
                 </mat-select>
-                <mat-icon matSuffix>content_cut</mat-icon>
               </mat-form-field>
             </div>
           </div>
@@ -599,9 +644,10 @@
         </div>
       </div>
 
-      <div *ngIf="isUploading" class="upload-indicator">
+      <div *ngIf="isUploading || isCompressing" class="upload-indicator">
         <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
-        <span>Subiendo archivos... {{ uploadProgress | number:'1.0-0' }}%</span>
+        <span>{{ isCompressing ? 'Comprimiendo video...' : 'Subiendo archivos...' }} {{ uploadProgress | number:'1.0-0'
+          }}%</span>
       </div>
 
       <!-- Existing Images Section -->
@@ -673,7 +719,8 @@
           {{ isEditMode ? 'Volver' : 'Cancelar' }}
         </button>
 
-        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isUploading || isLoading">
+        <button type="submit" class="btn btn-primary"
+          [disabled]="productForm.invalid || isUploading || isLoading || isCompressing">
           <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
           <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'publish' }}</mat-icon>
           {{ isLoading ? (isEditMode ? 'Guardando...' : 'Publicando...') : (isEditMode ? 'Actualizar producto' :

@@ -112,6 +112,7 @@ export interface TransportDetails {
     capacity_tons?: number;
     capacity_cubic_meters?: number;
     price_per_km?: number;
+    startup_cost?: number;  // Arranque + gastos
     has_refrigeration: boolean;
     has_livestock_equipment: boolean;
     service_provinces: string[];
@@ -130,6 +131,8 @@ export interface LivestockDetails {
     animal_type: string;
     breed?: string;
     age_months?: number;
+    age_teeth?: string;  // Para vacas: 2_dientes, 4_dientes, 6_dientes, boca_llena
+    age_years?: number;  // Para toros
     weight_kg?: number;
     gender?: string;
     health_certificates: string[];
@@ -137,6 +140,7 @@ export interface LivestockDetails {
     last_veterinary_check?: string;
     is_organic: boolean;
     is_pregnant?: boolean;
+    pregnancy_months?: number;  // Meses de preñez (tacto o ecografía)
     breeding_history?: BreedingRecord[];
     genetic_information?: string;
     created_at?: string;
