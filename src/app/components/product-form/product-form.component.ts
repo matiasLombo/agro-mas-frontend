@@ -392,6 +392,7 @@ export class ProductFormComponent implements OnInit {
 
     try {
       // Process files with compression
+      let successfullyProcessed = 0;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const progress = ((i + 1) / files.length) * 100; // 100% for processing
@@ -400,24 +401,24 @@ export class ProductFormComponent implements OnInit {
         const preview = await this.processFile(file, type);
         if (preview) {
           this.filePreviews.push(preview);
+          successfullyProcessed++;
         }
       }
 
       // Force change detection to update template
       this.cdr.detectChanges();
 
-      // Show success notification
-      const imageCount = this.filePreviews.filter(f => f.type === 'image').length;
-      const videoCount = this.filePreviews.filter(f => f.type === 'video').length;
+      // Show success notification only if at least one file was processed successfully
+      if (successfullyProcessed > 0) {
+        let message = '';
+        if (type === 'image') {
+          message = `${successfullyProcessed} imagen(es) lista(s) para subir`;
+        } else {
+          message = `${successfullyProcessed} video(s) listo(s) para subir`;
+        }
 
-      let message = '';
-      if (type === 'image') {
-        message = `${files.length} imagen(es) lista(s) para subir`;
-      } else {
-        message = `${files.length} video(s) listo(s) para subir`;
+        this.showNotification(message, 'success');
       }
-
-      this.showNotification(message, 'success');
 
     } catch (error) {
       console.error('Error processing files:', error);
