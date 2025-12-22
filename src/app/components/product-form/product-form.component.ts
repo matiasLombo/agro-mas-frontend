@@ -477,80 +477,23 @@ export class ProductFormComponent implements OnInit {
         }
       }
 
-      // Compress videos BEFORE uploading to avoid 413 error
+      // Handle videos - backend will compress if needed
       if (type === 'video') {
         const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
         console.log(`[PRODUCT_FORM] Video selected: ${file.name} (${originalSizeMB}MB)`);
 
-        // Validate size BEFORE attempting compression
+        // Validate size - reject if larger than 100MB
         if (file.size > this.MAX_VIDEO_SIZE) {
           const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          this.showNotification(`El video ${file.name} es demasiado grande (${sizeMB}MB, máximo 50MB)`, 'error');
+          this.showNotification(
+            `El video ${file.name} es demasiado grande (${sizeMB}MB, máximo 100MB)`,
+            'error'
+          );
           return null;
         }
 
-        // Check if video needs compression (larger than 20MB or not MP4)
-        const needsCompression = file.size > 20 * 1024 * 1024 || !file.name.toLowerCase().endsWith('.mp4');
-
-        if (needsCompression) {
-          try {
-            this.showNotification(`Comprimiendo ${file.name}... Esto puede tardar 1-2 minutos.`, 'warning');
-
-            // Compress video using VideoCompressionService
-            const result = await new Promise<{ file: File; originalSize: number; compressedSize: number }>((resolve, reject) => {
-              this.videoCompressionService.compressVideoAsync(file, {
-                maxWidth: 720,
-                crf: 28,
-                format: 'mp4'
-              }).subscribe({
-                next: (event: any) => {
-                  if (event.progress) {
-                    console.log(`[PRODUCT_FORM] Compression progress: ${event.progress.status} - ${event.progress.progress}%`);
-                    this.uploadProgress = event.progress.progress;
-                    this.cdr.detectChanges(); // Force change detection on mobile
-                  }
-                  if (event.result) {
-                    resolve({
-                      file: event.result.file,
-                      originalSize: file.size,
-                      compressedSize: event.result.compressedSize
-                    });
-                  }
-                },
-                error: (error: any) => {
-                  console.error('[PRODUCT_FORM] Compression failed:', error);
-                  this.uploadProgress = 0; // Reset on error
-                  this.cdr.detectChanges(); // Force change detection
-                  reject(error);
-                },
-                complete: () => {
-                  // Reset progress when observable completes
-                  setTimeout(() => {
-                    this.uploadProgress = 0;
-                    this.cdr.detectChanges(); // Force change detection
-                  }, 500); // Small delay to show completion
-                }
-              });
-            });
-
-            processedFile = result.file;
-            compressedSize = result.compressedSize;
-            compressed = true;
-
-            const compressedSizeMB = (compressedSize / (1024 * 1024)).toFixed(2);
-            const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(0);
-
-            console.log(`[PRODUCT_FORM] Video compressed: ${originalSizeMB}MB → ${compressedSizeMB}MB (${reduction}% reduction)`);
-            this.showNotification(`Video comprimido: ${originalSizeMB}MB → ${compressedSizeMB}MB`, 'success');
-
-          } catch (error) {
-            console.error('[PRODUCT_FORM] Video compression failed:', error);
-            this.showNotification('Error al comprimir video. Por favor intenta con un archivo más pequeño.', 'error');
-            return null;
-          }
-        } else {
-          console.log(`[PRODUCT_FORM] Video size OK (${originalSizeMB}MB), skipping compression`);
-        }
+        // No compression on frontend - backend will handle it
+        console.log(`[PRODUCT_FORM] Video will be uploaded to server for processing (${originalSizeMB}MB)`);
       }
 
       // Create preview URL with processed file
@@ -774,9 +717,19 @@ export class ProductFormComponent implements OnInit {
         // Add minimum delay to show loading overlay
         const startTime = Date.now();
 
-        // Update existing product
-        this.productService.updateProductWithMedia(this.productId, productData, newImageFiles, newVideoFiles, this.uploadedImages).subscribe({
-          next: (response) => {
+        // Update existing product with images only (videos will be uploaded separately)
+        this.productService.updateProductWithMedia(this.productId, productData, newImageFiles, [], this.uploadedImages).subscribe({
+          next: async (response) => {
+            // Upload videos using Signed URLs if any
+            if (newVideoFiles.length > 0) {
+              try {
+                await this.uploadVideosWithSignedURLs(this.productId!, newVideoFiles);
+              } catch (error) {
+                console.error('Error uploading videos:', error);
+                this.toastService.showWarning('Producto actualizado pero algunos videos no se pudieron subir', 'Advertencia');
+              }
+            }
+
             const elapsed = Date.now() - startTime;
             const minDelay = 1000; // 1 segundo mínimo
 
@@ -829,20 +782,28 @@ export class ProductFormComponent implements OnInit {
           .filter(preview => preview.type === 'video')
           .map(preview => preview.file);
 
-        if (imageFiles.length > 0 || videoFiles.length > 0) {
-          // Add minimum delay to show loading overlay
-          const startTime = Date.now();
+        // Add minimum delay to show loading overlay
+        const startTime = Date.now();
 
-          // Use FormData method for products with media
-          this.productService.createProductWithMedia(productData, imageFiles, videoFiles).subscribe({
-            next: (response) => {
+        // Create product with images only (videos will be uploaded separately)
+        if (imageFiles.length > 0) {
+          this.productService.createProductWithMedia(productData, imageFiles, []).subscribe({
+            next: async (product) => {
+              // Upload videos using Signed URLs if any
+              if (videoFiles.length > 0) {
+                try {
+                  await this.uploadVideosWithSignedURLs(product.id, videoFiles);
+                } catch (error) {
+                  console.error('Error uploading videos:', error);
+                  this.toastService.showWarning('Producto creado pero algunos videos no se pudieron subir', 'Advertencia');
+                }
+              }
+
               const elapsed = Date.now() - startTime;
               const minDelay = 1000;
 
               const completeCreation = () => {
                 this.isLoading = false;
-
-                // Videos were already compressed before upload, so no background processing needed
                 this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
                 this.router.navigate(['/my-products']);
               };
@@ -863,7 +824,71 @@ export class ProductFormComponent implements OnInit {
 
                 let errorMessage = 'Error al crear el producto';
 
-                // Usar el mensaje del backend si está disponible
+                if (error.message && !error.message.includes('Ha ocurrido un error')) {
+                  errorMessage = error.message;
+                } else if (error.code) {
+                  errorMessage = `Error: ${error.code}`;
+                }
+
+                this.toastService.showError(errorMessage, 'Error');
+              };
+
+              if (elapsed < minDelay) {
+                setTimeout(handleError, minDelay - elapsed);
+              } else {
+                handleError();
+              }
+            }
+          });
+        } else if (videoFiles.length > 0) {
+          // No images, create product first then upload videos
+          this.productService.createProduct(productData).subscribe({
+            next: async (product) => {
+              try {
+                await this.uploadVideosWithSignedURLs(product.id, videoFiles);
+
+                const elapsed = Date.now() - startTime;
+                const minDelay = 1000;
+
+                const completeCreation = () => {
+                  this.isLoading = false;
+                  this.toastService.showSuccess('¡Producto creado exitosamente!', 'Éxito');
+                  this.router.navigate(['/my-products']);
+                };
+
+                if (elapsed < minDelay) {
+                  setTimeout(completeCreation, minDelay - elapsed);
+                } else {
+                  completeCreation();
+                }
+              } catch (error) {
+                console.error('Error uploading videos:', error);
+
+                const elapsed = Date.now() - startTime;
+                const minDelay = 1000;
+
+                const handleError = () => {
+                  this.isLoading = false;
+                  this.toastService.showError('Producto creado pero videos no se pudieron subir', 'Error');
+                };
+
+                if (elapsed < minDelay) {
+                  setTimeout(handleError, minDelay - elapsed);
+                } else {
+                  handleError();
+                }
+              }
+            },
+            error: (error) => {
+              const elapsed = Date.now() - startTime;
+              const minDelay = 1000;
+
+              const handleError = () => {
+                this.isLoading = false;
+                console.error('Error creating product:', error);
+
+                let errorMessage = 'Error al crear el producto';
+
                 if (error.message && !error.message.includes('Ha ocurrido un error')) {
                   errorMessage = error.message;
                 } else if (error.code) {
@@ -881,10 +906,8 @@ export class ProductFormComponent implements OnInit {
             }
           });
         } else {
-          // Add minimum delay to show loading overlay
+          // No images and no videos - create product with JSON only
           const startTime = Date.now();
-
-          // Use regular JSON method for products without media
           this.productService.createProduct(productData).subscribe({
             next: (response) => {
               const elapsed = Date.now() - startTime;
@@ -934,6 +957,92 @@ export class ProductFormComponent implements OnInit {
     } else {
       this.toastService.showWarning('Por favor completa todos los campos requeridos', 'Advertencia');
     }
+  }
+
+  /**
+   * Upload videos using Signed URLs (direct to GCS)
+   */
+  private getContentType(file: File): string {
+    // If browser provides content type, use it
+    if (file.type) {
+      return file.type;
+    }
+
+    // Fallback: detect from file extension
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const mimeTypes: { [key: string]: string } = {
+      'mov': 'video/quicktime',
+      'mp4': 'video/mp4',
+      'avi': 'video/x-msvideo',
+      'webm': 'video/webm',
+      'mkv': 'video/x-matroska',
+      'wmv': 'video/x-ms-wmv',
+      'flv': 'video/x-flv',
+      '3gp': 'video/3gpp',
+      'm4v': 'video/x-m4v'
+    };
+
+    return mimeTypes[extension || ''] || 'video/mp4'; // Default to video/mp4
+  }
+
+  private async uploadVideosWithSignedURLs(productId: string, videoFiles: File[]): Promise<void> {
+    if (videoFiles.length === 0) {
+      return;
+    }
+
+    console.log(`[VIDEO_UPLOAD] Starting upload of ${videoFiles.length} videos for product ${productId}`);
+
+    for (let i = 0; i < videoFiles.length; i++) {
+      const file = videoFiles[i];
+      const altText = `Product video ${i + 1}`;
+      const isPrimary = i === 0;
+      const displayOrder = i + 1;
+      const contentType = this.getContentType(file);
+
+      try {
+        // Step 1: Get signed URL from backend
+        console.log(`[VIDEO_UPLOAD] Requesting signed URL for ${file.name}`);
+        console.log(`[VIDEO_UPLOAD] ProductID being sent: "${productId}" (type: ${typeof productId})`);
+        console.log(`[VIDEO_UPLOAD] File details - Name: ${file.name}, Type: ${file.type}, Detected: ${contentType}, Size: ${file.size}`);
+        const urlResponse = await this.productService.generateVideoUploadURL(
+          productId,
+          file.name,
+          contentType,
+          file.size
+        ).toPromise();
+
+        if (!urlResponse) {
+          throw new Error('Failed to get upload URL');
+        }
+
+        console.log(`[VIDEO_UPLOAD] Got signed URL, uploading to GCS...`);
+
+        // Step 2: Upload file directly to GCS
+        await this.productService.uploadVideoToGCS(urlResponse.upload_url, file, contentType).toPromise();
+
+        console.log(`[VIDEO_UPLOAD] Upload to GCS successful, confirming...`);
+
+        // Step 3: Confirm upload with backend
+        await this.productService.confirmVideoUpload(
+          productId,
+          urlResponse.storage_path,
+          file.name,
+          file.size,
+          contentType,
+          altText,
+          isPrimary,
+          displayOrder
+        ).toPromise();
+
+        console.log(`[VIDEO_UPLOAD] Video ${i + 1}/${videoFiles.length} uploaded successfully`);
+
+      } catch (error) {
+        console.error(`[VIDEO_UPLOAD] Error uploading video ${file.name}:`, error);
+        throw error; // Re-throw to handle in onSubmit
+      }
+    }
+
+    console.log(`[VIDEO_UPLOAD] All videos uploaded successfully`);
   }
 
   removeImage(imageId: string): void {
@@ -1263,6 +1372,16 @@ export class ProductFormComponent implements OnInit {
         'supply_type': [Validators.required]
       }
     };
+
+    // For Transporte, remove price requirement (uses price_per_km and startup_cost instead)
+    if (category === 'Transporte') {
+      this.productForm.get('price')?.clearValidators();
+      this.productForm.get('price')?.updateValueAndValidity();
+    } else {
+      // For other categories, price is required
+      this.productForm.get('price')?.setValidators([Validators.required, Validators.min(0)]);
+      this.productForm.get('price')?.updateValueAndValidity();
+    }
 
     const validators = validatorMap[category];
     if (validators) {

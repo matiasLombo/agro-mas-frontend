@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Product, ProductSearchRequest, ProductSearchResponse, ProductImage } from '@core/models/product.model';
 
@@ -89,7 +90,9 @@ export class ProductService {
    * Create a new product
    */
   createProduct(product: Partial<Product>): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/`, product);
+    return this.http.post<{ product: Product }>(`${this.apiUrl}/`, product).pipe(
+      map(response => response.product)
+    );
   }
 
   /**
@@ -106,7 +109,9 @@ export class ProductService {
       formData.append('image', image, image.name);
     });
 
-    return this.http.post<Product>(`${this.apiUrl}/`, formData);
+    return this.http.post<{ product: Product }>(`${this.apiUrl}/`, formData).pipe(
+      map(response => response.product)
+    );
   }
 
   /**
@@ -128,14 +133,18 @@ export class ProductService {
       formData.append('video', video, video.name);
     });
 
-    return this.http.post<Product>(`${this.apiUrl}/`, formData);
+    return this.http.post<{ product: Product }>(`${this.apiUrl}/`, formData).pipe(
+      map(response => response.product)
+    );
   }
 
   /**
    * Update an existing product
    */
   updateProduct(productId: string, updates: Partial<Product>): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${productId}`, updates);
+    return this.http.put<{ product: Product }>(`${this.apiUrl}/${productId}`, updates).pipe(
+      map(response => response.product)
+    );
   }
 
   /**
@@ -185,7 +194,9 @@ export class ProductService {
       formData.append('image', image, image.name);
     });
 
-    return this.http.put<Product>(`${this.apiUrl}/${productId}`, formData);
+    return this.http.put<{ product: Product }>(`${this.apiUrl}/${productId}`, formData).pipe(
+      map(response => response.product)
+    );
   }
 
   /**
@@ -223,7 +234,9 @@ export class ProductService {
       formData.append('video', video, video.name);
     });
 
-    return this.http.put<Product>(`${this.apiUrl}/${productId}`, formData);
+    return this.http.put<{ product: Product }>(`${this.apiUrl}/${productId}`, formData).pipe(
+      map(response => response.product)
+    );
   }
 
   /**
@@ -257,6 +270,47 @@ export class ProductService {
    */
   getProductImages(productId: string): Observable<ProductImage[]> {
     return this.http.get<ProductImage[]>(`${this.apiUrl}/${productId}/images`);
+  }
+
+  /**
+   * Generate a signed URL for uploading a video directly to GCS
+   */
+  generateVideoUploadURL(productId: string, filename: string, contentType: string, fileSize: number): Observable<{ upload_url: string; storage_path: string }> {
+    return this.http.post<{ upload_url: string; storage_path: string }>(`${this.apiUrl}/videos/upload-url`, {
+      product_id: productId,
+      filename: filename,
+      content_type: contentType,
+      file_size: fileSize
+    });
+  }
+
+  /**
+   * Upload video directly to GCS using signed URL
+   */
+  uploadVideoToGCS(signedUrl: string, file: File, contentType?: string): Observable<any> {
+    return this.http.put(signedUrl, file, {
+      headers: {
+        'Content-Type': contentType || file.type || 'video/mp4'
+      },
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+
+  /**
+   * Confirm video upload and create database record
+   */
+  confirmVideoUpload(productId: string, storagePath: string, filename: string, fileSize: number, contentType: string, altText: string, isPrimary: boolean, displayOrder: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/videos/confirm`, {
+      product_id: productId,
+      storage_path: storagePath,
+      filename: filename,
+      file_size: fileSize,
+      content_type: contentType,
+      alt_text: altText,
+      is_primary: isPrimary,
+      display_order: displayOrder
+    });
   }
 
 }
