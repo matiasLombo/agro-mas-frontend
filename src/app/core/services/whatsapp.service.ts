@@ -61,7 +61,16 @@ export class WhatsAppService {
      * @param whatsappUrl The WhatsApp URL to open
      */
     openWhatsApp(whatsappUrl: string): void {
-        window.open(whatsappUrl, '_blank');
+        // Detect if running on iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        
+        if (isIOS) {
+            // On iOS, use window.location.href for better compatibility with Safari
+            window.location.href = whatsappUrl;
+        } else {
+            // On other platforms, open in new tab
+            window.open(whatsappUrl, '_blank');
+        }
     }
 
     /**
