@@ -693,6 +693,11 @@ export class ProductFormComponent implements OnInit {
         productData.category = categoryMapping[productData.category];
       }
 
+      // For transport category, remove price field (use price_per_km and startup_cost instead)
+      if (productData.category === 'transport') {
+        delete productData.price;
+      }
+
       // Prepare category-specific details first
       this.prepareCategorySpecificData(productData);
 
@@ -1107,6 +1112,11 @@ export class ProductFormComponent implements OnInit {
 
     if (productData.category && categoryMapping[productData.category]) {
       productData.category = categoryMapping[productData.category];
+    }
+
+    // For transport category, remove price field (use price_per_km and startup_cost instead)
+    if (productData.category === 'transport') {
+      delete productData.price;
     }
 
     // Prepare category-specific details first
