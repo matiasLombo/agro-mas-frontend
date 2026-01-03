@@ -6,6 +6,7 @@ import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsAppService } from '../../core/services/whatsapp.service';
+import { FavoritesService } from '../../core/services/favorites.service';
 import { Product, ProductSearchResponse } from '@core/models/product.model';
 import { images } from '@core/constants/images.constants';
 import { QuotationDialogComponent } from '../quotation-dialog/quotation-dialog.component';
@@ -30,13 +31,17 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   selectedCategory = '';
   selectedLocation = '';
 
+  // Favorites
+  favoritesMap: Map<string, boolean> = new Map();
+
   constructor(
     private productService: ProductService,
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
     private dialog: MatDialog,
-    private whatsAppService: WhatsAppService
+    private whatsAppService: WhatsAppService,
+    private favoritesService: FavoritesService
   ) { }
 
   ngOnInit() {
@@ -73,6 +78,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
           this.products = response.products;
           this.totalProducts = response.total_count;
           this.hasError = false;
+          this.loadFavoritesForProducts();
         },
         error: (error) => {
           console.error('Error loading products:', error);
@@ -102,6 +108,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
           this.products = response.products;
           this.totalProducts = response.total_count;
           this.hasError = false;
+          this.loadFavoritesForProducts();
         },
         error: (error) => {
           console.error('Error loading products by category:', error);
@@ -136,6 +143,7 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
           this.products = response.products;
           this.totalProducts = response.total_count;
           this.hasError = false;
+          this.loadFavoritesForProducts();
         },
         error: (error) => {
           console.error('Error searching products:', error);
@@ -168,6 +176,23 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
       currency: product.currency || 'ARS',
       minimumFractionDigits: 0
     });
+
+    // Handle transport category - show price per km
+    if (product.category === 'transport' && product.transport_details) {
+      const pricePerKm = product.transport_details.price_per_km ?? 0;
+      const startupCost = product.transport_details.startup_cost ?? 0;
+
+      let priceText = `${formatter.format(pricePerKm)} / km`;
+      if (startupCost > 0) {
+        priceText += ` + ${formatter.format(startupCost)} arranque`;
+      }
+      return priceText;
+    }
+
+    // Handle other categories - show regular price
+    if (product.price === undefined || product.price === null) {
+      return formatter.format(0);
+    }
 
     let priceText = formatter.format(product.price);
     if (product.unit) {
@@ -367,5 +392,82 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
   hasVideo(product: Product): boolean {
     return !!(product.videos && product.videos.length > 0 &&
       product.videos.some(vid => vid.video_url && vid.video_url !== 'processing' && vid.video_url !== 'upload_failed'));
+  }
+
+  /**
+   * Load favorited products for authenticated users
+   */
+  loadFavoritesForProducts(): void {
+    if (!this.isAuthenticated || this.products.length === 0) {
+      return;
+    }
+
+    const productIds = this.products.map(p => p.id);
+
+    this.favoritesService.checkFavorites(productIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          Object.entries(response.favorites).forEach(([productId, isFavorited]) => {
+            this.favoritesMap.set(productId, isFavorited);
+          });
+        },
+        error: (error) => {
+          console.error('Error loading favorites:', error);
+          // Don't show error to user - non-critical feature
+        }
+      });
+  }
+
+  /**
+   * Toggle favorite status for a product
+   */
+  toggleFavorite(event: Event, productId: string): void {
+    event.stopPropagation(); // Prevent navigation to product detail
+
+    if (!this.isAuthenticated) {
+      this.toastService.showInfo('Debes iniciar sesión para guardar favoritos', 'Información');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const isFavorited = this.favoritesMap.get(productId) || false;
+
+    // Optimistic UI update
+    this.favoritesMap.set(productId, !isFavorited);
+
+    // Update favorites count on product
+    const product = this.products.find(p => p.id === productId);
+    if (product) {
+      product.favorites_count += isFavorited ? -1 : 1;
+    }
+
+    this.favoritesService.toggleFavorite(productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.favoritesMap.set(productId, response.is_favorited);
+          const message = response.is_favorited
+            ? 'Producto agregado a favoritos'
+            : 'Producto eliminado de favoritos';
+          this.toastService.showSuccess(message, 'Éxito');
+        },
+        error: (error) => {
+          console.error('Error toggling favorite:', error);
+          // Rollback optimistic update
+          this.favoritesMap.set(productId, isFavorited);
+          if (product) {
+            product.favorites_count += isFavorited ? 1 : -1;
+          }
+          this.toastService.showError('Error al actualizar favoritos', 'Error');
+        }
+      });
+  }
+
+  /**
+   * Check if a product is favorited
+   */
+  isFavorited(productId: string): boolean {
+    return this.favoritesMap.get(productId) || false;
   }
 }

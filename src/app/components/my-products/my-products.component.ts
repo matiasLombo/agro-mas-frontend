@@ -115,37 +115,28 @@ export class MyProductsComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(product: Product): string {
-    // Handle transport category - show price per km
-    if (product.category === 'transport' && product.transport_details) {
-      const formatter = new Intl.NumberFormat('es-AR', {
-        style: 'currency',
-        currency: product.currency || 'ARS',
-        minimumFractionDigits: 0
-      });
-
-      const pricePerKm = product.transport_details.price_per_km;
-      const startupCost = product.transport_details.startup_cost;
-
-      if (pricePerKm !== undefined && pricePerKm !== null) {
-        let priceText = `${formatter.format(pricePerKm)} / km`;
-        if (startupCost !== undefined && startupCost !== null && startupCost > 0) {
-          priceText += ` + ${formatter.format(startupCost)} arranque`;
-        }
-        return priceText;
-      }
-      return 'Precio a consultar';
-    }
-
-    // Handle other categories - show regular price
-    if (product.price === undefined || product.price === null) {
-      return 'Precio a consultar';
-    }
-
     const formatter = new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: product.currency || 'ARS',
       minimumFractionDigits: 0
     });
+
+    // Handle transport category - show price per km
+    if (product.category === 'transport' && product.transport_details) {
+      const pricePerKm = product.transport_details.price_per_km ?? 0;
+      const startupCost = product.transport_details.startup_cost ?? 0;
+
+      let priceText = `${formatter.format(pricePerKm)} / km`;
+      if (startupCost > 0) {
+        priceText += ` + ${formatter.format(startupCost)} arranque`;
+      }
+      return priceText;
+    }
+
+    // Handle other categories - show regular price
+    if (product.price === undefined || product.price === null) {
+      return formatter.format(0);
+    }
 
     let priceText = formatter.format(product.price);
     if (product.unit) {

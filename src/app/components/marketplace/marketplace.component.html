@@ -160,6 +160,18 @@
             class="product-img" (error)="onImageError($event)">
 
           <div class="product-category-badge">{{ getCategoryName(product.category) }}</div>
+
+          <!-- Favorite Button (top-right over image) -->
+          <button
+            *ngIf="isAuthenticated"
+            mat-icon-button
+            class="favorite-button"
+            [class.favorited]="isFavorited(product.id)"
+            (click)="toggleFavorite($event, product.id)"
+            [matTooltip]="isFavorited(product.id) ? 'Eliminar de favoritos' : 'Agregar a favoritos'"
+          >
+            <mat-icon>{{ isFavorited(product.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
         </div>
         <div class="product-content">
           <h3 class="product-title">{{ product.title }}</h3>

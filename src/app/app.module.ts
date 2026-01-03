@@ -47,6 +47,7 @@ import { SellerSetupModalComponent } from './components/seller-setup-modal/selle
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { MyProductsComponent } from './components/my-products/my-products.component';
 import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
+import { MyFavoritesComponent } from './components/my-favorites/my-favorites.component';
 // Dialog Components
 import { DeleteProductDialogComponent } from './components/delete-product-dialog/delete-product-dialog.component';
 import { QuotationDialogComponent } from './components/quotation-dialog/quotation-dialog.component';
@@ -82,6 +83,7 @@ import { environment } from '@environments/environment';
     ProductDetailComponent,
     MyProductsComponent,
     MyPurchasesComponent,
+    MyFavoritesComponent,
     DeleteProductDialogComponent,
     QuotationDialogComponent,
     CancelIntentionDialogComponent

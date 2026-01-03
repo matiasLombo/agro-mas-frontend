@@ -58,10 +58,16 @@
         <!-- Precio por KM - SOLO para Transporte -->
         <div class="form-group" *ngIf="selectedCategory === 'Transporte'">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Precio por KM ($)</mat-label>
+            <mat-label>Precio por KM ($) *</mat-label>
             <input matInput type="number" formControlName="price_per_km" placeholder="Ej. 25" min="0">
             <span matTextPrefix>$</span>
             <mat-icon matSuffix>route</mat-icon>
+            <mat-error *ngIf="productForm.get('price_per_km')?.hasError('required')">
+              El precio por KM es obligatorio.
+            </mat-error>
+            <mat-error *ngIf="productForm.get('price_per_km')?.hasError('min')">
+              El precio por KM no puede ser negativo.
+            </mat-error>
           </mat-form-field>
         </div>
 

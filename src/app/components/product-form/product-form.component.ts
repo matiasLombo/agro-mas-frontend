@@ -1366,7 +1366,7 @@ export class ProductFormComponent implements OnInit {
         'vehicle_type': [Validators.required],
         'capacity_tons': [Validators.min(0)],
         'capacity_cubic_meters': [Validators.min(0)],
-        'price_per_km': [Validators.min(0)],
+        'price_per_km': [Validators.required, Validators.min(0)],
         'startup_cost': [Validators.min(0)],
         'min_distance_km': [Validators.min(0)],
         'max_distance_km': [Validators.min(0)],

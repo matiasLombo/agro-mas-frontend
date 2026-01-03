@@ -124,4 +124,19 @@ export class AuthService {
         map(response => response.user)
       );
   }
+
+  uploadProfilePicture(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/auth/profile-picture`, formData)
+      .pipe(
+        tap(response => {
+          // Backend returns {message: string, profile_picture_url: string, user: User}
+          const updatedUser = response.user;
+          console.log('AuthService - Updating user with profile picture:', updatedUser?.profile_picture_url);
+          // Update the current user in memory and localStorage
+          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          this.currentUserSubject.next(updatedUser);
+          console.log('AuthService - Current user updated, new value:', this.currentUserSubject.value);
+        })
+      );
+  }
 }

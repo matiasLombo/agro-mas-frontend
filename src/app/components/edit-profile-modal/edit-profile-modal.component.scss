@@ -139,6 +139,75 @@
   width: 100%;
 }
 
+// Profile Picture Section
+.profile-picture-section {
+  .profile-picture-upload {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    .current-picture {
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #4caf50;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+        border: 3px solid #4caf50;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+          font-size: 60px;
+          width: 60px;
+          height: 60px;
+          color: white;
+        }
+      }
+    }
+
+    .upload-controls {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      button {
+        align-self: flex-start;
+        min-width: 160px;
+
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+
+      .upload-hint {
+        margin: 0;
+        font-size: 13px;
+        color: #666;
+      }
+
+      .upload-progress {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #4caf50;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
 // Dialog actions - idénticos al seller-setup-modal
 .dialog-actions {
   padding: 24px 32px 32px 32px;
@@ -189,6 +258,35 @@
 
 // Responsive design - idénticos al seller-setup-modal
 @media (max-width: 768px) {
+  .profile-picture-section {
+    .profile-picture-upload {
+      flex-direction: column;
+      gap: 20px;
+
+      .current-picture {
+        .profile-avatar,
+        .profile-avatar-placeholder {
+          width: 100px;
+          height: 100px;
+        }
+
+        .profile-avatar-placeholder mat-icon {
+          font-size: 50px;
+          width: 50px;
+          height: 50px;
+        }
+      }
+
+      .upload-controls {
+        width: 100%;
+        align-items: center;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
 
   .form-row,
   .form-row-three {

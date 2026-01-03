@@ -64,6 +64,13 @@ export class AppComponent implements OnInit {
     this.authService.logout();
   }
 
+  getProfilePictureUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    // Add timestamp to prevent caching
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${Date.now()}`;
+  }
+
   // User menu methods
   openEditProfile(): void {
     console.log('Opening edit profile...');

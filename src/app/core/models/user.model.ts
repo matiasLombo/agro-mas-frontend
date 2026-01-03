@@ -4,6 +4,7 @@ export interface User {
   first_name: string;
   last_name: string;
   phone?: string;
+  profile_picture_url?: string;
   cuit?: string;
   business_name?: string;
   business_type?: 'individual' | 'company' | 'cooperative';
