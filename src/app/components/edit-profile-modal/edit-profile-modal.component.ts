@@ -40,6 +40,11 @@ export class EditProfileModalComponent implements OnInit {
   isLoading = false;
   isInitialLoading = true;
 
+  // Profile picture upload
+  selectedProfilePicture: File | null = null;
+  profilePicturePreview: string | null = null;
+  isUploadingPicture = false;
+
   // Location data
   provinces: Province[] = [];
   departments: Department[] = [];
@@ -250,6 +255,78 @@ export class EditProfileModalComponent implements OnInit {
 
   closeModal(): void {
     this.dialogRef.close();
+  }
+
+  onProfilePictureSelected(event: any): void {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.toastService.showError('Por favor selecciona una imagen válida.', 'Error');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      this.toastService.showError('La imagen no debe superar los 5MB.', 'Error');
+      return;
+    }
+
+    this.selectedProfilePicture = file;
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.profilePicturePreview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    // Upload immediately
+    this.uploadProfilePicture();
+  }
+
+  uploadProfilePicture(): void {
+    if (!this.selectedProfilePicture) return;
+
+    this.isUploadingPicture = true;
+
+    const formData = new FormData();
+    formData.append('profile_picture', this.selectedProfilePicture);
+
+    this.authService.uploadProfilePicture(formData).subscribe({
+      next: (response) => {
+        this.isUploadingPicture = false;
+        console.log('Upload response:', response);
+        console.log('New profile picture URL:', response.user?.profile_picture_url);
+        this.toastService.showSuccess('Foto de perfil actualizada correctamente.', 'Éxito!');
+
+        // Update current user with new profile picture URL
+        if (this.currentUser && response.user) {
+          this.currentUser.profile_picture_url = response.user.profile_picture_url;
+        }
+
+        // Update the preview to show the new image
+        this.profilePicturePreview = response.user?.profile_picture_url || null;
+
+        this.selectedProfilePicture = null;
+      },
+      error: (error) => {
+        this.isUploadingPicture = false;
+        const errorMessage = error?.message || 'No se pudo subir la foto de perfil.';
+        this.toastService.showError(errorMessage, 'Error');
+        console.error('Error uploading profile picture:', error);
+
+        // Reset preview on error
+        this.profilePicturePreview = null;
+        this.selectedProfilePicture = null;
+      }
+    });
+  }
+
+  removeProfilePicture(): void {
+    this.selectedProfilePicture = null;
+    this.profilePicturePreview = null;
   }
 
   onSubmit(): void {

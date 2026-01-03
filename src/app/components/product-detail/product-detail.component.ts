@@ -185,6 +185,23 @@ export class ProductDetailComponent implements OnInit {
       minimumFractionDigits: 0
     });
 
+    // Handle transport category - show price per km
+    if (product.category === 'transport' && product.transport_details) {
+      const pricePerKm = product.transport_details.price_per_km ?? 0;
+      const startupCost = product.transport_details.startup_cost ?? 0;
+
+      let priceText = `${formatter.format(pricePerKm)} / km`;
+      if (startupCost > 0) {
+        priceText += ` + ${formatter.format(startupCost)} arranque`;
+      }
+      return priceText;
+    }
+
+    // Handle other categories - show regular price
+    if (product.price === undefined || product.price === null) {
+      return formatter.format(0);
+    }
+
     let priceText = formatter.format(product.price);
     if (product.unit) {
       priceText += ` / ${product.unit}`;

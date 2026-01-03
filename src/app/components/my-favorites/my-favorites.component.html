@@ -1,0 +1,120 @@
+<div class="my-favorites-container">
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>favorite</mat-icon>
+        Mis Favoritos
+      </h1>
+      <p class="page-subtitle">Productos que has guardado para después</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Cargando favoritos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError && !isLoading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>Error al cargar favoritos</h2>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" class="browse-button" (click)="loadFavorites()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !hasError && favorites.length === 0" class="empty-container">
+    <mat-icon class="empty-icon">favorite_border</mat-icon>
+    <h2>No tienes favoritos aún</h2>
+    <p>Los productos que marques como favoritos aparecerán aquí</p>
+    <button mat-raised-button color="primary" routerLink="/marketplace" class="browse-button">
+      Explorar Marketplace
+    </button>
+  </div>
+
+  <!-- Favorites Grid -->
+  <div *ngIf="!isLoading && !hasError && favorites.length > 0" class="favorites-content">
+    <div class="favorites-count">
+      <span>{{ totalCount }} {{ totalCount === 1 ? 'producto guardado' : 'productos guardados' }}</span>
+    </div>
+
+    <div class="favorites-grid">
+      <mat-card *ngFor="let favorite of favorites" class="favorite-card">
+        <div class="card-image-container" (click)="viewProduct(favorite.product_id)">
+          <img [src]="getProductImageUrl(favorite)" [alt]="favorite.product_title" class="product-image" />
+          <div *ngIf="!favorite.product_is_active" class="inactive-overlay">
+            <span>No disponible</span>
+          </div>
+          <div class="product-category-badge">{{ getCategoryName(favorite.product_category) }}</div>
+        </div>
+
+        <mat-card-content>
+          <h3 class="product-title" (click)="viewProduct(favorite.product_id)">
+            {{ favorite.product_title }}
+          </h3>
+
+          <div class="product-category">
+            <mat-icon class="category-icon">category</mat-icon>
+            <span>{{ getCategoryName(favorite.product_category) }}</span>
+          </div>
+
+          <div class="product-location">
+            <mat-icon class="location-icon">place</mat-icon>
+            <span>{{ getLocationText(favorite) }}</span>
+          </div>
+
+          <div class="product-price">
+            <span class="price-value">{{ formatPrice(favorite) }}</span>
+          </div>
+
+          <div class="product-stats">
+            <div class="stat">
+              <mat-icon>visibility</mat-icon>
+              <span>{{ favorite.product_views_count }}</span>
+            </div>
+            <div class="stat">
+              <mat-icon>favorite</mat-icon>
+              <span>{{ favorite.product_favorites_count }}</span>
+            </div>
+            <div class="stat">
+              <mat-icon>question_answer</mat-icon>
+              <span>{{ favorite.product_inquiries_count }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button mat-raised-button color="primary" class="view-button" (click)="viewProduct(favorite.product_id)">
+              <mat-icon>visibility</mat-icon>
+              Ver Detalles
+            </button>
+
+            <button mat-icon-button color="warn" class="remove-button" (click)="removeFavorite(favorite)"
+              matTooltip="Eliminar de favoritos">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <button mat-icon-button [disabled]="currentPage === 1" (click)="onPageChange(1)">
+        <mat-icon>first_page</mat-icon>
+      </button>
+      <button mat-icon-button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
+      <button mat-icon-button [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button mat-icon-button [disabled]="currentPage === totalPages" (click)="onPageChange(totalPages)">
+        <mat-icon>last_page</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

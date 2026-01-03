@@ -19,6 +19,61 @@
 
   <!-- Form Content -->
   <form *ngIf="!isInitialLoading" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+    <!-- Profile Picture Section -->
+    <mat-card class="form-section profile-picture-section" appearance="outlined">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>photo_camera</mat-icon>
+        <mat-card-title>Foto de perfil</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="profile-picture-upload">
+          <div class="current-picture">
+            <img *ngIf="profilePicturePreview || currentUser?.profile_picture_url"
+                 [src]="profilePicturePreview || currentUser?.profile_picture_url"
+                 alt="Foto de perfil"
+                 class="profile-avatar">
+            <div *ngIf="!profilePicturePreview && !currentUser?.profile_picture_url" class="profile-avatar-placeholder">
+              <mat-icon>person</mat-icon>
+            </div>
+          </div>
+
+          <div class="upload-controls">
+            <input type="file"
+                   #profilePictureInput
+                   accept="image/*"
+                   (change)="onProfilePictureSelected($event)"
+                   style="display: none;">
+
+            <button type="button"
+                    mat-raised-button
+                    color="primary"
+                    (click)="profilePictureInput.click()"
+                    [disabled]="isUploadingPicture">
+              <mat-icon>upload</mat-icon>
+              {{ profilePicturePreview ? 'Cambiar foto' : 'Subir foto' }}
+            </button>
+
+            <button type="button"
+                    mat-stroked-button
+                    *ngIf="selectedProfilePicture"
+                    (click)="removeProfilePicture()"
+                    [disabled]="isUploadingPicture">
+              <mat-icon>delete</mat-icon>
+              Eliminar
+            </button>
+
+            <p class="upload-hint">Formatos: JPG, PNG. Máx: 5MB</p>
+
+            <div *ngIf="isUploadingPicture" class="upload-progress">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Subiendo...</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Información Personal -->
     <mat-card class="form-section" appearance="outlined">
       <mat-card-header>
