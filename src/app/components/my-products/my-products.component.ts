@@ -80,9 +80,10 @@ export class MyProductsComponent implements OnInit, OnDestroy {
       this.productService.updateProduct(product.id, { is_active: newStatus })
         .subscribe({
           next: () => {
-            product.is_active = newStatus;
             const message = newStatus ? 'Producto activado' : 'Producto desactivado';
             this.toastService.showSuccess(message, 'Éxito');
+            // Reload the entire list to get updated order (active products first)
+            this.loadMyProducts();
           },
           error: (error) => {
             console.error('Error updating product status:', error);

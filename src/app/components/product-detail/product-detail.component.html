@@ -346,12 +346,6 @@
       <!-- Right Column: Quotation Panel -->
       <div class="right-column">
         <div class="quotation-panel" *ngIf="canQuote">
-          <!-- Development Mode Notice -->
-          <div class="dev-notice" *ngIf="isOwner">
-            <mat-icon>info</mat-icon>
-            <span>Modo de prueba: estás cotizando tu propio producto</span>
-          </div>
-
           <h3>Ingresá tu oferta</h3>
 
           <!-- Price Display -->
@@ -420,7 +414,7 @@
         </div>
 
         <!-- Owner Edit Panel -->
-        <div class="owner-panel" *ngIf="isOwner && !canQuote">
+        <div class="owner-panel" *ngIf="isOwner">
           <h3>Tu publicación</h3>
           <div class="owner-info">
             <p>Esta es tu publicación. Puedes editarla en cualquier momento.</p>
