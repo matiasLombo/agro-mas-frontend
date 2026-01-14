@@ -44,7 +44,7 @@
     <div class="favorites-grid">
       <mat-card *ngFor="let favorite of favorites" class="favorite-card">
         <div class="card-image-container" (click)="viewProduct(favorite.product_id)">
-          <img [src]="getProductImageUrl(favorite)" [alt]="favorite.product_title" class="product-image" />
+          <img [src]="getProductImageUrl(favorite)" [alt]="favorite.product_title" class="product-image" (error)="onImageError($event)" />
           <div *ngIf="!favorite.product_is_active" class="inactive-overlay">
             <span>No disponible</span>
           </div>

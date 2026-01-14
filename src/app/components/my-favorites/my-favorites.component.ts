@@ -138,4 +138,9 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
     };
     return categories[category] || category;
   }
+
+  onImageError(event: any): void {
+    // Set a placeholder image when the original image fails to load
+    event.target.src = 'assets/images/no-image-placeholder.png';
+  }
 }

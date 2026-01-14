@@ -32,9 +32,9 @@ export class ProductDetailComponent implements OnInit {
   isLoading = true;
   isOwner = false;
 
-  // Enable quotation form in development mode even for own products
+  // Hide quotation form for product owners
   get canQuote(): boolean {
-    return !this.isOwner || !environment.production;
+    return !this.isOwner;
   }
 
   // Quotation form
