@@ -389,6 +389,45 @@
               </div>
             </div>
 
+            <!-- Commission Breakdown -->
+            <div class="commission-section" *ngIf="commissionBreakdown && commissionBreakdown.config.total_commission_percent > 0">
+              <div class="commission-header" (click)="showCommissionDetails = !showCommissionDetails">
+                <mat-icon class="info-icon">info</mat-icon>
+                <span class="commission-title">Comisión de plataforma ({{ commissionBreakdown.config.total_commission_percent }}%)</span>
+                <mat-icon class="toggle-icon">{{ showCommissionDetails ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </div>
+
+              <!-- Commission Details (Expandable) -->
+              <div class="commission-details" *ngIf="showCommissionDetails">
+                <div class="commission-row">
+                  <span class="label">Precio base:</span>
+                  <span class="value">{{ commissionService.formatCurrency(commissionBreakdown.base_price, product.currency) }}</span>
+                </div>
+                <div class="commission-row" *ngIf="commissionBreakdown.buyer_commission > 0">
+                  <span class="label">Comisión comprador ({{ commissionBreakdown.config.buyer_commission_percent }}%):</span>
+                  <span class="value commission-amount">+ {{ commissionService.formatCurrency(commissionBreakdown.buyer_commission, product.currency) }}</span>
+                </div>
+                <div class="commission-row" *ngIf="commissionBreakdown.seller_commission > 0">
+                  <span class="label">Comisión vendedor ({{ commissionBreakdown.config.seller_commission_percent }}%):</span>
+                  <span class="value seller-note">{{ commissionService.formatCurrency(commissionBreakdown.seller_commission, product.currency) }} (descontado al vendedor)</span>
+                </div>
+                <div class="commission-divider"></div>
+                <div class="commission-row total-row">
+                  <span class="label">Total a pagar:</span>
+                  <span class="value total-value">{{ commissionService.formatCurrency(commissionBreakdown.buyer_total, product.currency) }}</span>
+                </div>
+                <div class="commission-note">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>{{ commissionBreakdown.config.description }}</span>
+                </div>
+              </div>
+
+              <!-- Commission Summary (Always Visible) -->
+              <div class="commission-summary" *ngIf="!showCommissionDetails">
+                <span class="summary-text">Total a pagar: <strong>{{ commissionService.formatCurrency(commissionBreakdown.buyer_total, product.currency) }}</strong></span>
+              </div>
+            </div>
+
             <!-- Message -->
             <div class="form-section">
               <h4>Consulta</h4>

@@ -6,6 +6,8 @@ import { Product, ProductImage, ProductVideo } from '../../core/models/product.m
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsAppService } from '../../core/services/whatsapp.service';
+import { CommissionService } from '../../core/services/commission.service';
+import { CommissionBreakdown, CommissionConfig } from '../../core/models/commission.model';
 import { environment } from '../../../environments/environment';
 
 interface MediaItem {
@@ -41,6 +43,11 @@ export class ProductDetailComponent implements OnInit {
   quotationForm: FormGroup;
   originalPrice: number = 0;
 
+  // Commission variables
+  commissionBreakdown: CommissionBreakdown | null = null;
+  commissionConfig: CommissionConfig | null = null;
+  showCommissionDetails: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -49,6 +56,7 @@ export class ProductDetailComponent implements OnInit {
     private fb: FormBuilder,
     private toastService: ToastService,
     private whatsAppService: WhatsAppService,
+    public commissionService: CommissionService,
     private cdr: ChangeDetectorRef
   ) {
     // Initialize quotation form - simplified without personal data
@@ -58,12 +66,103 @@ export class ProductDetailComponent implements OnInit {
       includesIVA: [false],
       isFinalPrice: [false]
     });
+
+    // Subscribe to offerPrice changes to recalculate commissions
+    this.quotationForm.get('offerPrice')?.valueChanges.subscribe(price => {
+      if (this.product && price > 0) {
+        this.updateCommissions(price);
+      }
+    });
   }
 
   ngOnInit(): void {
     const productId = this.route.snapshot.paramMap.get('id');
     if (productId) {
       this.loadProduct(productId);
+    }
+  }
+
+  /**
+   * Load commission configuration from backend (ONE TIME per product)
+   */
+  loadCommissionConfig(category: string): void {
+    this.commissionService.getCommissionConfig(category).subscribe({
+      next: (config) => {
+        // Cache the configuration
+        this.commissionConfig = config;
+
+        // Now calculate commissions with the loaded config
+        if (this.originalPrice > 0) {
+          this.updateCommissions(this.originalPrice);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading commission config:', error);
+        // Fallback to local calculation if backend fails
+        this.commissionConfig = this.getLocalCommissionConfig(category);
+        if (this.originalPrice > 0) {
+          this.updateCommissions(this.originalPrice);
+        }
+      }
+    });
+  }
+
+  /**
+   * Fallback: Get commission config locally if backend fails
+   */
+  private getLocalCommissionConfig(category: string): CommissionConfig {
+    switch (category) {
+      case 'livestock':
+        return {
+          buyer_commission_percent: 1.5,
+          seller_commission_percent: 1.5,
+          total_commission_percent: 3.0,
+          description: '1.5% al comprador + 1.5% al vendedor'
+        };
+      case 'transport':
+        return {
+          buyer_commission_percent: 0.0,
+          seller_commission_percent: 3.0,
+          total_commission_percent: 3.0,
+          description: '3% al transportista'
+        };
+      case 'supplies':
+        return {
+          buyer_commission_percent: 0.0,
+          seller_commission_percent: 3.0,
+          total_commission_percent: 3.0,
+          description: '3% al vendedor'
+        };
+      default:
+        return {
+          buyer_commission_percent: 0.0,
+          seller_commission_percent: 0.0,
+          total_commission_percent: 0.0,
+          description: 'Sin comisión'
+        };
+    }
+  }
+
+  /**
+   * Update commission breakdown based on current offer price
+   * Uses cached commission config from backend
+   */
+  updateCommissions(price: number): void {
+    if (this.commissionConfig && price > 0) {
+      // Calculate using cached config from backend
+      const buyerCommission = price * (this.commissionConfig.buyer_commission_percent / 100);
+      const sellerCommission = price * (this.commissionConfig.seller_commission_percent / 100);
+      const totalCommission = buyerCommission + sellerCommission;
+
+      this.commissionBreakdown = {
+        base_price: price,
+        buyer_commission: buyerCommission,
+        seller_commission: sellerCommission,
+        total_commission: totalCommission,
+        buyer_total: price + buyerCommission,
+        seller_net: price - sellerCommission,
+        config: this.commissionConfig
+      };
     }
   }
 
@@ -81,6 +180,9 @@ export class ProductDetailComponent implements OnInit {
           this.quotationForm.patchValue({
             offerPrice: this.originalPrice
           });
+
+          // Load commission configuration from backend (ONE TIME)
+          this.loadCommissionConfig(product.category);
 
           this.buildMediaItems();
           this.checkOwnership();
