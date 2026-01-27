@@ -20,7 +20,8 @@
     <mat-icon class="error-icon">error_outline</mat-icon>
     <h2>Error al cargar favoritos</h2>
     <p>{{ errorMessage }}</p>
-    <button mat-raised-button color="primary" class="browse-button" (click)="loadFavorites()">
+    <button class="browse-button" (click)="loadFavorites()">
+      <mat-icon>refresh</mat-icon>
       Reintentar
     </button>
   </div>
@@ -30,7 +31,8 @@
     <mat-icon class="empty-icon">favorite_border</mat-icon>
     <h2>No tienes favoritos aún</h2>
     <p>Los productos que marques como favoritos aparecerán aquí</p>
-    <button mat-raised-button color="primary" routerLink="/marketplace" class="browse-button">
+    <button routerLink="/marketplace" class="browse-button">
+      <mat-icon>store</mat-icon>
       Explorar Marketplace
     </button>
   </div>
@@ -42,62 +44,43 @@
     </div>
 
     <div class="favorites-grid">
-      <mat-card *ngFor="let favorite of favorites" class="favorite-card">
-        <div class="card-image-container" (click)="viewProduct(favorite.product_id)">
-          <img [src]="getProductImageUrl(favorite)" [alt]="favorite.product_title" class="product-image" (error)="onImageError($event)" />
+      <div *ngFor="let favorite of favorites" class="product-card" (click)="viewProduct(favorite.product_id)">
+        <div class="product-image">
+          <img [src]="getProductImageUrl(favorite)" [alt]="favorite.product_title" class="product-img" (error)="onImageError($event)" />
           <div *ngIf="!favorite.product_is_active" class="inactive-overlay">
             <span>No disponible</span>
           </div>
           <div class="product-category-badge">{{ getCategoryName(favorite.product_category) }}</div>
         </div>
 
-        <mat-card-content>
-          <h3 class="product-title" (click)="viewProduct(favorite.product_id)">
-            {{ favorite.product_title }}
-          </h3>
-
-          <div class="product-category">
-            <mat-icon class="category-icon">category</mat-icon>
-            <span>{{ getCategoryName(favorite.product_category) }}</span>
+        <div class="product-content">
+          <h3 class="product-title">{{ favorite.product_title }}</h3>
+          <p class="product-description">{{ favorite.product_description || 'Sin descripción disponible' }}</p>
+          <div class="product-price">
+            <span class="price-current">{{ formatPrice(favorite) }}</span>
           </div>
-
-          <div class="product-location">
+          <div class="product-seller" *ngIf="favorite.product_seller_name">
+            <mat-icon class="seller-icon">person</mat-icon>
+            <span>Vendedor: {{ favorite.product_seller_name }}</span>
+          </div>
+          <div class="product-location" *ngIf="!favorite.product_seller_name">
             <mat-icon class="location-icon">place</mat-icon>
             <span>{{ getLocationText(favorite) }}</span>
           </div>
 
-          <div class="product-price">
-            <span class="price-value">{{ formatPrice(favorite) }}</span>
-          </div>
-
-          <div class="product-stats">
-            <div class="stat">
-              <mat-icon>visibility</mat-icon>
-              <span>{{ favorite.product_views_count }}</span>
-            </div>
-            <div class="stat">
-              <mat-icon>favorite</mat-icon>
-              <span>{{ favorite.product_favorites_count }}</span>
-            </div>
-            <div class="stat">
-              <mat-icon>question_answer</mat-icon>
-              <span>{{ favorite.product_inquiries_count }}</span>
-            </div>
-          </div>
-
           <div class="card-actions">
-            <button mat-raised-button color="primary" class="view-button" (click)="viewProduct(favorite.product_id)">
+            <button class="view-button" (click)="viewProduct(favorite.product_id); $event.stopPropagation()">
               <mat-icon>visibility</mat-icon>
               Ver Detalles
             </button>
 
-            <button mat-icon-button color="warn" class="remove-button" (click)="removeFavorite(favorite)"
+            <button class="remove-button" (click)="removeFavorite(favorite); $event.stopPropagation()"
               matTooltip="Eliminar de favoritos">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     </div>
 
     <!-- Pagination -->

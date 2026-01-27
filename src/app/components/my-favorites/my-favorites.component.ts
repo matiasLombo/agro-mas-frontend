@@ -112,7 +112,12 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(favorite: FavoriteWithDetails): string {
-    const price = (favorite.product_price ?? 0).toLocaleString('es-AR', {
+    // Handle cases where price is null, undefined, or 0
+    if (!favorite.product_price || favorite.product_price === 0) {
+      return 'Consultar precio';
+    }
+
+    const price = favorite.product_price.toLocaleString('es-AR', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
     });
