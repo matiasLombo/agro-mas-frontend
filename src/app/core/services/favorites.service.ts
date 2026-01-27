@@ -45,6 +45,9 @@ export interface FavoriteWithDetails {
   product_inquiries_count: number;
   product_primary_image_url?: string;
   product_created_at: string;
+  // Transport details for transport category products
+  transport_price_per_km?: number;
+  transport_startup_cost?: number;
 }
 
 export interface FavoriteListResponse {

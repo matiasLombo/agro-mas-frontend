@@ -112,17 +112,36 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(favorite: FavoriteWithDetails): string {
-    // Handle cases where price is null, undefined, or 0
+    const formatter = new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: favorite.product_currency || 'ARS',
+      minimumFractionDigits: 0
+    });
+
+    // Handle transport category - show price per km
+    if (favorite.product_category === 'transport') {
+      const pricePerKm = favorite.transport_price_per_km ?? 0;
+      const startupCost = favorite.transport_startup_cost ?? 0;
+
+      if (pricePerKm > 0) {
+        let priceText = `${formatter.format(pricePerKm)} / km`;
+        if (startupCost > 0) {
+          priceText += ` + ${formatter.format(startupCost)} arranque`;
+        }
+        return priceText;
+      }
+    }
+
+    // Handle other categories - show regular price
     if (!favorite.product_price || favorite.product_price === 0) {
       return 'Consultar precio';
     }
 
-    const price = favorite.product_price.toLocaleString('es-AR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2
-    });
-
-    return `${favorite.product_currency || 'ARS'} ${price}`;
+    let priceText = formatter.format(favorite.product_price);
+    if (favorite.product_unit) {
+      priceText += ` / ${favorite.product_unit}`;
+    }
+    return priceText;
   }
 
   getLocationText(favorite: FavoriteWithDetails): string {
