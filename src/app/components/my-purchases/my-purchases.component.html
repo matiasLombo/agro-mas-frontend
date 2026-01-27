@@ -39,7 +39,7 @@
         <mat-icon class="empty-icon">question_answer</mat-icon>
         <h2>No tienes consultas registradas</h2>
         <p>Cuando contactes a un vendedor, tus consultas aparecerán aquí.</p>
-        <button mat-raised-button color="primary" routerLink="/marketplace" class="browse-button">
+        <button routerLink="/marketplace" class="browse-button">
             <mat-icon>store</mat-icon>
             Explorar productos
         </button>
@@ -138,13 +138,12 @@
 
             <!-- Card Footer -->
             <div class="card-footer">
-                <button mat-stroked-button color="primary" (click)="viewProductDetail(intention.product_id)"
-                    class="action-button">
+                <button (click)="viewProductDetail(intention.product_id)" class="action-button">
                     <mat-icon>visibility</mat-icon>
                     Ver producto
                 </button>
 
-                <button mat-stroked-button *ngIf="intention.status !== 'cancelled'" (click)="cancelIntention(intention)"
+                <button *ngIf="intention.status !== 'cancelled'" (click)="cancelIntention(intention)"
                     class="action-button cancel-button">
                     <mat-icon>cancel</mat-icon>
                     Cancelar
