@@ -247,6 +247,9 @@ export class ProductDetailComponent implements OnInit {
         inquiry_type: 'price' // Tipo de consulta: price, availability, technical, logistics, general
       };
 
+      // Pre-open window synchronously (within user gesture) to avoid popup blockers on mobile
+      const whatsappWindow = this.whatsAppService.prepareWindow();
+
       // Generate WhatsApp link and open
       this.whatsAppService.contactSeller(messageData).subscribe({
         next: (response) => {
@@ -263,12 +266,16 @@ export class ProductDetailComponent implements OnInit {
             this.toastService.showSuccess('Abriendo WhatsApp...', 'Contacto iniciado');
           }
 
-          // Open WhatsApp in a new tab
-          this.whatsAppService.openWhatsApp(response.whatsapp_url);
+          // Navigate the pre-opened window (or fallback) to WhatsApp URL
+          this.whatsAppService.openWhatsApp(response.whatsapp_url, whatsappWindow);
         },
         error: (error) => {
           console.error('Error generating WhatsApp link:', error);
           this.toastService.showError('Error al generar el enlace de WhatsApp', 'Error');
+          // Close the blank window if the request failed
+          if (whatsappWindow) {
+            whatsappWindow.close();
+          }
         }
       });
     } else {

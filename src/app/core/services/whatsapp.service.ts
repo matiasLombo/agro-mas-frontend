@@ -57,19 +57,28 @@ export class WhatsAppService {
     }
 
     /**
-     * Open WhatsApp in a new tab with the provided URL
-     * @param whatsappUrl The WhatsApp URL to open
+     * Open a blank window synchronously (must be called within a user gesture).
+     * Returns the window reference so the URL can be set after an async operation.
+     * On iOS Safari, returns null and falls back to location.href in openWhatsApp.
      */
-    openWhatsApp(whatsappUrl: string): void {
-        // Detect if running on iOS
+    prepareWindow(): Window | null {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        
         if (isIOS) {
-            // On iOS, use window.location.href for better compatibility with Safari
-            window.location.href = whatsappUrl;
+            return null;
+        }
+        return window.open('', '_blank');
+    }
+
+    /**
+     * Open WhatsApp using a pre-opened window reference or fallback navigation.
+     * @param whatsappUrl The WhatsApp URL to open
+     * @param preOpenedWindow Optional window reference from prepareWindow()
+     */
+    openWhatsApp(whatsappUrl: string, preOpenedWindow?: Window | null): void {
+        if (preOpenedWindow) {
+            preOpenedWindow.location.href = whatsappUrl;
         } else {
-            // On other platforms, open in new tab
-            window.open(whatsappUrl, '_blank');
+            window.location.href = whatsappUrl;
         }
     }
 
