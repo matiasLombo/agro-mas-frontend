@@ -333,17 +333,23 @@ export class MarketplaceComponent implements OnInit, OnDestroy {
           product_url: productUrl
         };
 
+        // Pre-open window synchronously to avoid popup blockers on mobile
+        const whatsappWindow = this.whatsAppService.prepareWindow();
+
         // Generate WhatsApp link and open
         this.whatsAppService.contactSeller(messageData).subscribe({
           next: (response) => {
             console.log('WhatsApp link generated:', response);
-            // Open WhatsApp in a new tab
-            this.whatsAppService.openWhatsApp(response.whatsapp_url);
+            // Navigate the pre-opened window (or fallback) to WhatsApp URL
+            this.whatsAppService.openWhatsApp(response.whatsapp_url, whatsappWindow);
             this.toastService.showSuccess('Abriendo WhatsApp...', 'Contacto iniciado');
           },
           error: (error) => {
             console.error('Error generating WhatsApp link:', error);
             this.toastService.showError('Error al generar el enlace de WhatsApp', 'Error');
+            if (whatsappWindow) {
+              whatsappWindow.close();
+            }
           }
         });
       }
