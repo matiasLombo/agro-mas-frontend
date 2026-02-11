@@ -5,6 +5,7 @@ import { ApiTestService } from './services/api-test.service';
 import { AuthService } from './core/services/auth.service';
 import { User } from './core/models/user.model';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { logo } from './core/constants/images.constants';
 @Component({
   selector: 'app-root',
@@ -65,10 +66,10 @@ export class AppComponent implements OnInit {
   }
 
   getProfilePictureUrl(url: string | null | undefined): string {
-    if (!url) return '';
-    // Add timestamp to prevent caching
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}t=${Date.now()}`;
+    if (!url) return url || '';
+    // Don't add timestamp on every change detection cycle to prevent ExpressionChangedAfterItHasBeenCheckedError
+    // The image URL from the backend already includes a cache-busting parameter if needed
+    return url;
   }
 
   // User menu methods
