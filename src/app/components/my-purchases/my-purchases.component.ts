@@ -62,7 +62,10 @@ export class MyPurchasesComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error loading purchases:', error);
-                this.toastService.showError('Error al cargar tus compras', 'Error');
+                const errorMessage = error?.error?.message || error?.message || 'Error desconocido al cargar tus compras';
+                const statusCode = error?.status || 'Sin código';
+                console.error(`Status: ${statusCode}, Message: ${errorMessage}`);
+                this.toastService.showError(`Error al cargar tus compras (${statusCode})`, 'Error');
                 this.isLoading = false;
             }
         });
