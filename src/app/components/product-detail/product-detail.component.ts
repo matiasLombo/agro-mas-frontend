@@ -197,12 +197,13 @@ export class ProductDetailComponent implements OnInit {
       return priceText;
     }
 
-    // Handle other categories - show regular price
-    if (product.price === undefined || product.price === null) {
+    // Handle other categories - show price with commission to buyer
+    const displayPrice = product.price_with_commission ?? product.price;
+    if (displayPrice === undefined || displayPrice === null) {
       return formatter.format(0);
     }
 
-    let priceText = formatter.format(product.price);
+    let priceText = formatter.format(displayPrice);
     if (product.unit) {
       priceText += ` / ${product.unit}`;
     }

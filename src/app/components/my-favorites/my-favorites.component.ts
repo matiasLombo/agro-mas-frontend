@@ -132,12 +132,13 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Handle other categories - show regular price
-    if (!favorite.product_price || favorite.product_price === 0) {
+    // Handle other categories - show price with commission to buyer
+    const displayPrice = favorite.product_price_with_commission ?? favorite.product_price;
+    if (!displayPrice || displayPrice === 0) {
       return 'Consultar precio';
     }
 
-    let priceText = formatter.format(favorite.product_price);
+    let priceText = formatter.format(displayPrice);
     if (favorite.product_unit) {
       priceText += ` / ${favorite.product_unit}`;
     }

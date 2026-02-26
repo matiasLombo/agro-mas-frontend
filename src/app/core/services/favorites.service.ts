@@ -32,6 +32,7 @@ export interface FavoriteWithDetails {
   product_category: string;
   product_subcategory?: string;
   product_price?: number;
+  product_price_with_commission?: number;
   product_price_type: string;
   product_currency: string;
   product_unit?: string;

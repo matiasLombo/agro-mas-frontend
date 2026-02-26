@@ -95,6 +95,52 @@ export class ProductFormComponent implements OnInit {
     return 'months';
   }
 
+  getCommissionInfo(): { rate: number; label: string; priceMultiplier: number; sellerReceives: number | null } | null {
+    const category = this.productForm.get('category')?.value;
+    const price = this.productForm.get('price')?.value;
+    if (!category || price == null || price <= 0) return null;
+
+    const categoryMap: Record<string, string> = {
+      'Ganado': 'livestock', 'Insumo': 'supplies', 'Transporte': 'transport'
+    };
+    const cat = categoryMap[category] || category;
+
+    // Commission configuration by category
+    const commissionConfig: Record<string, { label: string; multiplier: number; sellerMultiplier: number }> = {
+      livestock: {
+        label: 'Comisión Hacienda: 3% (1.5% comprador + 1.5% vendedor)',
+        multiplier: 1.015,
+        sellerMultiplier: 0.985
+      },
+      supplies: {
+        label: 'Comisión de plataforma: 3%',
+        multiplier: 1.03,
+        sellerMultiplier: 0.97
+      },
+      transport: {
+        label: 'Comisión de plataforma: 3%',
+        multiplier: 1.03,
+        sellerMultiplier: 0.97
+      }
+    };
+
+    const config = commissionConfig[cat] || commissionConfig['supplies'];
+    return {
+      rate: (config.multiplier - 1) * 100,
+      label: config.label,
+      priceMultiplier: config.multiplier,
+      sellerReceives: parseFloat((price * config.sellerMultiplier).toFixed(2)),
+    };
+  }
+
+  get priceWithCommission(): number | null {
+    const info = this.getCommissionInfo();
+    if (!info) return null;
+    const price = this.productForm.get('price')?.value;
+    if (!price || price <= 0) return null;
+    return parseFloat((price * info.priceMultiplier).toFixed(2));
+  }
+
   // Location data
   provinces: Province[] = [];
   departments: Department[] = [];
