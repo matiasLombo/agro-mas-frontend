@@ -53,6 +53,18 @@
               El precio no puede ser negativo.
             </mat-error>
           </mat-form-field>
+
+          <!-- Aviso de comisiones -->
+          <div class="commission-info" *ngIf="getCommissionInfo() as info">
+            <div class="commission-banner">
+              <span class="commission-icon">ℹ️</span>
+              <div class="commission-details">
+                <strong>{{ info.label }}</strong>
+                <span>Precio que verá el comprador: <b>{{ priceWithCommission | currency:'ARS':'symbol':'1.2-2' }}</b></span>
+                <span *ngIf="info.sellerReceives !== null">Vos recibirás: <b>{{ info.sellerReceives | currency:'ARS':'symbol':'1.2-2' }}</b></span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Precio por KM - SOLO para Transporte -->

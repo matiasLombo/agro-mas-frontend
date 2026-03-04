@@ -6,6 +6,7 @@ export interface Product {
     category: string;
     subcategory?: string;
     price: number;
+    price_with_commission?: number;
     price_type: string;
     currency: string;
     unit?: string;
