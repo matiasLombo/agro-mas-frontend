@@ -61,6 +61,10 @@ export class AppComponent implements OnInit {
     return this.authService.currentUser;
   }
 
+  get currentYear(): number {
+    return new Date().getFullYear();
+  }
+
   logout(): void {
     this.authService.logout();
   }
