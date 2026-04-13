@@ -45,10 +45,8 @@
         <div class="user-profile">
           <div class="user-avatar">
             <img *ngIf="(currentUser$ | async)?.profile_picture_url"
-                 [src]="getProfilePictureUrl((currentUser$ | async)?.profile_picture_url)"
-                 alt="Foto de perfil"
-                 class="avatar-image"
-                 (error)="$any($event.target).style.display='none'">
+              [src]="getProfilePictureUrl((currentUser$ | async)?.profile_picture_url)" alt="Foto de perfil"
+              class="avatar-image" (error)="$any($event.target).style.display='none'">
             <mat-icon *ngIf="!(currentUser$ | async)?.profile_picture_url" class="avatar-icon">person</mat-icon>
           </div>
           <div class="user-info">
@@ -109,7 +107,7 @@
 
     <div class="sidenav-footer">
       <div class="footer-brand">
-        <span class="brand-text">© 2025 CorralOK</span>
+        <span class="brand-text">© {{ currentYear }} CorralOK</span>
         <span class="version-text">v1.0</span>
       </div>
     </div>
@@ -144,10 +142,8 @@
                 <div class="user-section">
                   <div class="user-avatar">
                     <img *ngIf="(currentUser$ | async)?.profile_picture_url"
-                         [src]="getProfilePictureUrl((currentUser$ | async)?.profile_picture_url)"
-                         alt="Foto de perfil"
-                         class="avatar-image"
-                         (error)="$any($event.target).style.display='none'">
+                      [src]="getProfilePictureUrl((currentUser$ | async)?.profile_picture_url)" alt="Foto de perfil"
+                      class="avatar-image" (error)="$any($event.target).style.display='none'">
                     <mat-icon *ngIf="!(currentUser$ | async)?.profile_picture_url" class="avatar-icon">person</mat-icon>
                   </div>
                   <div class="user-menu-container">
@@ -165,10 +161,9 @@
                         <div class="user-info">
                           <div class="user-avatar-large">
                             <img *ngIf="(currentUser$ | async)?.profile_picture_url"
-                                 [src]="getProfilePictureUrl((currentUser$ | async)?.profile_picture_url)"
-                                 alt="Foto de perfil"
-                                 class="avatar-image"
-                                 (error)="$any($event.target).style.display='none'">
+                              [src]="getProfilePictureUrl((currentUser$ | async)?.profile_picture_url)"
+                              alt="Foto de perfil" class="avatar-image"
+                              (error)="$any($event.target).style.display='none'">
                             <mat-icon *ngIf="!(currentUser$ | async)?.profile_picture_url">person</mat-icon>
                           </div>
                           <div class="user-details">
@@ -231,7 +226,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2025 CorralOK. Todos los derechos reservados.</p>
+          <p>&copy; {{ currentYear }} CorralOK. Todos los derechos reservados.</p>
           <p>Desarrollado con dedicación para el sector agropecuario</p>
         </div>
       </footer>
