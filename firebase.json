@@ -8,23 +8,21 @@
     ],
     "rewrites": [
       {
-        "source": "/sitemap.xml",
-        "destination": "/sitemap.xml"
-      },
-      {
-        "source": "!**/*.js",
-        "destination": "/index.html"
-      },
-      {
-        "source": "!**/*.css",
-        "destination": "/index.html"
-      },
-      {
-        "source": "!**/*.*",
-        "destination": "/index.html"
+        "source": "**",
+        "destination": "/index.html",
+        "regex": "^(?!.*\\.(xml|txt|ico|json|svg|png|jpg|jpeg|gif|css|js|woff|woff2|eot|ttf|otf|webp)).*$"
       }
     ],
     "headers": [
+      {
+        "source": "/sitemap.xml",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/xml"
+          }
+        ]
+      },
       {
         "source": "**/*",
         "headers": [
