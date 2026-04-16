@@ -8,7 +8,27 @@
     ],
     "rewrites": [
       {
-        "regex": "^(?!.*\\.(xml|txt|ico|json|svg|png|jpg|jpeg|gif|css|js|woff|woff2|eot|ttf|otf|webp|map))(.)*$",
+        "source": "/",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/login",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/register",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/marketplace",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/profile",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/products",
         "destination": "/index.html"
       }
     ],
