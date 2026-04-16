@@ -8,9 +8,8 @@
     ],
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html",
-        "regex": "^(?!.*\\.(xml|txt|ico|json|svg|png|jpg|jpeg|gif|css|js|woff|woff2|eot|ttf|otf|webp)).*$"
+        "regex": "^(?!.*\\.(xml|txt|ico|json|svg|png|jpg|jpeg|gif|css|js|woff|woff2|eot|ttf|otf|webp|map))(.)*$",
+        "destination": "/index.html"
       }
     ],
     "headers": [
