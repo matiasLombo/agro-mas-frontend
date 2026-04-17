@@ -11,6 +11,9 @@ export interface User {
   province?: string;
   city?: string;
   address?: string;
+  department?: string;
+  location?: string;
+  bio?: string;
   role: 'buyer' | 'seller' | 'admin' | 'moderator';
   verification_level: number; // 0-4
   is_active?: boolean;

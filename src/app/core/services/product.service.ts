@@ -2,87 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
-export interface Product {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string;
-  category: string;
-  subcategory?: string;
-  price: number;
-  price_type: string;
-  currency: string;
-  unit?: string;
-  quantity?: number;
-  available_from?: string;
-  available_until?: string;
-  is_active: boolean;
-  is_featured: boolean;
-  province?: string;
-  city?: string;
-  location_coordinates?: {
-    lng: number;
-    lat: number;
-  };
-  pickup_available: boolean;
-  delivery_available: boolean;
-  delivery_radius?: number;
-  seller_name: string;
-  seller_phone?: string;
-  seller_rating?: number;
-  seller_verification_level?: string;
-  views_count: number;
-  favorites_count: number;
-  inquiries_count: number;
-  search_keywords?: string;
-  created_at: string;
-  updated_at: string;
-  published_at?: string;
-  expires_at?: string;
-  metadata?: any;
-  tags: string[];
-  images?: ProductImage[];
-}
-
-export interface ProductImage {
-  id: string;
-  product_id: string;
-  image_url: string;
-  cloud_storage_path?: string;
-  alt_text?: string;
-  is_primary: boolean;
-  display_order: number;
-  file_size?: number;
-  mime_type?: string;
-  uploaded_at: string;
-}
-
-export interface ProductSearchRequest {
-  query?: string;
-  category?: string;
-  subcategory?: string;
-  province?: string;
-  city?: string;
-  min_price?: number;
-  max_price?: number;
-  price_type?: string;
-  pickup_available?: boolean;
-  delivery_available?: boolean;
-  is_verified_seller?: boolean;
-  tags?: string[];
-  sort_by?: string;
-  page?: number;
-  page_size?: number;
-}
-
-export interface ProductSearchResponse {
-  products: Product[];
-  total_count: number;
-  page: number;
-  page_size: number;
-  total_pages: number;
-}
+import { Product, ProductSearchRequest, ProductSearchResponse, ProductImage } from '@core/models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -90,14 +10,14 @@ export interface ProductSearchResponse {
 export class ProductService {
   private apiUrl = `${environment.apiUrl}/products`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Search products with filters and pagination
    */
   searchProducts(request: ProductSearchRequest = {}): Observable<ProductSearchResponse> {
     let params = new HttpParams();
-    
+
     if (request.query) params = params.set('query', request.query);
     if (request.category) params = params.set('category', request.category);
     if (request.subcategory) params = params.set('subcategory', request.subcategory);
@@ -133,7 +53,7 @@ export class ProductService {
     return this.searchProducts({
       sort_by: 'featured',
       page: 1,
-      page_size: 6
+      page_size: 20  // Show more products
     });
   }
 
@@ -148,4 +68,100 @@ export class ProductService {
       sort_by: 'date_desc'
     });
   }
+
+
+  /**
+   * Get a resized image URL
+   */
+  getResizedImageUrl(storagePath: string, width: number, height: number, quality = 80): string {
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}/resize/${storagePath}?w=${width}&h=${height}&q=${quality}`;
+  }
+
+  /**
+   * Get current user's products
+   */
+  getProductsByUser(): Observable<ProductSearchResponse> {
+    return this.http.get<ProductSearchResponse>(`${this.apiUrl}/my`);
+  }
+
+  /**
+   * Create a new product
+   */
+  createProduct(product: Partial<Product>): Observable<Product> {
+    return this.http.post<Product>(`${this.apiUrl}/`, product);
+  }
+
+  /**
+   * Create product with images using FormData
+   */
+  createProductWithImages(product: Partial<Product>, images: File[]): Observable<Product> {
+    const formData = new FormData();
+    
+    // Add product data as JSON string
+    formData.append('product', JSON.stringify(product));
+    
+    // Add each image file
+    images.forEach((image, index) => {
+      formData.append('image', image, image.name);
+    });
+    
+    return this.http.post<Product>(`${this.apiUrl}/`, formData);
+  }
+
+  /**
+   * Update an existing product
+   */
+  updateProduct(productId: string, updates: Partial<Product>): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, updates);
+  }
+
+  /**
+   * Update product with new images using FormData
+   */
+  updateProductWithImages(productId: string, product: Partial<Product>, images: File[]): Observable<Product> {
+    const formData = new FormData();
+    
+    // Clean product data - remove undefined/null values
+    const cleanProduct = Object.entries(product).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as any);
+    
+    console.log('Product data being sent:', cleanProduct);
+    
+    // Add product data as JSON string
+    const jsonString = JSON.stringify(cleanProduct);
+    console.log('JSON string being sent:', jsonString);
+    console.log('JSON string length:', jsonString.length);
+    
+    // Check for problematic characters
+    for (let i = 0; i < jsonString.length; i++) {
+      const char = jsonString[i];
+      if (char === '-' && i > 0) {
+        const before = jsonString.substring(Math.max(0, i-10), i);
+        const after = jsonString.substring(i, Math.min(jsonString.length, i+10));
+        console.log(`Found - at position ${i}: "${before}${after}"`);
+      }
+    }
+    
+    formData.append('product', jsonString);
+    
+    // Add each image file
+    images.forEach((image, index) => {
+      formData.append('image', image, image.name);
+    });
+    
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, formData);
+  }
+
+  /**
+   * Delete a product
+   */
+  deleteProduct(productId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${productId}`);
+  }
+
 }

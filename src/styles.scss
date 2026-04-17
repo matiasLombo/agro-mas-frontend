@@ -15,14 +15,15 @@
   box-sizing: border-box;
 }
 
-html, body { 
-  height: 100%; 
-  font-family: 'Inter', 'Roboto', "Helvetica Neue", sans-serif; 
+html,
+body {
+  height: 100%;
+  font-family: 'Inter', 'Roboto', "Helvetica Neue", sans-serif;
   scroll-behavior: smooth;
 }
 
-body { 
-  margin: 0; 
+body {
+  margin: 0;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e8 100%);
   min-height: 100vh;
   line-height: 1.6;
@@ -31,6 +32,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 // Utility classes
 .full-width {
   width: 100%;
@@ -38,6 +40,36 @@ body {
 
 .text-center {
   text-align: center;
+}
+
+// Fix mat-form-field outline colors
+.mat-mdc-form-field {
+  &.mat-focused {
+    .mat-mdc-form-field-focus-overlay {
+      opacity: 0 !important;
+    }
+  }
+}
+
+// Remove green tint on focused form fields
+.mat-mdc-text-field-wrapper {
+  &.mdc-text-field--focused {
+    .mdc-notched-outline {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: #4CAF50 !important;
+        border-width: 1px !important;
+      }
+    }
+  }
+}
+
+// Ensure consistent form field styling
+.mat-mdc-form-field-appearance-outline {
+  .mat-mdc-form-field-focus-overlay {
+    background-color: transparent !important;
+  }
 }
 
 .spacer {
@@ -51,7 +83,12 @@ body {
 }
 
 // Typography improvements
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0 0 1rem 0;
   font-weight: 600;
   line-height: 1.3;
@@ -69,11 +106,11 @@ button {
   font-size: inherit;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:not(:disabled):hover {
     transform: translateY(-1px);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -85,7 +122,7 @@ a {
   color: #4CAF50;
   transition: all 0.3s ease;
   text-decoration: none;
-  
+
   &:hover {
     color: #2E7D32;
     text-decoration: underline;
@@ -95,12 +132,16 @@ a {
 }
 
 // Form improvements
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: inherit;
   font-size: inherit;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: 2px solid #4CAF50;
   outline-offset: 2px;
   border-color: #4CAF50;
@@ -132,6 +173,7 @@ input:focus, textarea:focus, select:focus {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -153,4 +195,33 @@ input:focus, textarea:focus, select:focus {
   .container {
     padding: 0 10px;
   }
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 200,
+    'GRAD' 0,
+    'opsz' 40
+}
+
+// Custom Dialog Styles
+.custom-backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.custom-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
 }

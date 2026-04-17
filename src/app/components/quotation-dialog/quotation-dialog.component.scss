@@ -1,0 +1,140 @@
+.quotation-dialog {
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .close-button {
+      color: #6b7280;
+    }
+  }
+
+  .product-info {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .original-price {
+      color: #6b7280;
+      font-size: 14px;
+
+      strong {
+        color: #4CAF50;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .form-section {
+    margin: 24px 0;
+
+    h4 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
+    .full-width {
+      width: 100%;
+    }
+  }
+
+  .price-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .price-input {
+      flex: 1;
+    }
+
+    .reset-button {
+      height: 56px; // Match form field height
+      white-space: nowrap;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .price-change {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+
+    .change-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+
+      &.increase {
+        color: #16a34a;
+        background: #dcfce7;
+      }
+
+      &.decrease {
+        color: #dc2626;
+        background: #fee2e2;
+      }
+
+      mat-icon {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .submit-button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Dialog content spacing
+mat-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+mat-dialog-actions {
+  padding: 16px 0 0 0;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 24px;
+  justify-content: flex-end;
+  gap: 12px;
+}

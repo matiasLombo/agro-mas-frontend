@@ -1,0 +1,154 @@
+<div class="quotation-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Solicitar Cotización</h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <!-- Product Info -->
+    <div class="product-info">
+      <h3>{{ data.product.title }}</h3>
+      <div class="original-price">
+        Precio publicado: <strong>{{ formatPrice(originalPrice) }}</strong>
+      </div>
+    </div>
+
+    <form [formGroup]="quotationForm" (ngSubmit)="onSubmit()">
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h4>Información de contacto</h4>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="firstName" placeholder="Tu nombre">
+            <mat-error *ngIf="quotationForm.get('firstName')?.hasError('required')">
+              El nombre es obligatorio
+            </mat-error>
+            <mat-error *ngIf="quotationForm.get('firstName')?.hasError('minlength')">
+              El nombre debe tener al menos 2 caracteres
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="lastName" placeholder="Tu apellido">
+            <mat-error *ngIf="quotationForm.get('lastName')?.hasError('required')">
+              El apellido es obligatorio
+            </mat-error>
+            <mat-error *ngIf="quotationForm.get('lastName')?.hasError('minlength')">
+              El apellido debe tener al menos 2 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="phone" placeholder="+54 11 1234-5678">
+            <mat-error *ngIf="quotationForm.get('phone')?.hasError('required')">
+              El teléfono es obligatorio
+            </mat-error>
+            <mat-error *ngIf="quotationForm.get('phone')?.hasError('pattern')">
+              Ingresa un número de teléfono válido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" placeholder="tu@email.com">
+            <mat-error *ngIf="quotationForm.get('email')?.hasError('required')">
+              El email es obligatorio
+            </mat-error>
+            <mat-error *ngIf="quotationForm.get('email')?.hasError('email')">
+              Ingresa un email válido
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="form-section">
+        <h4>Consulta</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mensaje (opcional)</mat-label>
+          <textarea 
+            matInput 
+            formControlName="message" 
+            rows="4" 
+            placeholder="Escribe tu consulta o comentarios sobre el producto...">
+          </textarea>
+          <mat-hint align="end">
+            {{ quotationForm.get('message')?.value?.length || 0 }}/500
+          </mat-hint>
+          <mat-error *ngIf="quotationForm.get('message')?.hasError('maxlength')">
+            El mensaje no puede exceder 500 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Price Offer -->
+      <div class="form-section">
+        <h4>Oferta económica</h4>
+        <div class="price-section">
+          <mat-form-field appearance="outline" class="price-input">
+            <mat-label>Tu oferta</mat-label>
+            <input 
+              matInput 
+              formControlName="offerPrice" 
+              type="number" 
+              min="0"
+              step="100">
+            <span matSuffix>{{ data.product.currency || 'ARS' }}</span>
+            <mat-error *ngIf="quotationForm.get('offerPrice')?.hasError('required')">
+              Ingresa tu oferta
+            </mat-error>
+            <mat-error *ngIf="quotationForm.get('offerPrice')?.hasError('min')">
+              La oferta debe ser mayor a cero
+            </mat-error>
+          </mat-form-field>
+
+          <button 
+            type="button" 
+            mat-stroked-button 
+            (click)="resetPrice()" 
+            class="reset-button">
+            <mat-icon>refresh</mat-icon>
+            Restaurar precio original
+          </button>
+        </div>
+
+        <!-- Price Change Indicator -->
+        <div class="price-change" *ngIf="priceChange !== 0">
+          <div class="change-info" [ngClass]="{
+            'increase': priceChange > 0,
+            'decrease': priceChange < 0
+          }">
+            <mat-icon>{{ priceChange > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+            <span>
+              {{ priceChange > 0 ? '+' : '' }}{{ formatPrice(priceChange) }}
+              ({{ priceChangePercentage > 0 ? '+' : '' }}{{ priceChangePercentage | number:'1.1-1' }}%)
+            </span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()" type="button">
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="quotationForm.invalid"
+      class="submit-button">
+      <mat-icon>send</mat-icon>
+      Enviar Cotización
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map } from 'rxjs';
 import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
@@ -64,6 +64,7 @@ export class AuthService {
 
   private saveAuthData(authResponse: AuthResponse): void {
     if (authResponse.token) {
+      // The backend returns TokenResponse directly as 'token'
       localStorage.setItem('accessToken', authResponse.token.access_token);
       localStorage.setItem('refreshToken', authResponse.token.refresh_token);
     }
@@ -108,5 +109,20 @@ export class AuthService {
 
   hasMinVerificationLevel(level: number): boolean {
     return (this.currentUser?.verification_level || 0) >= level;
+  }
+
+  updateProfile(profileData: Partial<User>): Observable<User> {
+    return this.http.put<any>(`${environment.apiUrl}/auth/profile`, profileData)
+      .pipe(
+        tap(response => {
+          // Backend returns {message: string, user: User}
+          const updatedUser = response.user;
+          // Update the current user in memory and localStorage
+          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          this.currentUserSubject.next(updatedUser);
+        }),
+        // Return just the user object for consistency
+        map(response => response.user)
+      );
   }
 }

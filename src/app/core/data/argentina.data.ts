@@ -66,6 +66,34 @@ export const REGIONS: Region[] = [
   }
 ];
 
+// Provincias de Argentina
+export const provinces = [
+  'Buenos Aires',
+  'Catamarca',
+  'Chaco',
+  'Chubut',
+  'Córdoba',
+  'Corrientes',
+  'Entre Ríos',
+  'Formosa',
+  'Jujuy',
+  'La Pampa',
+  'La Rioja',
+  'Mendoza',
+  'Misiones',
+  'Neuquén',
+  'Río Negro',
+  'Salta',
+  'San Juan',
+  'San Luis',
+  'Santa Cruz',
+  'Santa Fe',
+  'Santiago del Estero',
+  'Tierra del Fuego',
+  'Tucumán',
+  'Ciudad Autónoma de Buenos Aires'
+];
+
 // Alias para compatibilidad con código existente
 export const ARGENTINA_PROVINCES = REGIONS;
 export type Province = Region;

@@ -31,6 +31,42 @@
   }
 }
 
+// New styles for registration summary
+.registration-summary {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+
+  h4 {
+    color: #2d5a27;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e9ecef;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+
+      strong {
+        color: #2d5a27;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+
 .progress-container {
   margin-bottom: 40px;
 
@@ -289,6 +325,7 @@
   color: #e74c3c;
   font-size: 0.9rem;
 }
+
 
 .form-navigation {
   display: flex;
