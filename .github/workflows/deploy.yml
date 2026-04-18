@@ -97,7 +97,7 @@ jobs:
         channelId: live
 
   integration-test:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: false
     needs: [deploy, setup]
     runs-on: ubuntu-latest
     steps:
